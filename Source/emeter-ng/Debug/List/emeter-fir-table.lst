@@ -1,0 +1,398 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V6.10.2.50871/W32 for MSP430         28/Oct/2014  22:48:17
+# Copyright 1996-2014 IAR Systems AB.
+# Evaluation license - IAR Embedded Workbench for Texas Instruments MSP430, Evaluation Version 6.10
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\emeter-fir-table.c
+#    Command line  =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\emeter-fir-table.c -D
+#        "CUSTOM_EMETER_H=\"emeter-1ph-neutral-6733_shunt.h\"" -D X_ZEBU_ -lcN
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\List\ -o
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\Obj\ --debug
+#        -D__MSP430F6736__ -e --double=32 --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.0\430\lib\dlib\dl430xlsfn.h" -I
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng/../emeter-toolkit\
+#        --core=430X --data_model=small -Ohs --multiplier=32
+#        --multiplier_location=4C0 --hw_workaround=CPU40 --hw_workaround=CPU39
+#        --code_model=large
+#    List file     =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\List\emeter-fir-table.lst
+#    Object file   =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\Obj\emeter-fir-table.r43
+#
+###############################################################################
+
+D:\Documents\GitHub\SmartMeter\Source\emeter-ng\emeter-fir-table.c
+      1          //
+      2          //  Software for MSP430 based e-meters.
+      3          //
+      4          //  THIS PROGRAM IS PROVIDED "AS IS". TI MAKES NO WARRANTIES OR
+      5          //  REPRESENTATIONS, EITHER EXPRESS, IMPLIED OR STATUTORY, 
+      6          //  INCLUDING ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS 
+      7          //  FOR A PARTICULAR PURPOSE, LACK OF VIRUSES, ACCURACY OR 
+      8          //  COMPLETENESS OF RESPONSES, RESULTS AND LACK OF NEGLIGENCE. 
+      9          //  TI DISCLAIMS ANY WARRANTY OF TITLE, QUIET ENJOYMENT, QUIET 
+     10          //  POSSESSION, AND NON-INFRINGEMENT OF ANY THIRD PARTY 
+     11          //  INTELLECTUAL PROPERTY RIGHTS WITH REGARD TO THE PROGRAM OR 
+     12          //  YOUR USE OF THE PROGRAM.
+     13          //
+     14          //  IN NO EVENT SHALL TI BE LIABLE FOR ANY SPECIAL, INCIDENTAL, 
+     15          //  CONSEQUENTIAL OR INDIRECT DAMAGES, HOWEVER CAUSED, ON ANY 
+     16          //  THEORY OF LIABILITY AND WHETHER OR NOT TI HAS BEEN ADVISED 
+     17          //  OF THE POSSIBILITY OF SUCH DAMAGES, ARISING IN ANY WAY OUT 
+     18          //  OF THIS AGREEMENT, THE PROGRAM, OR YOUR USE OF THE PROGRAM. 
+     19          //  EXCLUDED DAMAGES INCLUDE, BUT ARE NOT LIMITED TO, COST OF 
+     20          //  REMOVAL OR REINSTALLATION, COMPUTER TIME, LABOR COSTS, LOSS 
+     21          //  OF GOODWILL, LOSS OF PROFITS, LOSS OF SAVINGS, OR LOSS OF 
+     22          //  USE OR INTERRUPTION OF BUSINESS. IN NO EVENT WILL TI'S 
+     23          //  AGGREGATE LIABILITY UNDER THIS AGREEMENT OR ARISING OUT OF 
+     24          //  YOUR USE OF THE PROGRAM EXCEED FIVE HUNDRED DOLLARS 
+     25          //  (U.S.$500).
+     26          //
+     27          //  Unless otherwise stated, the Program written and copyrighted 
+     28          //  by Texas Instruments is distributed as "freeware".  You may, 
+     29          //  only under TI's copyright in the Program, use and modify the 
+     30          //  Program without any charge or restriction.  You may 
+     31          //  distribute to third parties, provided that you transfer a 
+     32          //  copy of this license to the third party and the third party 
+     33          //  agrees to these terms by its first use of the Program. You 
+     34          //  must reproduce the copyright notice and any other legend of 
+     35          //  ownership on each copy or partial copy, of the Program.
+     36          //
+     37          //  You acknowledge and agree that the Program contains 
+     38          //  copyrighted material, trade secrets and other TI proprietary 
+     39          //  information and is protected by copyright laws, 
+     40          //  international copyright treaties, and trade secret laws, as 
+     41          //  well as other intellectual property laws.  To protect TI's 
+     42          //  rights in the Program, you agree not to decompile, reverse 
+     43          //  engineer, disassemble or otherwise translate any object code 
+     44          //  versions of the Program to a human-readable form.  You agree 
+     45          //  that in no event will you alter, remove or destroy any 
+     46          //  copyright notice included in the Program.  TI reserves all 
+     47          //  rights not specifically granted under this license. Except 
+     48          //  as specifically provided herein, nothing in this agreement 
+     49          //  shall be construed as conferring by implication, estoppel, 
+     50          //  or otherwise, upon you, any license or other right under any 
+     51          //  TI patents, copyrights or trade secrets.
+     52          //
+     53          //  You may not use the Program in non-TI devices.
+     54          //
+     55          //  File: emeter-fir-table.c
+     56          //
+     57          //  Steve Underwood <steve-underwood@ti.com>
+     58          //  Texas Instruments Hong Kong Ltd.
+     59          //
+     60          //  $Id: emeter-fir-table.c,v 1.11 2009/01/19 10:42:36 a0754793 Exp $
+     61          //
+     62          /*! \file emeter-structs.h */
+     63          //
+     64          //--------------------------------------------------------------------------
+     65          //
+     66          // This file was generated automatically by generate-fir-table
+     67          //
+     68          #include <stdint.h>
+     69          #include <io.h>
+     70          #include <emeter-toolkit.h>
+     71          
+     72          #include "emeter-structs.h"
+     73          
+     74          #if defined(__MSP430_HAS_ADC12__)  ||  defined(__MSP430_HAS_ADC10__)
+     75          /* The SD16 has a hardware method of performing phase shifts between the voltage
+     76             and current channels. */
+     77          /* FIR coefficients to correct specific phase shift angles between + and - half
+     78             a sample, at 50Hz */
+     79          /* Sampling 3276.8 times per second. */
+     80          const int16_t fir_coeffs[][2] =
+     81          {
+     82              {  32767,   8231 }, //  2.7466 deg
+     83              {  31762,   8358 }, //  2.7037 deg
+     84              {  30786,   8485 }, //  2.6608 deg
+     85              {  29839,   8612 }, //  2.6178 deg
+     86              {  28921,   8739 }, //  2.5749 deg
+     87              {  28029,   8866 }, //  2.5320 deg
+     88              {  27162,   8993 }, //  2.4891 deg
+     89              {  26319,   9120 }, //  2.4462 deg
+     90              {  25500,   9247 }, //  2.4033 deg
+     91              {  24704,   9374 }, //  2.3603 deg
+     92              {  23928,   9502 }, //  2.3174 deg
+     93              {  23174,   9629 }, //  2.2745 deg
+     94              {  22439,   9756 }, //  2.2316 deg
+     95              {  21723,   9883 }, //  2.1887 deg
+     96              {  21026,  10010 }, //  2.1458 deg
+     97              {  20346,  10137 }, //  2.1029 deg
+     98              {  19683,  10265 }, //  2.0599 deg
+     99              {  19036,  10392 }, //  2.0170 deg
+    100              {  18405,  10519 }, //  1.9741 deg
+    101              {  17790,  10646 }, //  1.9312 deg
+    102              {  17188,  10773 }, //  1.8883 deg
+    103              {  16601,  10901 }, //  1.8454 deg
+    104              {  16028,  11028 }, //  1.8024 deg
+    105              {  15467,  11155 }, //  1.7595 deg
+    106              {  14920,  11282 }, //  1.7166 deg
+    107              {  14384,  11410 }, //  1.6737 deg
+    108              {  13861,  11537 }, //  1.6308 deg
+    109              {  13349,  11664 }, //  1.5879 deg
+    110              {  12848,  11791 }, //  1.5450 deg
+    111              {  12357,  11919 }, //  1.5020 deg
+    112              {  11877,  12046 }, //  1.4591 deg
+    113              {  11407,  12173 }, //  1.4162 deg
+    114              {  10947,  12301 }, //  1.3733 deg
+    115              {  10497,  12428 }, //  1.3304 deg
+    116              {  10055,  12555 }, //  1.2875 deg
+    117              {   9622,  12683 }, //  1.2445 deg
+    118              {   9198,  12810 }, //  1.2016 deg
+    119              {   8783,  12937 }, //  1.1587 deg
+    120              {   8375,  13065 }, //  1.1158 deg
+    121              {   7975,  13192 }, //  1.0729 deg
+    122              {   7583,  13320 }, //  1.0300 deg
+    123              {   7198,  13447 }, //  0.9871 deg
+    124              {   6821,  13575 }, //  0.9441 deg
+    125              {   6450,  13702 }, //  0.9012 deg
+    126              {   6087,  13830 }, //  0.8583 deg
+    127              {   5730,  13957 }, //  0.8154 deg
+    128              {   5379,  14085 }, //  0.7725 deg
+    129              {   5035,  14212 }, //  0.7296 deg
+    130              {   4697,  14340 }, //  0.6866 deg
+    131              {   4365,  14467 }, //  0.6437 deg
+    132              {   4038,  14595 }, //  0.6008 deg
+    133              {   3717,  14723 }, //  0.5579 deg
+    134              {   3402,  14851 }, //  0.5150 deg
+    135              {   3092,  14978 }, //  0.4721 deg
+    136              {   2787,  15106 }, //  0.4292 deg
+    137              {   2488,  15234 }, //  0.3862 deg
+    138              {   2193,  15362 }, //  0.3433 deg
+    139              {   1903,  15489 }, //  0.3004 deg
+    140              {   1618,  15617 }, //  0.2575 deg
+    141              {   1337,  15745 }, //  0.2146 deg
+    142              {   1061,  15873 }, //  0.1717 deg
+    143              {    789,  16001 }, //  0.1287 deg
+    144              {    522,  16129 }, //  0.0858 deg
+    145              {    259,  16257 }, //  0.0429 deg
+    146              {      0,  16384 }, //  0.0000 deg
+    147              {   -255,  16512 }, // -0.0429 deg
+    148              {   -506,  16640 }, // -0.0858 deg
+    149              {   -754,  16769 }, // -0.1287 deg
+    150              {   -997,  16896 }, // -0.1717 deg
+    151              {  -1238,  17025 }, // -0.2146 deg
+    152              {  -1474,  17153 }, // -0.2575 deg
+    153              {  -1707,  17281 }, // -0.3004 deg
+    154              {  -1937,  17409 }, // -0.3433 deg
+    155              {  -2163,  17537 }, // -0.3862 deg
+    156              {  -2387,  17666 }, // -0.4292 deg
+    157              {  -2607,  17794 }, // -0.4721 deg
+    158              {  -2824,  17923 }, // -0.5150 deg
+    159              {  -3037,  18050 }, // -0.5579 deg
+    160              {  -3248,  18179 }, // -0.6008 deg
+    161              {  -3456,  18307 }, // -0.6437 deg
+    162              {  -3661,  18436 }, // -0.6866 deg
+    163              {  -3864,  18565 }, // -0.7296 deg
+    164              {  -4063,  18693 }, // -0.7725 deg
+    165              {  -4260,  18821 }, // -0.8154 deg
+    166              {  -4454,  18950 }, // -0.8583 deg
+    167              {  -4646,  19079 }, // -0.9012 deg
+    168              {  -4835,  19207 }, // -0.9441 deg
+    169              {  -5022,  19336 }, // -0.9871 deg
+    170              {  -5206,  19465 }, // -1.0300 deg
+    171              {  -5388,  19594 }, // -1.0729 deg
+    172              {  -5568,  19723 }, // -1.1158 deg
+    173              {  -5745,  19852 }, // -1.1587 deg
+    174              {  -5920,  19980 }, // -1.2016 deg
+    175              {  -6093,  20110 }, // -1.2445 deg
+    176              {  -6264,  20239 }, // -1.2875 deg
+    177              {  -6432,  20367 }, // -1.3304 deg
+    178              {  -6599,  20497 }, // -1.3733 deg
+    179              {  -6763,  20626 }, // -1.4162 deg
+    180              {  -6926,  20755 }, // -1.4591 deg
+    181              {  -7086,  20884 }, // -1.5020 deg
+    182              {  -7245,  21014 }, // -1.5450 deg
+    183              {  -7401,  21142 }, // -1.5879 deg
+    184              {  -7556,  21272 }, // -1.6308 deg
+    185              {  -7709,  21401 }, // -1.6737 deg
+    186              {  -7860,  21531 }, // -1.7166 deg
+    187              {  -8010,  21661 }, // -1.7595 deg
+    188              {  -8157,  21790 }, // -1.8024 deg
+    189              {  -8303,  21919 }, // -1.8454 deg
+    190              {  -8448,  22049 }, // -1.8883 deg
+    191              {  -8590,  22178 }, // -1.9312 deg
+    192              {  -8731,  22308 }, // -1.9741 deg
+    193              {  -8871,  22438 }, // -2.0170 deg
+    194              {  -9009,  22568 }, // -2.0599 deg
+    195              {  -9145,  22698 }, // -2.1029 deg
+    196              {  -9280,  22828 }, // -2.1458 deg
+    197              {  -9414,  22958 }, // -2.1887 deg
+    198              {  -9546,  23088 }, // -2.2316 deg
+    199              {  -9676,  23218 }, // -2.2745 deg
+    200              {  -9805,  23348 }, // -2.3174 deg
+    201              {  -9933,  23478 }, // -2.3603 deg
+    202              { -10059,  23608 }, // -2.4033 deg
+    203              { -10184,  23738 }, // -2.4462 deg
+    204              { -10308,  23869 }, // -2.4891 deg
+    205              { -10431,  24000 }, // -2.5320 deg
+    206              { -10552,  24130 }, // -2.5749 deg
+    207              { -10672,  24261 }, // -2.6178 deg
+    208              { -10790,  24391 }, // -2.6608 deg
+    209              { -10908,  24522 }  // -2.7037 deg
+    210          };
+    211          #endif
+    212          
+    213          #if (defined(__HAS_SD_ADC__)  ||  !defined(__MSP430__))  &&  defined(REACTIVE_POWER_BY_QUADRATURE_SUPPORT)
+    214          /* The FIR table is needed to create accurate 90 degree phase shifts */
+    215          // FIR coefficients to correct specific phase shift angles at 50Hz
+    216          // and sampling 4096.000000 times per second.
+    217          const int16_t fir_coeffs[][2] =
+    218          {
+    219              {  32767,   8198 }, // 2.1973 deg
+    220              {  31761,   8326 }, // 2.1629 deg
+    221              {  30785,   8454 }, // 2.1286 deg
+    222              {  29838,   8582 }, // 2.0943 deg
+    223              {  28918,   8710 }, // 2.0599 deg
+    224              {  28025,   8838 }, // 2.0256 deg
+    225              {  27158,   8965 }, // 1.9913 deg
+    226              {  26315,   9093 }, // 1.9569 deg
+    227              {  25496,   9221 }, // 1.9226 deg
+    228              {  24698,   9349 }, // 1.8883 deg
+    229              {  23923,   9477 }, // 1.8539 deg
+    230              {  23168,   9605 }, // 1.8196 deg
+    231              {  22433,   9733 }, // 1.7853 deg
+    232              {  21716,   9861 }, // 1.7509 deg
+    233              {  21019,   9988 }, // 1.7166 deg
+    234              {  20338,  10116 }, // 1.6823 deg
+    235              {  19675,  10244 }, // 1.6479 deg
+    236              {  19028,  10372 }, // 1.6136 deg
+    237              {  18397,  10500 }, // 1.5793 deg
+    238              {  17781,  10628 }, // 1.5450 deg
+    239              {  17180,  10756 }, // 1.5106 deg
+    240              {  16593,  10884 }, // 1.4763 deg
+    241              {  16019,  11011 }, // 1.4420 deg
+    242              {  15459,  11139 }, // 1.4076 deg
+    243              {  14911,  11267 }, // 1.3733 deg
+    244              {  14376,  11395 }, // 1.3390 deg
+    245              {  13852,  11523 }, // 1.3046 deg
+    246              {  13340,  11651 }, // 1.2703 deg
+    247              {  12839,  11779 }, // 1.2360 deg
+    248              {  12348,  11907 }, // 1.2016 deg
+    249              {  11869,  12035 }, // 1.1673 deg
+    250              {  11399,  12162 }, // 1.1330 deg
+    251              {  10939,  12290 }, // 1.0986 deg
+    252              {  10488,  12418 }, // 1.0643 deg
+    253              {  10047,  12546 }, // 1.0300 deg
+    254              {   9614,  12674 }, // 0.9956 deg
+    255              {   9190,  12802 }, // 0.9613 deg
+    256              {   8775,  12930 }, // 0.9270 deg
+    257              {   8367,  13058 }, // 0.8926 deg
+    258              {   7968,  13185 }, // 0.8583 deg
+    259              {   7576,  13313 }, // 0.8240 deg
+    260              {   7191,  13441 }, // 0.7896 deg
+    261              {   6814,  13569 }, // 0.7553 deg
+    262              {   6444,  13697 }, // 0.7210 deg
+    263              {   6080,  13825 }, // 0.6866 deg
+    264              {   5724,  13953 }, // 0.6523 deg
+    265              {   5373,  14081 }, // 0.6180 deg
+    266              {   5029,  14209 }, // 0.5836 deg
+    267              {   4691,  14337 }, // 0.5493 deg
+    268              {   4360,  14465 }, // 0.5150 deg
+    269              {   4033,  14593 }, // 0.4807 deg
+    270              {   3713,  14720 }, // 0.4463 deg
+    271              {   3398,  14848 }, // 0.4120 deg
+    272              {   3088,  14976 }, // 0.3777 deg
+    273              {   2784,  15104 }, // 0.3433 deg
+    274              {   2485,  15232 }, // 0.3090 deg
+    275              {   2190,  15360 }, // 0.2747 deg
+    276              {   1901,  15488 }, // 0.2403 deg
+    277              {   1616,  15616 }, // 0.2060 deg
+    278              {   1336,  15744 }, // 0.1717 deg
+    279              {   1060,  15872 }, // 0.1373 deg
+    280              {    789,  16000 }, // 0.1030 deg
+    281              {    522,  16128 }, // 0.0687 deg
+    282              {    259,  16256 }, // 0.0343 deg
+    283              {     -0,  16384 }, // -0.0000 deg
+    284              {   -255,  16512 }, // -0.0343 deg
+    285              {   -506,  16640 }, // -0.0687 deg
+    286              {   -753,  16768 }, // -0.1030 deg
+    287              {   -996,  16896 }, // -0.1373 deg
+    288              {  -1236,  17024 }, // -0.1717 deg
+    289              {  -1472,  17152 }, // -0.2060 deg
+    290              {  -1705,  17280 }, // -0.2403 deg
+    291              {  -1934,  17408 }, // -0.2747 deg
+    292              {  -2160,  17536 }, // -0.3090 deg
+    293              {  -2383,  17664 }, // -0.3433 deg
+    294              {  -2602,  17792 }, // -0.3777 deg
+    295              {  -2819,  17920 }, // -0.4120 deg
+    296              {  -3032,  18049 }, // -0.4463 deg
+    297              {  -3242,  18177 }, // -0.4807 deg
+    298              {  -3450,  18305 }, // -0.5150 deg
+    299              {  -3654,  18433 }, // -0.5493 deg
+    300              {  -3856,  18561 }, // -0.5836 deg
+    301              {  -4055,  18689 }, // -0.6180 deg
+    302              {  -4252,  18817 }, // -0.6523 deg
+    303              {  -4445,  18945 }, // -0.6866 deg
+    304              {  -4636,  19074 }, // -0.7210 deg
+    305              {  -4825,  19202 }, // -0.7553 deg
+    306              {  -5011,  19330 }, // -0.7896 deg
+    307              {  -5195,  19458 }, // -0.8240 deg
+    308              {  -5376,  19586 }, // -0.8583 deg
+    309              {  -5555,  19714 }, // -0.8926 deg
+    310              {  -5732,  19843 }, // -0.9270 deg
+    311              {  -5906,  19971 }, // -0.9613 deg
+    312              {  -6079,  20099 }, // -0.9956 deg
+    313              {  -6249,  20227 }, // -1.0300 deg
+    314              {  -6417,  20356 }, // -1.0643 deg
+    315              {  -6583,  20484 }, // -1.0986 deg
+    316              {  -6747,  20612 }, // -1.1330 deg
+    317              {  -6908,  20740 }, // -1.1673 deg
+    318              {  -7068,  20869 }, // -1.2016 deg
+    319              {  -7226,  20997 }, // -1.2360 deg
+    320              {  -7382,  21125 }, // -1.2703 deg
+    321              {  -7536,  21254 }, // -1.3046 deg
+    322              {  -7689,  21382 }, // -1.3390 deg
+    323              {  -7839,  21510 }, // -1.3733 deg
+    324              {  -7988,  21639 }, // -1.4076 deg
+    325              {  -8135,  21767 }, // -1.4420 deg
+    326              {  -8281,  21895 }, // -1.4763 deg
+    327              {  -8424,  22024 }, // -1.5106 deg
+    328              {  -8566,  22152 }, // -1.5450 deg
+    329              {  -8707,  22281 }, // -1.5793 deg
+    330              {  -8846,  22409 }, // -1.6136 deg
+    331              {  -8983,  22537 }, // -1.6479 deg
+    332              {  -9119,  22666 }, // -1.6823 deg
+    333              {  -9253,  22794 }, // -1.7166 deg
+    334              {  -9386,  22923 }, // -1.7509 deg
+    335              {  -9517,  23051 }, // -1.7853 deg
+    336              {  -9647,  23180 }, // -1.8196 deg
+    337              {  -9775,  23308 }, // -1.8539 deg
+    338              {  -9903,  23437 }, // -1.8883 deg
+    339              { -10028,  23565 }, // -1.9226 deg
+    340              { -10153,  23694 }, // -1.9569 deg
+    341              { -10276,  23823 }, // -1.9913 deg
+    342              { -10397,  23951 }, // -2.0256 deg
+    343              { -10518,  24080 }, // -2.0599 deg
+    344              { -10637,  24208 }, // -2.0943 deg
+    345              { -10755,  24337 }, // -2.1286 deg
+    346              { -10872,  24466 }, // -2.1629 deg
+    347          };
+    348          #endif
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+     512  fir_coeffs
+
+ 
+ 512 bytes in segment DATA16_C
+ 
+ 512 bytes of CONST memory
+
+Errors: none
+Warnings: none

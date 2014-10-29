@@ -1,0 +1,134 @@
+;******************************************************************************
+;  isqrt32.s43 (IAR version) - 32 bit square root to 32 bit fractional result
+;
+;  Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/ 
+; 
+;  Redistribution and use in source and binary forms, with or without 
+;  modification, are permitted provided that the following conditions 
+;  are met:
+;
+;    Redistributions of source code must retain the above copyright 
+;    notice, this list of conditions and the following disclaimer.
+;
+;    Redistributions in binary form must reproduce the above copyright
+;    notice, this list of conditions and the following disclaimer in the 
+;    documentation and/or other materials provided with the   
+;    distribution.
+;
+;    Neither the name of Texas Instruments Incorporated nor the names of
+;    its contributors may be used to endorse or promote products derived
+;    from this software without specific prior written permission.
+;
+;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
+;  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+;  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+;  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+;  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+;  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+;  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+;  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+;  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
+;  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+;  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+;
+;******************************************************************************
+
+#include "io.h"
+#include "macros.m43"
+
+#if !defined(__IAR_SYSTEMS_ASM__)  ||  !(((__TID__ >> 8) & 0x7f) == 43)
+#error This file is compatible with the IAR MSP430 assembler.
+#endif
+
+#if __VER__ < 400
+#error This file is compatible with the IAR MSP430 assembler 4.0 or later.
+#endif
+
+; Parameters
+#define h_ls        R12
+#define h_ms        R13
+
+; Temporary variables
+#define i           R9
+#define y_ls        R10
+#define y_ms        R11
+#define result_ls   R12
+#define result_ms   R13
+#define x_ls        R14
+#define x_ms        R15
+
+;uint32_t isqrt32(uint32_t h);
+    public isqrt32
+
+    RSEG CODE
+isqrt32
+    ;The answer is calculated as a 32 bit value, where the last
+    ;16 bits are fractional.
+    ;Calling with negative numbers is not a good idea :-)
+#if __CORE__==__430X_CORE__
+    pushm.w #3,R11
+#else
+    push.w  R9
+    push.w  R10
+    push.w  R11
+#endif
+    mov.w   #0,x_ls
+    mov.w   #0,x_ms
+    mov.w   #0,y_ls
+    mov.w   #0,y_ms
+
+    mov.w   #16,i
+isqrt32_1
+    setc
+    rlc.w   x_ls
+    rlc.w   x_ms
+    sub.w   x_ls,y_ls
+    subc.w  x_ms,y_ms
+    jhs     isqrt32_2
+    add.w   x_ls,y_ls
+    addc.w  x_ms,y_ms
+    sub.w   #2,x_ls
+isqrt32_2
+    inc     x_ls
+    rla.w   h_ls
+    rlc.w   h_ms
+    rlc.w   y_ls
+    rlc.w   y_ms
+    rla.w   h_ls
+    rlc.w   h_ms
+    rlc.w   y_ls
+    rlc.w   y_ms
+    dec.w   i
+    jne     isqrt32_1
+
+    mov.w   #16,i
+isqrt32_3
+    setc
+    rlc.w   x_ls
+    rlc.w   x_ms
+    sub.w   x_ls,y_ls
+    subc.w  x_ms,y_ms
+    jhs     isqrt32_4
+    add.w   x_ls,y_ls
+    addc.w  x_ms,y_ms
+    sub.w   #2,x_ls
+isqrt32_4
+    inc     x_ls
+    rla.w   y_ls
+    rlc.w   y_ms
+    rla.w   y_ls
+    rlc.w   y_ms
+    dec.w   i
+    jne     isqrt32_3
+
+    mov.w   x_ls,result_ls
+    mov.w   x_ms,result_ms
+#if __CORE__==__430X_CORE__
+    popm.w  #3,R11
+#else
+    pop.w   R11
+    pop.w   R10
+    pop.w   R9
+#endif
+    xret
+    end

@@ -1,0 +1,98 @@
+;******************************************************************************
+;  dc_filter16.s43 (IAR version) - DC estimation and removal for 16 bit signals
+;
+;  Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/ 
+; 
+;  Redistribution and use in source and binary forms, with or without 
+;  modification, are permitted provided that the following conditions 
+;  are met:
+;
+;    Redistributions of source code must retain the above copyright 
+;    notice, this list of conditions and the following disclaimer.
+;
+;    Redistributions in binary form must reproduce the above copyright
+;    notice, this list of conditions and the following disclaimer in the 
+;    documentation and/or other materials provided with the   
+;    distribution.
+;
+;    Neither the name of Texas Instruments Incorporated nor the names of
+;    its contributors may be used to endorse or promote products derived
+;    from this software without specific prior written permission.
+;
+;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
+;  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+;  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+;  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+;  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+;  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+;  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+;  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+;  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
+;  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+;  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+;
+;******************************************************************************
+
+#include "io.h"
+#include "macros.m43"
+
+#if !defined(__IAR_SYSTEMS_ASM__)  ||  !(((__TID__ >> 8) & 0x7f) == 43)
+#error This file is compatible with the IAR MSP430 assembler.
+#endif
+
+#define p           R12
+#define x           R13
+
+#define tmp_lo      R14
+#define tmp_hi      R15
+
+#define result      R12
+
+; A routine to filter away the DC content from an AC mains waveform
+; signal. It does this my using a heavily damped integrator to estimate
+; the DC level. The current DC level is then subtracted from the signal.
+
+; One would like to estimate DC by something like:
+;   z += ((((int32_t) x << 15) - z) >> 14);
+;   return  x - (z >> 15);
+; but this:
+;   z += ((((int32_t) x << 16) - z) >> 14);
+;   return  x - (z >> 16);
+; is a bit faster, and the shift by 16 will never
+; cause an overflow in this application. However,
+; remember this is not a generic DC filter!
+
+;int16_t dc_filter16(int32_t *p, int16_t x);
+    public dc_filter16
+
+    RSEG CODE
+dc_filter16
+    push.w  R11
+    mov.w   0(p),tmp_lo      ; subtract (sample << 16) from filter_state 
+    mov.w   2(p),tmp_hi
+    sub.w   x,tmp_hi
+    ;
+    rla.w   tmp_lo           ; >> 14
+    rlc.w   tmp_hi
+    subc.w  R11,R11
+    inv.w   R11
+    rla.w   tmp_lo
+    rlc.w   tmp_hi
+    rlc.w   R11
+    ;
+    sub.w   tmp_hi,0(p)     ; + filter_state
+    subc.w  R11,2(p)
+    sub.w   2(p),x          ; sample - filter_state
+    mov.w   x,result
+    pop.w   R11
+    xret
+
+;void dc_filter16_init(int32_t *p, int16_t x);
+    public dc_filter16_init
+
+    RSEG CODE
+dc_filter16_init
+    mov.w   #0,0(p)
+    mov.w   x,2(p)
+    xret
+    end

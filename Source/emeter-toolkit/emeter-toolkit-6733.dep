@@ -1,0 +1,1327 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<project>
+  <fileVersion>2</fileVersion>
+  <fileChecksum>65655078</fileChecksum>
+  <configuration>
+    <name>Debug</name>
+    <outputs>
+      <file>$PROJ_DIR$\bin2bcd16.s43</file>
+      <file>$PROJ_DIR$\accum48.s43</file>
+      <file>$PROJ_DIR$\bin2bcd32.s43</file>
+      <file>$PROJ_DIR$\dc_filter16.s43</file>
+      <file>$PROJ_DIR$\dc_filter24.s43</file>
+      <file>$PROJ_DIR$\dds.c</file>
+      <file>$PROJ_DIR$\debounce.c</file>
+      <file>$PROJ_DIR$\div48.c</file>
+      <file>$PROJ_DIR$\div_sh48.c</file>
+      <file>$PROJ_DIR$\flash_clr.c</file>
+      <file>$PROJ_DIR$\flash_memcpy.c</file>
+      <file>$PROJ_DIR$\flash_replace16.c</file>
+      <file>$PROJ_DIR$\flash_replace32.c</file>
+      <file>$PROJ_DIR$\flash_secure.c</file>
+      <file>$PROJ_DIR$\flash_write_int16.c</file>
+      <file>$PROJ_DIR$\flash_write_int32.c</file>
+      <file>$PROJ_DIR$\flash_write_int8.c</file>
+      <file>$PROJ_DIR$\hex2ASCII.c</file>
+      <file>$PROJ_DIR$\host_char.c</file>
+      <file>$PROJ_DIR$\host_dec16.c</file>
+      <file>$PROJ_DIR$\host_dec32.c</file>
+      <file>$PROJ_DIR$\host_decu16.c</file>
+      <file>$PROJ_DIR$\Debug\Obj\LCD-sim.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\flash_clr.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\bin2bcd32.r43</file>
+      <file>$TOOLKIT_DIR$\inc\dlib\c\signal.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\host_dec16.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\mul48.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\mul48.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\host_hex32.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\LCDdec16.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\rtc_data.pbi</file>
+      <file>$TOOLKIT_DIR$\inc\in430.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\div48.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\LCD-internal.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\mul48_32_16.r43</file>
+      <file>$PROJ_DIR$\emeter-toolkit-custom.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\LCD-sim.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\flash_write_int16.r43</file>
+      <file>$TOOLKIT_DIR$\inc\dlib\c\xencoding_limits.h</file>
+      <file>$TOOLKIT_DIR$\inc\dlib\c\stdlib.h</file>
+      <file>$TOOLKIT_DIR$\inc\dlib\c\ysizet.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\dds.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\rand16.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\host_hex32.r43</file>
+      <file>$TOOLKIT_DIR$\inc\macros.m43</file>
+      <file>$PROJ_DIR$\Debug\Obj\isqrt16.r43</file>
+      <file>$PROJ_DIR$\io.h</file>
+      <file>$TOOLKIT_DIR$\inc\dlib\c\ycheck.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\host_char.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\flash_memcpy.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\setdco.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\host_char.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\LCD-internal.r43</file>
+      <file>$TOOLKIT_DIR$\inc\dlib\c\DLib_Defaults.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\LCDdec16.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\rtc.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\flash_secure.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\flash_clr.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\isqrt64.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\div_sh48.r43</file>
+      <file>$TOOLKIT_DIR$\inc\intrinsics.h</file>
+      <file>$PROJ_DIR$\dc_filter.s43</file>
+      <file>$PROJ_DIR$\Debug\Obj\isqrt32.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\flash_replace32.r43</file>
+      <file>$PROJ_DIR$\emeter-toolkit.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\LCDdecu32.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\sqac48_16.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\LCDdecu32.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\LCDdecu16.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\dc_filter24.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\q1_15_mulr.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\host_str.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\isqrt64.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\LCD-module.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\isqrt32i.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\flash_write_int16.pbi</file>
+      <file>$PROJ_DIR$\mul48.c</file>
+      <file>$PROJ_DIR$\LCDdec16.c</file>
+      <file>$PROJ_DIR$\LCDdec32.c</file>
+      <file>$PROJ_DIR$\mul48_32_16.s43</file>
+      <file>$PROJ_DIR$\mul48u_32_16.s43</file>
+      <file>$PROJ_DIR$\q1_15_mul.s43</file>
+      <file>$PROJ_DIR$\q1_15_mulq.s43</file>
+      <file>$PROJ_DIR$\q1_15_mulr.s43</file>
+      <file>$PROJ_DIR$\rand16.c</file>
+      <file>$PROJ_DIR$\rtc.c</file>
+      <file>$PROJ_DIR$\rtc_data.c</file>
+      <file>$PROJ_DIR$\setdco.c</file>
+      <file>$PROJ_DIR$\shift48.s43</file>
+      <file>$PROJ_DIR$\sqac48_16.s43</file>
+      <file>$PROJ_DIR$\sqac64_24.s43</file>
+      <file>$PROJ_DIR$\Debug\Obj\host_str.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\dc_filter16.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\iiceeprom.r43</file>
+      <file>$TOOLKIT_DIR$\inc\dlib\c\DLib_Product.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\flash_replace16.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\host_dec32.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\flash_replace16.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\sqac64_24.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\isqrt64i.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\flash_write_int32.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\hex2ASCII.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\host_decu16.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\LCDdec32.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\rtc_data.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\host_hex16.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\q1_15_mul.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\host_decu32.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\flash_write_int32.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\host_decu16.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\isqrt32i.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\debounce.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\mul48u_32_16.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\dds.r43</file>
+      <file>$PROJ_DIR$\stdint.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\host_decu32.r43</file>
+      <file>$PROJ_DIR$\isr_compat.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\flash_replace32.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\host_dec32.pbi</file>
+      <file>$TOOLKIT_DIR$\inc\msp430.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\rand16.pbi</file>
+      <file>$PROJ_DIR$\Debug\Exe\emeter-toolkit-6733.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\isqrt32.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\accum48.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\LCDdec32.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\bin2bcd16.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\host_hex16.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\imul16.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\isqrt64i.r43</file>
+      <file>$TOOLKIT_DIR$\inc\dlib\c\DLib_Threads.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\LCDdecu16.r43</file>
+      <file>$TOOLKIT_DIR$\inc\dlib\c\yvals.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\flash_write_int8.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\div_sh48.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\q1_15_mulq.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\debounce.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\rtc.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\host_dec16.r43</file>
+      <file>$TOOLKIT_DIR$\inc\msp430f6736.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\LCD-module.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\hex2ASCII.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\flash_memcpy.r43</file>
+      <file>$PROJ_DIR$\Debug\Exe\emeter-toolkit-6733.ulp</file>
+      <file>$PROJ_DIR$\Debug\Obj\flash_secure.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\dc_filter.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\shift48.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\flash_write_int8.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\iiceeprom.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\setdco.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\div48.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\emeter-toolkit-6733.pbd</file>
+      <file>$PROJ_DIR$\host_decu32.c</file>
+      <file>$PROJ_DIR$\host_hex16.c</file>
+      <file>$PROJ_DIR$\host_hex32.c</file>
+      <file>$PROJ_DIR$\host_str.c</file>
+      <file>$PROJ_DIR$\iiceeprom.c</file>
+      <file>$PROJ_DIR$\imul16.s43</file>
+      <file>$PROJ_DIR$\isqrt16.s43</file>
+      <file>$PROJ_DIR$\isqrt32.c</file>
+      <file>$PROJ_DIR$\isqrt32i.c</file>
+      <file>$PROJ_DIR$\isqrt64.c</file>
+      <file>$PROJ_DIR$\isqrt64i.c</file>
+      <file>$PROJ_DIR$\LCD-internal.c</file>
+      <file>$PROJ_DIR$\LCD-module.c</file>
+      <file>$PROJ_DIR$\LCD-sim.c</file>
+      <file>$PROJ_DIR$\LCDdecu16.c</file>
+      <file>$PROJ_DIR$\LCDdecu32.c</file>
+      <file>$TOOLKIT_DIR$\lib\dlib\dl430xlsfn.h</file>
+      <file>$TOOLKIT_DIR$\inc\cfi.m43</file>
+    </outputs>
+    <file>
+      <name>$PROJ_DIR$\bin2bcd16.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 126</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>A430</name>
+          <file> 47 139</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\accum48.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 124</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>A430</name>
+          <file> 47 139</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\bin2bcd32.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 24</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>A430</name>
+          <file> 47 139</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\dc_filter16.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 93</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>A430</name>
+          <file> 47 139 45 169</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\dc_filter24.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 70</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>A430</name>
+          <file> 47 139 45 169</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\dds.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 114</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 42</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\debounce.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 112</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 136</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\div48.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 33</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 150</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\div_sh48.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 60</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 134</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\flash_clr.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 23</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 58</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 25 48 132 54 168 95 39 130 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 25 48 132 54 168 95 39 130 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\flash_memcpy.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 142</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 50</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 25 48 132 54 168 95 39 130 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 25 48 132 54 168 95 39 130 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\flash_replace16.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 98</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 96</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 25 48 132 54 168 95 39 130 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 25 48 132 54 168 95 39 130 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\flash_replace32.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 64</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 118</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 25 48 132 54 168 95 39 130 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 25 48 132 54 168 95 39 130 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\flash_secure.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 57</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 144</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 25 48 132 54 168 95 39 130 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 25 48 132 54 168 95 39 130 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\flash_write_int16.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 38</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 76</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 25 48 132 54 168 95 39 130 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 25 48 132 54 168 95 39 130 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\flash_write_int32.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 109</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 101</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 25 48 132 54 168 95 39 130 115 47 139 32 61 36 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 25 48 132 54 168 95 39 130 115 47 139 32 61 36 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\flash_write_int8.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 133</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 147</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 25 48 132 54 168 95 39 130 115 47 139 32 61 36 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 25 48 132 54 168 95 39 130 115 47 139 32 61 36 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\hex2ASCII.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 141</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 102</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\host_char.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 49</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 52</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\host_dec16.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 138</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 26</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\host_dec32.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 97</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 119</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\host_decu16.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 110</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 103</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>[ROOT_NODE]</name>
+      <outputs>
+        <tool>
+          <name>XAR</name>
+          <file> 122</file>
+        </tool>
+        <tool>
+          <name>ULP430</name>
+          <file> 143</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\dc_filter.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 145</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>A430</name>
+          <file> 47 139</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\mul48.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 28</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 27</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\LCDdec16.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 55</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 30</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 47 139 32 61 36 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 47 139 32 61 36 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\LCDdec32.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 104</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 125</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\mul48_32_16.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 35</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>A430</name>
+          <file> 47 139 45 169</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\mul48u_32_16.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 113</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>A430</name>
+          <file> 47 139 45 169</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\q1_15_mul.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 107</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>A430</name>
+          <file> 47 139</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\q1_15_mulq.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 135</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>A430</name>
+          <file> 47 139</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\q1_15_mulr.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 71</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>A430</name>
+          <file> 47 139</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\rand16.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 43</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 121</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\rtc.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 137</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 56</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\rtc_data.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 105</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 31</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\setdco.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 149</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 51</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 47 139 32 61 36 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 47 139 32 61 36 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\shift48.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 146</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>A430</name>
+          <file> 47 139</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\sqac48_16.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 67</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>A430</name>
+          <file> 47 139 45 169</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\sqac64_24.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 99</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>A430</name>
+          <file> 47 139 45 169</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\Debug\Exe\emeter-toolkit-6733.r43</name>
+      <inputs>
+        <tool>
+          <name>XAR</name>
+          <file> 124 126 24 93 70 114 112 33 60 23 142 98 64 57 38 109 133 141 49 138 97 110 116 127 44 92 94 128 46 63 75 59 129 53 74 37 55 104 131 68 28 35 113 107 135 71 43 137 105 149 146 67 99</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\host_decu32.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 116</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 108</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\host_hex16.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 127</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 106</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\host_hex32.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 44</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 29</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\host_str.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 92</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 72</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\iiceeprom.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 94</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 148</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\imul16.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 128</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>A430</name>
+          <file> 47 139</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\isqrt16.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 46</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>A430</name>
+          <file> 47 139 45 169</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\isqrt32.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 63</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 123</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\isqrt32i.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 75</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 111</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\isqrt64.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 59</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 73</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\isqrt64i.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 129</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 100</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 65 120 139 32 61 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 65 120 139 32 61 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\LCD-internal.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 53</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 34</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 40 48 132 54 168 95 39 130 41 47 139 32 61 36 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 40 48 132 54 168 95 39 130 41 47 139 32 61 36 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\LCD-module.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 74</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 140</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\LCD-sim.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 37</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 22</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\LCDdecu16.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 131</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 69</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\LCDdecu32.c</name>
+      <outputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 68</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 66</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC430</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115 36 47 139 32 61 65 120 117</file>
+        </tool>
+      </inputs>
+    </file>
+  </configuration>
+  <configuration>
+    <name>Release</name>
+    <outputs/>
+    <forcedrebuild>
+      <name>[MULTI_TOOL]</name>
+      <tool>XLINK</tool>
+    </forcedrebuild>
+  </configuration>
+</project>
+
+

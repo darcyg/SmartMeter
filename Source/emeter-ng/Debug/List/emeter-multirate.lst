@@ -1,0 +1,755 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V6.10.2.50871/W32 for MSP430         28/Oct/2014  22:48:18
+# Copyright 1996-2014 IAR Systems AB.
+# Evaluation license - IAR Embedded Workbench for Texas Instruments MSP430, Evaluation Version 6.10
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\emeter-multirate.c
+#    Command line  =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\emeter-multirate.c -D
+#        "CUSTOM_EMETER_H=\"emeter-1ph-neutral-6733_shunt.h\"" -D X_ZEBU_ -lcN
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\List\ -o
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\Obj\ --debug
+#        -D__MSP430F6736__ -e --double=32 --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.0\430\lib\dlib\dl430xlsfn.h" -I
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng/../emeter-toolkit\
+#        --core=430X --data_model=small -Ohs --multiplier=32
+#        --multiplier_location=4C0 --hw_workaround=CPU40 --hw_workaround=CPU39
+#        --code_model=large
+#    List file     =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\List\emeter-multirate.lst
+#    Object file   =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\Obj\emeter-multirate.r43
+#
+###############################################################################
+
+D:\Documents\GitHub\SmartMeter\Source\emeter-ng\emeter-multirate.c
+      1          //--------------------------------------------------------------------------
+      2          //
+      3          //  Software for MSP430 based e-meters.
+      4          //
+      5          //  THIS PROGRAM IS PROVIDED "AS IS". TI MAKES NO WARRANTIES OR
+      6          //  REPRESENTATIONS, EITHER EXPRESS, IMPLIED OR STATUTORY, 
+      7          //  INCLUDING ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS 
+      8          //  FOR A PARTICULAR PURPOSE, LACK OF VIRUSES, ACCURACY OR 
+      9          //  COMPLETENESS OF RESPONSES, RESULTS AND LACK OF NEGLIGENCE. 
+     10          //  TI DISCLAIMS ANY WARRANTY OF TITLE, QUIET ENJOYMENT, QUIET 
+     11          //  POSSESSION, AND NON-INFRINGEMENT OF ANY THIRD PARTY 
+     12          //  INTELLECTUAL PROPERTY RIGHTS WITH REGARD TO THE PROGRAM OR 
+     13          //  YOUR USE OF THE PROGRAM.
+     14          //
+     15          //  IN NO EVENT SHALL TI BE LIABLE FOR ANY SPECIAL, INCIDENTAL, 
+     16          //  CONSEQUENTIAL OR INDIRECT DAMAGES, HOWEVER CAUSED, ON ANY 
+     17          //  THEORY OF LIABILITY AND WHETHER OR NOT TI HAS BEEN ADVISED 
+     18          //  OF THE POSSIBILITY OF SUCH DAMAGES, ARISING IN ANY WAY OUT 
+     19          //  OF THIS AGREEMENT, THE PROGRAM, OR YOUR USE OF THE PROGRAM. 
+     20          //  EXCLUDED DAMAGES INCLUDE, BUT ARE NOT LIMITED TO, COST OF 
+     21          //  REMOVAL OR REINSTALLATION, COMPUTER TIME, LABOR COSTS, LOSS 
+     22          //  OF GOODWILL, LOSS OF PROFITS, LOSS OF SAVINGS, OR LOSS OF 
+     23          //  USE OR INTERRUPTION OF BUSINESS. IN NO EVENT WILL TI'S 
+     24          //  AGGREGATE LIABILITY UNDER THIS AGREEMENT OR ARISING OUT OF 
+     25          //  YOUR USE OF THE PROGRAM EXCEED FIVE HUNDRED DOLLARS 
+     26          //  (U.S.$500).
+     27          //
+     28          //  Unless otherwise stated, the Program written and copyrighted 
+     29          //  by Texas Instruments is distributed as "freeware".  You may, 
+     30          //  only under TI's copyright in the Program, use and modify the 
+     31          //  Program without any charge or restriction.  You may 
+     32          //  distribute to third parties, provided that you transfer a 
+     33          //  copy of this license to the third party and the third party 
+     34          //  agrees to these terms by its first use of the Program. You 
+     35          //  must reproduce the copyright notice and any other legend of 
+     36          //  ownership on each copy or partial copy, of the Program.
+     37          //
+     38          //  You acknowledge and agree that the Program contains 
+     39          //  copyrighted material, trade secrets and other TI proprietary 
+     40          //  information and is protected by copyright laws, 
+     41          //  international copyright treaties, and trade secret laws, as 
+     42          //  well as other intellectual property laws.  To protect TI's 
+     43          //  rights in the Program, you agree not to decompile, reverse 
+     44          //  engineer, disassemble or otherwise translate any object code 
+     45          //  versions of the Program to a human-readable form.  You agree 
+     46          //  that in no event will you alter, remove or destroy any 
+     47          //  copyright notice included in the Program.  TI reserves all 
+     48          //  rights not specifically granted under this license. Except 
+     49          //  as specifically provided herein, nothing in this agreement 
+     50          //  shall be construed as conferring by implication, estoppel, 
+     51          //  or otherwise, upon you, any license or other right under any 
+     52          //  TI patents, copyrights or trade secrets.
+     53          //
+     54          //  You may not use the Program in non-TI devices.
+     55          //
+     56          //  File: emeter-multirate.c
+     57          //
+     58          //  Steve Underwood <steve-underwood@ti.com>
+     59          //  Texas Instruments Hong Kong Ltd.
+     60          //
+     61          //  $Id: emeter-multirate.c,v 1.6 2009/01/08 08:30:37 a0754793 Exp $
+     62          //
+     63          /*! \file emeter-multirate.h */
+     64          //
+     65          //--------------------------------------------------------------------------
+     66          //
+     67          #include <stdint.h>
+     68          #include <stdlib.h>
+     69          #include <string.h>
+     70          #if !defined(__MSP430__)
+     71          #include <stdio.h>
+     72          #endif
+     73          #include <io.h>
+     74          #include <emeter-toolkit.h>
+     75          
+     76          #include "emeter-structs.h"
+     77          #include "emeter-multirate.h"
+     78          
+     79          #if defined(MULTI_RATE_SUPPORT)
+     80          
+     81          enum host_multirate_commands_e
+     82          {
+     83              HOST_CMD_MULTIRATE_SET_PARAMETERS           = 0xC0,
+     84              HOST_CMD_MULTIRATE_GET_PARAMETERS           = 0xC1,
+     85              HOST_CMD_MULTIRATE_CLEAR_USAGE              = 0xC2,
+     86              HOST_CMD_MULTIRATE_GET_USAGE                = 0xC3
+     87          };
+     88          
+     89          uint8_t tariff_flags;
+     90          
+     91          eeprom_history_t current_history;
+     92          uint8_t current_history_dirty;
+     93          
+     94          /*! The current slot number in the usage history table */
+     95          uint8_t current_history_slot;
+     96          
+     97          /*! The tariff type of the current day */
+     98          uint8_t current_day_type;
+     99          
+    100          uint8_t current_tariff = 0xFF;
+    101          
+    102          eeprom_daily_peak_t daily_peak;
+    103          uint8_t daily_peak_slot;
+    104          
+    105          /*! The current slot in the five minute usage table. */
+    106          uint8_t current_five_minute_slot;
+    107          
+    108          /*! This table is 30 minutes long, in 5 minute chunks. Usage is accumulated in
+    109              5 minute chunks, to the centre of the 30 minute period of peak usage may be
+    110              assessed to 5 minute accuracy. */
+    111          uint16_t five_minute_usages[6];
+    112          
+    113          /* Add a one byte sumcheck to the passed message, in the byte after the message */
+    114          void add_sumcheck(void *buf, int len)
+    115          {
+    116              uint8_t *s;
+    117              int sum;
+    118          
+    119              sum = 0;
+    120              s = (uint8_t *) buf;
+    121              while (--len > 0)
+    122                  sum += *s++;
+    123              *s = 0xFF - sum;
+    124          }
+    125          
+    126          /* Check the passed message, which must include a one byte sumcheck, is OK */
+    127          int test_sumcheck(const void *buf, int len)
+    128          {
+    129              const uint8_t *s;
+    130              int sum;
+    131          
+    132              sum = 0;
+    133              s = (uint8_t *) buf;
+    134              while (len-- > 0)
+    135                  sum += *s++;
+    136              return ((sum & 0xFF) == 0xFF);
+    137          }
+    138          
+    139          void multirate_energy_pulse(void)
+    140          {
+    141              five_minute_usages[current_five_minute_slot]++;
+    142              if (++current_history.energy_lo == 0)
+    143                  ++current_history.energy_hi;
+    144              current_history_dirty = TRUE;
+    145          }
+    146          
+    147          int find_next_cutoff_date(void)
+    148          {
+    149              int year;
+    150              int month;
+    151              int day;
+    152              int best_year;
+    153              int best_month;
+    154              int best_day;
+    155              int best_slot;
+    156              int i;
+    157              eeprom_cutoff_date_t cutoff_date;
+    158          
+    159              /* We need to find the smallest date which is greater than the current date */
+    160              inhibit_rtc_updates();
+    161              year = rtc.year;
+    162              month = rtc.month;
+    163              day = rtc.day;
+    164              enable_rtc_updates();
+    165              best_year = 99;
+    166              best_month = 12;
+    167              best_day = 31;
+    168              best_slot = -1;
+    169              for (i = 0;  i < MULTIRATE_MAX_CUTOFF_DATES;  i++)
+    170              {
+    171                  iicEEPROM_read(EEPROM_START_CUTOFF_DATES + i*sizeof(eeprom_cutoff_date_t), (void *) &cutoff_date, sizeof(cutoff_date));
+    172                  if (year < cutoff_date.year
+    173                      ||
+    174                          (year == cutoff_date.year
+    175                          &&
+    176                              (month < cutoff_date.month
+    177                              ||
+    178                              (month == cutoff_date.month  &&  day < cutoff_date.day))))
+    179                  {
+    180                      if (best_year > cutoff_date.year
+    181                          ||
+    182                              (best_year == cutoff_date.year
+    183                              &&
+    184                                  (best_month > cutoff_date.month
+    185                                  ||
+    186                                  (best_month == cutoff_date.month  &&  best_day > cutoff_date.day))))
+    187                      {
+    188                          /* This is earlier, so use it */
+    189                          best_slot = i;
+    190                          best_year = cutoff_date.year;
+    191                          best_month = cutoff_date.month;
+    192                          best_day = cutoff_date.day;
+    193                      }
+    194                  }
+    195              }
+    196              return best_slot;
+    197          }
+    198          
+    199          int find_previous_cutoff_date(void)
+    200          {
+    201              int year;
+    202              int month;
+    203              int day;
+    204              int best_year;
+    205              int best_month;
+    206              int best_day;
+    207              int best_slot;
+    208              int i;
+    209              eeprom_cutoff_date_t cutoff_date;
+    210              
+    211              /* We need to find the largest date which is less than the current date */
+    212              inhibit_rtc_updates();
+    213              year = rtc.year;
+    214              month = rtc.month;
+    215              day = rtc.day;
+    216              enable_rtc_updates();
+    217              best_year = 0;
+    218              best_month = 0;
+    219              best_day = 0;
+    220              best_slot = -1;
+    221              for (i = 0;  i < MULTIRATE_MAX_CUTOFF_DATES;  i++)
+    222              {
+    223                  iicEEPROM_read(EEPROM_START_CUTOFF_DATES + i*sizeof(eeprom_cutoff_date_t), (void *) &cutoff_date, sizeof(cutoff_date));
+    224                  if (year > cutoff_date.year
+    225                      ||
+    226                          (year == cutoff_date.year
+    227                          &&
+    228                              (month > cutoff_date.month
+    229                              ||
+    230                              (month == cutoff_date.month  &&  day >= cutoff_date.day))))
+    231                  {
+    232                      if (best_year < cutoff_date.year
+    233                          ||
+    234                              (best_year == cutoff_date.year
+    235                              &&
+    236                                  (best_month < cutoff_date.month
+    237                                  ||
+    238                                  (best_month == cutoff_date.month  &&  best_day < cutoff_date.day))))
+    239                      {
+    240                          /* This is later, so use it */
+    241                          best_slot = i;
+    242                          best_year = cutoff_date.year;
+    243                          best_month = cutoff_date.month;
+    244                          best_day = cutoff_date.day;
+    245                      }
+    246                  }
+    247              }
+    248              return best_slot;
+    249          }
+    250          
+    251          void new_tariff_day(void)
+    252          {
+    253              int i;
+    254              uint8_t day_type;
+    255              int year;
+    256              int month;
+    257              int day;
+    258              int wday;
+    259              eeprom_holiday_t holiday;
+    260              eeprom_cutoff_date_t cutoff_date;
+    261          
+    262              /* Should be called when the day changes and at reset, to work out
+    263                 today's type */
+    264              inhibit_rtc_updates();
+    265              year = rtc.year;
+    266              month = rtc.month;
+    267              day = rtc.day;
+    268              enable_rtc_updates();
+    269              for (i = 0;  i < MULTIRATE_MAX_HOLIDAYS;  i++)
+    270              {
+    271                  iicEEPROM_read(EEPROM_START_HOLIDAYS + i*sizeof(eeprom_holiday_t), (void *) &holiday, sizeof(holiday));
+    272                  if (year == holiday.year
+    273                      &&
+    274                      month == holiday.month
+    275                      &&
+    276                      day == holiday.day)
+    277                  {
+    278                      /* Its a holiday */
+    279                      current_day_type = holiday.day_type;
+    280                      return;
+    281                  }
+    282              }
+    283              /* Not a holiday. Just use the regular weekday pattern */
+    284              wday = weekday();
+    285              iicEEPROM_read(EEPROM_START_WEEKDAYS + (wday >> 1), (void *) &day_type, sizeof(day_type));
+    286              current_day_type = ((wday & 1)  ?  (day_type >> 4)  :  day_type) & 0x0F;
+    287          
+    288              /* TODO: what if the real peak were a little before midnight */
+    289              iicEEPROM_write(EEPROM_START_PEAKS + daily_peak_slot*sizeof(eeprom_daily_peak_t), (void *) &daily_peak, sizeof(daily_peak));
+    290              if (++daily_peak_slot >= MULTIRATE_MAX_DAILY_PEAKS)
+    291                  daily_peak_slot = 0;
+    292          
+    293              daily_peak.usage = 0;
+    294              daily_peak.hour = 0;
+    295              daily_peak.minute = 0;
+    296              
+    297              /* Check if we have reached a billing cutoff point */
+    298              iicEEPROM_read(EEPROM_START_CUTOFF_DATES + current_history_slot*sizeof(eeprom_cutoff_date_t), (void *) &cutoff_date, sizeof(cutoff_date));
+    299              if (year > cutoff_date.year
+    300                  ||
+    301                  (year == cutoff_date.year
+    302                      &&
+    303                          (month > cutoff_date.month
+    304                          ||
+    305                          (month == cutoff_date.month  &&  day > cutoff_date.day))))
+    306              {
+    307                  /* Its a cutoff point - find the next cutoff point, and start using the
+    308                     history slot specified for it. */
+    309                  /* If we didn't find a suitable slot, we continue accumulating where we
+    310                     are. At least that way we are gathering all the usage. */
+    311                  if ((i = find_next_cutoff_date()) >= 0)
+    312                      current_history_slot = i;
+    313              }
+    314          }
+    315          
+    316          
+    317          void new_tariff_minute(void)
+    318          {
+    319              int i;
+    320              int n;
+    321              int hour;
+    322              int minute;
+    323              eeprom_day_schedule_timeslot_t tariff;
+    324              uint32_t energy;
+    325          
+    326              inhibit_rtc_updates();
+    327              hour = rtc.hour;
+    328              minute = rtc.minute;
+    329              enable_rtc_updates();
+    330              /* Default to the first timeslot */
+    331              iicEEPROM_read(EEPROM_START_DAY_SCHEDULES + current_day_type*MULTIRATE_DAY_SCHEDULE_TIMESLOTS*sizeof(eeprom_day_schedule_timeslot_t), (void *) &tariff, sizeof(tariff));
+    332              n = tariff.tariff;
+    333              for (i = 1;  i < MULTIRATE_DAY_SCHEDULE_TIMESLOTS;  i++)
+    334              {
+    335                  iicEEPROM_read(EEPROM_START_DAY_SCHEDULES + (current_day_type*MULTIRATE_DAY_SCHEDULE_TIMESLOTS + i)*sizeof(eeprom_day_schedule_timeslot_t), (void *) &tariff, sizeof(tariff));
+    336                  if (tariff.tariff)
+    337                  {
+    338                      if (tariff.start_hour > hour
+    339                          ||
+    340                          (tariff.start_hour == hour  &&  tariff.start_minute > minute))
+    341                      {
+    342                          n = tariff.tariff;
+    343                          break;
+    344                      }
+    345                  }
+    346              }
+    347              
+    348              if (n != current_tariff)
+    349              {
+    350                  /* Save current tariff values, and load the new set */
+    351                  write_history_slot(current_history_slot, current_tariff);
+    352                  read_history_slot(current_history_slot, n);
+    353                  current_tariff = n;
+    354              }
+    355              
+    356              if (rtc.minute%5 == 0)
+    357              {
+    358                  /* Deal with the time and size of the daily peak demand */
+    359                  energy = 0;
+    360                  for (i = 0;  i < 6;  i++)
+    361                      energy += five_minute_usages[i];
+    362                  if (energy > daily_peak.usage)
+    363                  {
+    364                      daily_peak.usage = energy;
+    365                      daily_peak.hour = rtc.hour;
+    366                      daily_peak.minute = rtc.minute;
+    367                  }
+    368                  five_minute_usages[current_five_minute_slot] = 0;
+    369                  if (++current_five_minute_slot >= 6)
+    370                      current_five_minute_slot = 0;
+    371              }
+    372              current_tariff = n;
+    373          }
+    374          
+    375          int read_history_slot(int slot, int tariff)
+    376          {
+    377              int i;
+    378              int pos;
+    379              eeprom_history_t history[3];
+    380              int ok[3];
+    381          
+    382              if (!current_history_dirty)
+    383                  return 0;
+    384              current_history_dirty = FALSE;
+    385              pos = (slot*MULTIRATE_DAY_SCHEDULES + tariff)*sizeof(eeprom_history_t);
+    386              iicEEPROM_read(EEPROM_START_HISTORIES_A + pos, (void *) &history[0], sizeof(history[0]));
+    387              iicEEPROM_read(EEPROM_START_HISTORIES_B + pos, (void *) &history[1], sizeof(history[1]));
+    388              iicEEPROM_read(EEPROM_START_HISTORIES_C + pos, (void *) &history[2], sizeof(history[2]));
+    389              /* Check the sumcheck of each copy */
+    390              for (i = 0;  i < 3;  i++)
+    391                  ok[i] = test_sumcheck(&history[i], sizeof(history[0]));
+    392              if (ok[0]  &&  ok[1])
+    393              {
+    394                  if (memcmp(&history[0], &history[1], sizeof(history[0])) == 0)
+    395                  {
+    396                      /* Use the first copy */
+    397                      memcpy(&current_history, &history[0], sizeof(current_history));
+    398                      return 0;
+    399                  }
+    400              }
+    401              if (ok[1]  &&  ok[2])
+    402              {
+    403                  if (memcmp(&history[1], &history[2], sizeof(history[1])) == 0)
+    404                  {
+    405                      /* Use the second copy */
+    406                      memcpy(&current_history, &history[1], sizeof(current_history));
+    407                      return 0;
+    408                  }
+    409              }
+    410              if (ok[0]  &&  ok[2])
+    411              {
+    412                  if (memcmp(&history[0], &history[2], sizeof(history[0])) == 0)
+    413                  {
+    414                      /* Use the first copy */
+    415                      memcpy(&current_history, &history[0], sizeof(current_history));
+    416                      return 0;
+    417                  }
+    418              }
+    419              /* We don't have two matching copies, so we need to look for something
+    420                 who's sumcheck looks OK. */
+    421              for (i = 0;  i < 3;  i++)
+    422              {
+    423                  if (ok[i])
+    424                  {
+    425                      /* At least this one doesn't look corrupt. Use it. */
+    426                      memcpy(&current_history, &history[i], sizeof(current_history));
+    427                      return 0;
+    428                  }
+    429              }
+    430              /* Very bad - we can't find anything which looks reasonable */
+    431              /* I guess we have to use something, so use the first copy. There is some
+    432                 hope the error is something not too serious. */
+    433              memcpy(&current_history, &history[0], sizeof(current_history));
+    434              return -1;
+    435          }
+    436          
+    437          int write_history_slot(int slot, int tariff)
+    438          {
+    439              int res;
+    440              int pos;
+    441              
+    442              if (current_tariff >= MULTIRATE_DAY_SCHEDULES)
+    443                  return -1;
+    444              /* Write all three copies in the EEPROM, setting the sumcheck before writing. */
+    445              add_sumcheck(&current_history, sizeof(current_history));
+    446          
+    447              pos = (slot*MULTIRATE_DAY_SCHEDULES + tariff)*sizeof(eeprom_history_t);
+    448              res = iicEEPROM_write(EEPROM_START_HISTORIES_A + pos, (void *) &current_history, sizeof(current_history));
+    449              res |= iicEEPROM_write(EEPROM_START_HISTORIES_B + pos, (void *) &current_history, sizeof(current_history));
+    450              res |= iicEEPROM_write(EEPROM_START_HISTORIES_C + pos, (void *) &current_history, sizeof(current_history));
+    451              current_history_dirty = FALSE;
+    452              return res;
+    453          }
+    454          
+    455          void tariff_management(void)
+    456          {
+    457              if ((tariff_flags & TARIFF_NEW_DAY))
+    458              {
+    459                  new_tariff_day();
+    460                  tariff_flags &= ~TARIFF_NEW_DAY;
+    461              }
+    462              if ((tariff_flags & TARIFF_NEW_MINUTE))
+    463              {
+    464                  new_tariff_minute();
+    465                  tariff_flags &= ~TARIFF_NEW_MINUTE;
+    466              }
+    467          }
+    468          
+    469          void tariff_initialise(void)
+    470          {
+    471              int i;
+    472              
+    473              /* Initial tariff information after starting from reset */
+    474              if ((i = find_next_cutoff_date()) < 0)
+    475                  i = find_previous_cutoff_date();
+    476              current_history_slot = i;
+    477              new_tariff_day();
+    478              new_tariff_minute();
+    479          }
+    480          
+    481          void multirate_align_with_rtc(void)
+    482          {
+    483              int i;
+    484              /* The RTC has just been changed, so we need to align the multi-rate actiivities
+    485                 with the new time and date. */
+    486              /* We may have hopped between cutoff dates. We need a full re-alignment with
+    487                 the new date. */
+    488              if ((i = find_next_cutoff_date()) < 0)
+    489                  i = find_previous_cutoff_date();
+    490              current_history_slot = i;
+    491              /* Treat this like any new day, to pull the rest of the information into line. */
+    492              new_tariff_day();
+    493              new_tariff_minute();
+    494          }
+    495          
+    496          int multirate_put(uint8_t *msg)
+    497          {
+    498              switch (msg[1])
+    499              {
+    500              case 0x00:
+    501                  {
+    502                      eeprom_day_schedule_timeslot_t tariff;
+    503          
+    504                      if (msg[2] >= MULTIRATE_DAY_SCHEDULES  ||  msg[3] >= MULTIRATE_DAY_SCHEDULE_TIMESLOTS)
+    505                          break;
+    506                      tariff.start_hour = msg[4];
+    507                      tariff.start_minute = msg[5];
+    508                      tariff.tariff = msg[6];
+    509                      return iicEEPROM_write(EEPROM_START_DAY_SCHEDULES + (msg[2]*MULTIRATE_DAY_SCHEDULE_TIMESLOTS + msg[3])*sizeof(eeprom_day_schedule_timeslot_t), (void *) &tariff, sizeof(tariff));
+    510                  }
+    511              case 0x01:
+    512                  {
+    513                      eeprom_holiday_t holiday;
+    514          
+    515                      if (msg[2] >= MULTIRATE_MAX_HOLIDAYS)
+    516                          break;
+    517                      holiday.year = msg[4];
+    518                      holiday.month = msg[5];
+    519                      holiday.day = msg[6];
+    520                      holiday.day_type = msg[7];
+    521                      holiday.spare = 0;
+    522                      return iicEEPROM_write(EEPROM_START_HOLIDAYS + msg[2]*sizeof(eeprom_holiday_t), (void *) &holiday, sizeof(holiday));
+    523                  }
+    524              case 0x02:
+    525                  {
+    526                      uint8_t weekdays[4];
+    527          
+    528                      weekdays[0] = msg[2] | (msg[3] << 4);
+    529                      weekdays[1] = msg[4] | (msg[5] << 4);
+    530                      weekdays[2] = msg[6] | (msg[7] << 4);
+    531                      weekdays[3] = msg[8] | (msg[9] << 4);
+    532                      return iicEEPROM_write(EEPROM_START_WEEKDAYS, (void *) weekdays, 4);
+    533                  }
+    534              case 0x03:
+    535                  {
+    536                      eeprom_cutoff_date_t cutoff_date;
+    537                      if (msg[2] >= MULTIRATE_MAX_CUTOFF_DATES)
+    538                          break;
+    539                      cutoff_date.year = msg[4];
+    540                      cutoff_date.month = msg[5];
+    541                      cutoff_date.day = msg[6];
+    542                      cutoff_date.spare = 0;
+    543                      return iicEEPROM_write(EEPROM_START_CUTOFF_DATES + msg[2]*sizeof(eeprom_cutoff_date_t), (void *) &cutoff_date, sizeof(cutoff_date));
+    544                  }
+    545              }
+    546              return 0;
+    547          }
+    548          
+    549          int multirate_get(uint8_t *msg, uint8_t *txmsg)
+    550          {
+    551              txmsg[0] = HOST_CMD_MULTIRATE_GET_PARAMETERS;
+    552              txmsg[1] = 0x80;
+    553              txmsg[2] = msg[2];
+    554              txmsg[3] = msg[3];
+    555              switch (msg[1])
+    556              {
+    557              case 0x00:
+    558                  {
+    559                      eeprom_day_schedule_timeslot_t tariff;
+    560                      
+    561                      if (msg[2] >= MULTIRATE_DAY_SCHEDULES  ||  msg[3] >= MULTIRATE_DAY_SCHEDULE_TIMESLOTS)
+    562                          break;
+    563                      if (iicEEPROM_read(EEPROM_START_DAY_SCHEDULES + (msg[2]*MULTIRATE_DAY_SCHEDULE_TIMESLOTS + msg[3])*sizeof(eeprom_day_schedule_timeslot_t), (void *) &tariff, sizeof(tariff)))
+    564                      {
+    565                          txmsg[4] = tariff.start_hour;
+    566                          txmsg[5] = tariff.start_minute;
+    567                          txmsg[6] = tariff.tariff;
+    568                          txmsg[7] = 0;
+    569                          return 8;
+    570                      }
+    571                  }
+    572                  break;
+    573              case 0x01:
+    574                  {
+    575                      eeprom_holiday_t holiday;
+    576                      
+    577                      if (msg[2] >= MULTIRATE_MAX_HOLIDAYS)
+    578                          break;
+    579                      if (iicEEPROM_read(EEPROM_START_HOLIDAYS + msg[2]*sizeof(eeprom_holiday_t), (void *) &holiday, sizeof(holiday)))
+    580                      {
+    581                          txmsg[4] = holiday.year;
+    582                          txmsg[5] = holiday.month;
+    583                          txmsg[6] = holiday.day;
+    584                          txmsg[7] = holiday.day_type;
+    585                          return 8;
+    586                      }
+    587                  }
+    588                  break;
+    589              case 0x02:
+    590                  {
+    591                      uint8_t weekdays[4];
+    592          
+    593                      if (iicEEPROM_read(EEPROM_START_WEEKDAYS, (void *) weekdays, 4))
+    594                      {
+    595                          txmsg[2] = weekdays[0] & 0x0F;
+    596                          txmsg[3] = (weekdays[0] >> 4) & 0x0F;
+    597                          txmsg[4] = weekdays[1] & 0x0F;
+    598                          txmsg[5] = (weekdays[1] >> 4) & 0x0F;
+    599                          txmsg[6] = weekdays[2] & 0x0F;
+    600                          txmsg[7] = (weekdays[2] >> 4) & 0x0F;
+    601                          txmsg[8] = weekdays[3] & 0x0F;
+    602                          txmsg[9] = (weekdays[3] >> 4) & 0x0F;
+    603                          return 10;
+    604                      }
+    605                  }
+    606                  break;
+    607              case 0x03:
+    608                  {
+    609                      eeprom_cutoff_date_t cutoff_date;
+    610                  
+    611                      if (msg[2] >= MULTIRATE_MAX_CUTOFF_DATES)
+    612                          break;
+    613                      if (iicEEPROM_read(EEPROM_START_CUTOFF_DATES + msg[2]*sizeof(eeprom_cutoff_date_t), (void *) &cutoff_date, sizeof(cutoff_date)))
+    614                      {
+    615                          txmsg[4] = cutoff_date.year;
+    616                          txmsg[5] = cutoff_date.month;
+    617                          txmsg[6] = cutoff_date.day;
+    618                          txmsg[7] = 0;
+    619                          return 8;
+    620                      }
+    621                  }
+    622                  break;
+    623              }
+    624              txmsg[1] = 0x81;
+    625              return 4;
+    626          }
+    627          
+    628          int multirate_clear_usage(uint8_t *msg)
+    629          {
+    630              static const int base[3] =
+    631              {
+    632                  EEPROM_START_HISTORIES_A,
+    633                  EEPROM_START_HISTORIES_B,
+    634                  EEPROM_START_HISTORIES_C
+    635              };
+    636          
+    637              switch (msg[1])
+    638              {
+    639              case 0x00:
+    640                  {
+    641                      eeprom_daily_peak_t daily_peak;
+    642                      
+    643                      if (msg[2] >= MULTIRATE_MAX_DAILY_PEAKS)
+    644                          break;
+    645                      memset(&daily_peak, 0, sizeof(daily_peak));
+    646                      return iicEEPROM_write(EEPROM_START_PEAKS + msg[2]*sizeof(eeprom_daily_peak_t), (void *) &daily_peak, sizeof(daily_peak));
+    647                  }
+    648              case 0x01:
+    649                  {
+    650                      eeprom_history_t history;
+    651                  
+    652                      if (msg[2] >= MULTIRATE_MAX_CUTOFF_DATES  ||  msg[3] >= MULTIRATE_DAY_SCHEDULES)
+    653                          break;
+    654                      memset(&history, 0, sizeof(history));
+    655                      return iicEEPROM_write(base[0] + (msg[2]*MULTIRATE_DAY_SCHEDULES + msg[3])*sizeof(eeprom_history_t), (void *) &history, sizeof(history));
+    656                  }
+    657              }
+    658              return 0;
+    659          }
+    660          
+    661          int multirate_get_usage(uint8_t *msg, uint8_t *txmsg)
+    662          {
+    663              static const int base[3] =
+    664              {
+    665                  EEPROM_START_HISTORIES_A,
+    666                  EEPROM_START_HISTORIES_B,
+    667                  EEPROM_START_HISTORIES_C
+    668              };
+    669          
+    670              txmsg[0] = HOST_CMD_MULTIRATE_GET_USAGE;
+    671              txmsg[1] = 0x80;
+    672              txmsg[2] = msg[2];
+    673              txmsg[3] = msg[3];
+    674              switch (msg[1])
+    675              {
+    676              case 0x00:
+    677                  {
+    678                      eeprom_daily_peak_t daily_peak;
+    679                      
+    680                      if (msg[2] >= MULTIRATE_MAX_DAILY_PEAKS)
+    681                          break;
+    682                      if (iicEEPROM_read(EEPROM_START_PEAKS + msg[2]*sizeof(eeprom_daily_peak_t), (void *) &daily_peak, sizeof(daily_peak)))
+    683                      {
+    684                          ((uint32_t *) txmsg)[1] = daily_peak.usage;
+    685                          txmsg[8] = daily_peak.hour;
+    686                          txmsg[9] = daily_peak.minute;
+    687                          return 10;
+    688                      }
+    689                  }
+    690                  break;
+    691              case 0x01:
+    692                  {
+    693                      eeprom_history_t history;
+    694                  
+    695                      if (msg[2] >= MULTIRATE_MAX_CUTOFF_DATES  ||  msg[3] >= MULTIRATE_DAY_SCHEDULES)
+    696                          break;
+    697                      if (iicEEPROM_read(base[0] + (msg[2]*MULTIRATE_DAY_SCHEDULES + msg[3])*sizeof(eeprom_history_t), (void *) &history, sizeof(history)))
+    698                      {
+    699                          txmsg[2] = 0;
+    700                          txmsg[3] = 0;
+    701                          ((uint32_t *) txmsg)[1] = history.energy_hi;
+    702                          ((uint32_t *) txmsg)[2] = history.energy_lo;
+    703                          return 12;
+    704                      }
+    705                  }
+    706                  break;
+    707              }
+    708              txmsg[1] = 0x81;
+    709              return 4;
+    710          }
+    711          #endif
+
+
+ 
+
+ 
+
+
+Errors: none
+Warnings: none

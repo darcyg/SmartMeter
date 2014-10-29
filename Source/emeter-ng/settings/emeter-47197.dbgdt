@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<Project>
+  <Desktop>
+    <Static>
+      <Debug-Log><ColumnWidth0>18</ColumnWidth0><ColumnWidth1>1543</ColumnWidth1></Debug-Log>
+      <Build>
+        
+        
+        
+        
+      <ColumnWidth0>16</ColumnWidth0><ColumnWidth1>719</ColumnWidth1><ColumnWidth2>191</ColumnWidth2><ColumnWidth3>47</ColumnWidth3></Build>
+      <Workspace>
+        <ColumnWidths>
+          
+          
+          
+          
+        <Column0>321</Column0><Column1>27</Column1><Column2>27</Column2><Column3>27</Column3></ColumnWidths>
+      </Workspace>
+      <Disassembly>
+        
+        
+      <PreferedWindows><Position>2</Position><ScreenPosX>0</ScreenPosX><ScreenPosY>0</ScreenPosY><Windows/></PreferedWindows><MixedMode>1</MixedMode><CodeCovShow>0</CodeCovShow><InstrProfShow>0</InstrProfShow></Disassembly>
+    <Watch><Format><struct_types/><watch_formats/></Format><PreferedWindows><Position>2</Position><ScreenPosX>0</ScreenPosX><ScreenPosY>0</ScreenPosY><Windows/></PreferedWindows><Column0>296</Column0><Column1>100</Column1><Column2>100</Column2><Column3>100</Column3></Watch><Find-in-Files><ColumnWidth0>638</ColumnWidth0><ColumnWidth1>62</ColumnWidth1><ColumnWidth2>754</ColumnWidth2></Find-in-Files><Register/></Static>
+    <Windows>
+      
+      
+      
+    <Wnd2>
+        <Tabs>
+          <Tab>
+            <Identity>TabID-31330-25450</Identity>
+            <TabName>Debug Log</TabName>
+            <Factory>Debug-Log</Factory>
+            <Session/>
+          </Tab>
+          <Tab>
+            <Identity>TabID-30807-25459</Identity>
+            <TabName>Build</TabName>
+            <Factory>Build</Factory>
+            <Session/>
+          </Tab>
+        <Tab><Identity>TabID-22172-5916</Identity><TabName>Find in Files</TabName><Factory>Find-in-Files</Factory><Session/></Tab><Tab><Identity>TabID-13171-18529</Identity><TabName>Breakpoints</TabName><Factory>Breakpoints</Factory></Tab></Tabs>
+        
+      <SelectedTab>2</SelectedTab></Wnd2><Wnd4>
+        <Tabs>
+          <Tab>
+            <Identity>TabID-9310-25453</Identity>
+            <TabName>Workspace</TabName>
+            <Factory>Workspace</Factory>
+            <Session>
+              
+            <NodeDict><ExpandedNode>&lt;ws></ExpandedNode><ExpandedNode>&lt;ws>/emeter-47197</ExpandedNode><ExpandedNode>&lt;ws>/emeter-47197/emeter-background.c</ExpandedNode><ExpandedNode>emeter-47197</ExpandedNode><ExpandedNode>emeter-47197/emeter-dlt645.c</ExpandedNode><ExpandedNode>emeter-47197/emeter-foreground.c</ExpandedNode></NodeDict></Session>
+          </Tab>
+        </Tabs>
+        
+      <SelectedTab>0</SelectedTab></Wnd4><Wnd5><Tabs><Tab><Identity>TabID-7217-18622</Identity><TabName>Disassembly</TabName><Factory>Disassembly</Factory><Session/></Tab></Tabs><SelectedTab>0</SelectedTab></Wnd5><Wnd0><Tabs><Tab><Identity>TabID-25774-16379</Identity><TabName>Register</TabName><Factory>Register</Factory><Session><REG1>0</REG1><REG2>0</REG2><Group>16</Group><States>2</States><State0>SCFI0</State0><State1>SD16CTL</State1></Session></Tab></Tabs><SelectedTab>0</SelectedTab></Wnd0></Windows>
+    <Editor>
+      
+      
+      
+      
+    <Pane><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\emeter-structs-stripped.h</Filename><XPos>0</XPos><YPos>837</YPos><SelStart>48471</SelStart><SelEnd>48471</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\Debug\Exe\emeter-structs.h</Filename><XPos>0</XPos><YPos>1067</YPos><SelStart>60123</SelStart><SelEnd>60123</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\emeter-1ph-lierda.h</Filename><XPos>0</XPos><YPos>353</YPos><SelStart>19098</SelStart><SelEnd>19121</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\emeter-toolkit\emeter-toolkit-custom.h</Filename><XPos>0</XPos><YPos>143</YPos><SelStart>6237</SelStart><SelEnd>6237</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\emeter-toolkit\iiceeprom.c</Filename><XPos>0</XPos><YPos>277</YPos><SelStart>9230</SelStart><SelEnd>9230</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\Debug\List\emeter-basic-display.s43</Filename><XPos>0</XPos><YPos>1998</YPos><SelStart>69172</SelStart><SelEnd>69172</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\emeter-toolkit\rtc_data.c</Filename><XPos>0</XPos><YPos>52</YPos><SelStart>2871</SelStart><SelEnd>2871</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\..\..\..\..\..\..\..\Program Files\IAR Systems\NewDLL_4.xx\430\inc\msp430f6733.h</Filename><XPos>0</XPos><YPos>2445</YPos><SelStart>142287</SelStart><SelEnd>142287</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\emeter-toolkit\isr_compat.h</Filename><XPos>0</XPos><YPos>58</YPos><SelStart>2722</SelStart><SelEnd>2722</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\emeter-multirate.h</Filename><XPos>0</XPos><YPos>136</YPos><SelStart>5894</SelStart><SelEnd>5894</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\emeter-toolkit\rtc.c</Filename><XPos>0</XPos><YPos>107</YPos><SelStart>3852</SelStart><SelEnd>3852</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\hal_pmm.c</Filename><XPos>0</XPos><YPos>76</YPos><SelStart>4134</SelStart><SelEnd>4134</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\emeter-communication.h</Filename><XPos>0</XPos><YPos>64</YPos><SelStart>3525</SelStart><SelEnd>3525</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\emeter-basic-display.c</Filename><XPos>0</XPos><YPos>949</YPos><SelStart>25606</SelStart><SelEnd>25606</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\emeter-toolkit\div_sh48.c</Filename><XPos>0</XPos><YPos>59</YPos><SelStart>3976</SelStart><SelEnd>3976</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\emeter-toolkit\LCD-module.c</Filename><XPos>0</XPos><YPos>116</YPos><SelStart>5639</SelStart><SelEnd>5639</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\emeter-toolkit\dc_filter.s43</Filename><XPos>0</XPos><YPos>92</YPos><SelStart>4334</SelStart><SelEnd>4334</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\emeter-toolkit\q1_15_mul.s43</Filename><XPos>0</XPos><YPos>78</YPos><SelStart>3768</SelStart><SelEnd>3768</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\emeter-phase-corrections.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>3560</SelStart><SelEnd>3560</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\emeter-toolkit\accum48.s43</Filename><XPos>0</XPos><YPos>73</YPos><SelStart>3726</SelStart><SelEnd>3726</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\emeter-toolkit\q1_15_mulq.s43</Filename><XPos>0</XPos><YPos>87</YPos><SelStart>3869</SelStart><SelEnd>3869</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\emeter-1ph-neutral-6733.h</Filename><XPos>0</XPos><YPos>1070</YPos><SelStart>50915</SelStart><SelEnd>50915</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\..\..\..\..\..\..\..\Program Files\IAR Systems\NewDLL_5.xx\430\inc\msp430f6733.h</Filename><XPos>0</XPos><YPos>2442</YPos><SelStart>141866</SelStart><SelEnd>141886</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\hal_UCS.c</Filename><XPos>0</XPos><YPos>244</YPos><SelStart>8319</SelStart><SelEnd>8327</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\emeter-toolkit\imul16.s43</Filename><XPos>0</XPos><YPos>85</YPos><SelStart>4310</SelStart><SelEnd>4310</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\emeter.h</Filename><XPos>0</XPos><YPos>47</YPos><SelStart>3050</SelStart><SelEnd>3050</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\emeter-dlt645.c</Filename><XPos>0</XPos><YPos>293</YPos><SelStart>11844</SelStart><SelEnd>11844</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\emeter-iiceeprom.c</Filename><XPos>0</XPos><YPos>67</YPos><SelStart>3483</SelStart><SelEnd>3483</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\emeter-communication.c</Filename><XPos>0</XPos><YPos>654</YPos><SelStart>20188</SelStart><SelEnd>20201</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\emeter-foreground.c</Filename><XPos>0</XPos><YPos>601</YPos><SelStart>23365</SelStart><SelEnd>23365</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\emeter-rtc.c</Filename><XPos>0</XPos><YPos>82</YPos><SelStart>3751</SelStart><SelEnd>3751</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\emeter-toolkit\io.h</Filename><XPos>0</XPos><YPos>414</YPos><SelStart>10904</SelStart><SelEnd>10904</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\emeter-1ph-neutral-47197.h</Filename><XPos>0</XPos><YPos>726</YPos><SelStart>36221</SelStart><SelEnd>36221</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\emeter-setup.c</Filename><XPos>0</XPos><YPos>552</YPos><SelStart>20279</SelStart><SelEnd>20289</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\emeter-main.c</Filename><XPos>0</XPos><YPos>463</YPos><SelStart>15177</SelStart><SelEnd>15177</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\emeter-3ph-neutral-47197.h</Filename><XPos>0</XPos><YPos>159</YPos><SelStart>10152</SelStart><SelEnd>10152</SelEnd></Tab><ActiveTab>35</ActiveTab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\emeter-background.c</Filename><XPos>0</XPos><YPos>669</YPos><SelStart>22199</SelStart><SelEnd>22199</SelEnd></Tab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
+    <Positions>
+      
+      
+      
+      
+      
+    <Top><Row0><Sizes><Toolbar-0102af08><key>iaridepm.enu1</key></Toolbar-0102af08></Sizes></Row0><Row1><Sizes><Toolbar-0559d648><key>debuggergui.enu1</key></Toolbar-0559d648></Sizes></Row1><Row2><Sizes><Toolbar-0559d350><key>430fet1</key></Toolbar-0559d350></Sizes></Row2><Row3><Sizes/></Row3><Row4><Sizes/></Row4><Row5><Sizes/></Row5><Row6><Sizes/></Row6><Row7><Sizes/></Row7><Row8><Sizes/></Row8><Row9><Sizes/></Row9><Row10><Sizes/></Row10><Row11><Sizes/></Row11><Row12><Sizes/></Row12><Row13><Sizes/></Row13><Row14><Sizes/></Row14></Top><Left><Row0><Sizes><Wnd4><Rect><Top>-2</Top><Left>-2</Left><Bottom>666</Bottom><Right>412</Right><x>-2</x><y>-2</y><xscreen>168</xscreen><yscreen>195</yscreen><sizeHorzCX>105000</sizeHorzCX><sizeHorzCY>178899</sizeHorzCY><sizeVertCX>258750</sizeVertCX><sizeVertCY>612844</sizeVertCY></Rect></Wnd4></Sizes></Row0></Left><Right><Row0><Sizes><Wnd5><Rect><Top>-2</Top><Left>-2</Left><Bottom>666</Bottom><Right>248</Right><x>-2</x><y>-2</y><xscreen>250</xscreen><yscreen>237</yscreen><sizeHorzCX>156250</sizeHorzCX><sizeHorzCY>217431</sizeHorzCY><sizeVertCX>156250</sizeVertCX><sizeVertCY>612844</sizeVertCY></Rect></Wnd5></Sizes></Row0><Row1><Sizes><Wnd0><Rect><Top>-2</Top><Left>246</Left><Bottom>666</Bottom><Right>446</Right><x>246</x><y>-2</y><xscreen>200</xscreen><yscreen>200</yscreen><sizeHorzCX>125000</sizeHorzCX><sizeHorzCY>183486</sizeHorzCY><sizeVertCX>125000</sizeVertCX><sizeVertCY>612844</sizeVertCY></Rect></Wnd0></Sizes></Row1></Right><Bottom><Row0><Sizes><Wnd2><Rect><Top>-2</Top><Left>-2</Left><Bottom>332</Bottom><Right>1602</Right><x>-2</x><y>-2</y><xscreen>1604</xscreen><yscreen>334</yscreen><sizeHorzCX>1002500</sizeHorzCX><sizeHorzCY>306422</sizeHorzCY><sizeVertCX>105000</sizeVertCX><sizeVertCY>178899</sizeVertCY></Rect></Wnd2></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
+  </Desktop>
+</Project>
+
+

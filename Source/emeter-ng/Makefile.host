@@ -1,0 +1,63 @@
+#--------------------------------------------------------------------------
+#
+#  Software for MSP430 based e-meters.
+#
+#  Steve Underwood <steve-underwood@ti.com>
+#  Texas Instruments Hong Kong Ltd.
+#
+#  $Id: Makefile.host,v 1.2 2007/08/07 05:55:37 a0754793 Exp $
+#
+#--------------------------------------------------------------------------
+#
+objects=emeter-setup.o \
+	emeter-background.o \
+	emeter-communication.o \
+	emeter-foreground.o \
+	emeter-host-environment.o \
+	emeter-basic-display.o \
+	emeter-phase-corrections.o \
+	emeter-fir-table.o \
+	emeter-iiceeprom.o \
+	emeter-multirate.o \
+    serial.o
+
+CFLAGS=-c -O2 -g -Wall -mno-cygwin -I../emeter-toolkit \
+    -I/usr/local/include \
+    -DADC_BITS=16 \
+    -DSAMPLES_PER_10_SECONDS=40960 \
+    -DLIMP_SAMPLES_PER_10_SECONDS=10240 \
+    -DLIMP_SAMPLING_RATIO=4 \
+    -DHAVE_CONFIG_H=1
+
+LDFLAGS= -mno-cygwin
+
+all: emeter
+
+clean:
+	rm -f *.obj *.asm *.map *.lst *.tmp *.exe *.o *.hex *.qer *.asr *~
+
+dist:
+	rm -f *.obj *.asm *.map *.lst *.tmp *.exe *.o *.hex *.qer *.asr *~
+	cd .. ; tar cvfz emeter-ng/emeter-ng.tgz emeter-ng
+
+docs:
+	doxygen doxygen
+
+emeter: ${objects}
+	$(CC) ${LDFLAGS} -oemeter ${objects} \
+	    -L../emeter-toolkit -lemeter-toolkit -L/usr/local/lib/mingw -laudiofile
+
+#automatic collection of dependencies in the source files.
+#it's only updated the first time, after that it must be done manually
+#with "make depend"
+#the dependecies are included from a separate file:
+-include dependencies.in
+#target to update the file, it's removed first
+depend: rmdepend dependencies.in
+#remove the file
+rmdepend:
+	rm -f dependencies.in
+#build the file that contains the dependencies. no deps in this rule.
+#if there were deps it would be rebuilt every chnage, which is unneded:
+dependencies.in:
+	$(CC) -MM ${CFLAGS} $(objects:.o=.c) >$@

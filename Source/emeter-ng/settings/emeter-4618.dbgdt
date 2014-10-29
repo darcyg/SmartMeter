@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<Project>
+  <Desktop>
+    <Static>
+      <Debug-Log/>
+      <Build>
+        <ColumnWidth0>16</ColumnWidth0>
+        <ColumnWidth1>1158</ColumnWidth1>
+        <ColumnWidth2>309</ColumnWidth2>
+        <ColumnWidth3>77</ColumnWidth3>
+      </Build>
+      <Workspace>
+        <ColumnWidths>
+          
+          
+          
+          
+        <Column0>422</Column0><Column1>27</Column1><Column2>27</Column2><Column3>27</Column3></ColumnWidths>
+      </Workspace>
+      <Disassembly>
+        
+        
+        
+      <MixedMode>1</MixedMode><CodeCovEnabled>0</CodeCovEnabled><CodeCovShow>0</CodeCovShow></Disassembly>
+      <Register/>
+    <Watch><Format><struct_types/><watch_formats/></Format><Column0>100</Column0><Column1>100</Column1><Column2>100</Column2><Column3>100</Column3></Watch></Static>
+    <Windows>
+      
+      
+      
+      
+    <Wnd1>
+        <Tabs>
+          <Tab>
+            <Identity>TabID-13026-11037</Identity>
+            <TabName>Debug Log</TabName>
+            <Factory>Debug-Log</Factory>
+            <Session/>
+          </Tab>
+          <Tab>
+            <Identity>TabID-1232-11053</Identity>
+            <TabName>Build</TabName>
+            <Factory>Build</Factory>
+            <Session/>
+          </Tab>
+        </Tabs>
+        
+      <SelectedTab>0</SelectedTab></Wnd1><Wnd2>
+        <Tabs>
+          <Tab>
+            <Identity>TabID-23775-11040</Identity>
+            <TabName>Workspace</TabName>
+            <Factory>Workspace</Factory>
+            <Session>
+              
+            <NodeDict><ExpandedNode>emeter-4618</ExpandedNode><ExpandedNode>emeter-4618/emeter-background.c</ExpandedNode></NodeDict></Session>
+          </Tab>
+        </Tabs>
+        
+      <SelectedTab>0</SelectedTab></Wnd2><Wnd3>
+        <Tabs>
+          <Tab>
+            <Identity>TabID-1755-11043</Identity>
+            <TabName>Disassembly</TabName>
+            <Factory>Disassembly</Factory>
+            <Session/>
+          </Tab>
+        </Tabs>
+        
+      <SelectedTab>0</SelectedTab></Wnd3><Wnd8>
+        <Tabs>
+          <Tab>
+            <Identity>TabID-6941-12379</Identity>
+            <TabName>Register</TabName>
+            <Factory>Register</Factory>
+            <Session>
+              
+              
+              
+              
+              
+              
+            <REG1>0</REG1><REG2>0</REG2><Group>12</Group><States>3</States><State0>P2IE</State0><State1>P2IES</State1><State2>P2SEL</State2></Session>
+          </Tab>
+        </Tabs>
+        
+      <SelectedTab>0</SelectedTab></Wnd8><Wnd9><Tabs><Tab><Identity>TabID-20957-11075</Identity><TabName>Watch</TabName><Factory>Watch</Factory><Session><Expressions><Expression><Expression>j</Expression></Expression></Expressions><TabId>0</TabId><Column0>100</Column0><Column1>100</Column1><Column2>100</Column2><Column3>100</Column3></Session></Tab></Tabs><SelectedTab>0</SelectedTab></Wnd9></Windows>
+    <Editor>
+      
+      
+      
+      
+    <Pane><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\emeter-ng\emeter.h</Filename><XPos>0</XPos><YPos>749</YPos><SelStart>38607</SelStart><SelEnd>38607</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\emeter-ng\emeter-foreground.c</Filename><XPos>0</XPos><YPos>1268</YPos><SelStart>42937</SelStart><SelEnd>42937</SelEnd></Tab><ActiveTab>1</ActiveTab><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\emeter-ng\emeter-background.c</Filename><XPos>0</XPos><YPos>583</YPos><SelStart>19540</SelStart><SelEnd>19540</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\emeter-ng\emeter-structs.h</Filename><XPos>0</XPos><YPos>691</YPos><SelStart>43212</SelStart><SelEnd>43212</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\emeter-toolkit\isr_compat.h</Filename><XPos>0</XPos><YPos>58</YPos><SelStart>2675</SelStart><SelEnd>2675</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\emeter-toolkit\flash_write_int32.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd></Tab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
+    <Positions>
+      
+      
+      
+      
+      
+    <Top><Row0><Sizes><Toolbar-01ba1ca0><key>iaridepm.enu1</key></Toolbar-01ba1ca0></Sizes></Row0><Row1><Sizes><Toolbar-05785828><key>debuggergui.enu1</key></Toolbar-05785828></Sizes></Row1><Row2><Sizes><Toolbar-057858e8><key>430fet1</key></Toolbar-057858e8></Sizes></Row2><Row3><Sizes/></Row3><Row4><Sizes/></Row4><Row5><Sizes/></Row5></Top><Left><Row0><Sizes><Wnd2><Rect><Top>-2</Top><Left>-2</Left><Bottom>830</Bottom><Right>496</Right><x>-2</x><y>-2</y><xscreen>240</xscreen><yscreen>200</yscreen><sizeHorzCX>125000</sizeHorzCX><sizeHorzCY>178571</sizeHorzCY><sizeVertCX>259375</sizeVertCX><sizeVertCY>742857</sizeVertCY></Rect></Wnd2></Sizes></Row0></Left><Right><Row0><Sizes><Wnd3><Rect><Top>-2</Top><Left>-2</Left><Bottom>830</Bottom><Right>238</Right><x>-2</x><y>-2</y><xscreen>240</xscreen><yscreen>200</yscreen><sizeHorzCX>125000</sizeHorzCX><sizeHorzCY>178571</sizeHorzCY><sizeVertCX>125000</sizeVertCX><sizeVertCY>742857</sizeVertCY></Rect></Wnd3></Sizes></Row0><Row1><Sizes><Wnd8><Rect><Top>-2</Top><Left>236</Left><Bottom>830</Bottom><Right>476</Right><x>236</x><y>-2</y><xscreen>240</xscreen><yscreen>200</yscreen><sizeHorzCX>125000</sizeHorzCX><sizeHorzCY>178571</sizeHorzCY><sizeVertCX>125000</sizeVertCX><sizeVertCY>742857</sizeVertCY></Rect></Wnd8></Sizes></Row1><Row2><Sizes><Wnd9><Rect><Top>-2</Top><Left>474</Left><Bottom>830</Bottom><Right>714</Right><x>474</x><y>-2</y><xscreen>240</xscreen><yscreen>200</yscreen><sizeHorzCX>125000</sizeHorzCX><sizeHorzCY>178571</sizeHorzCY><sizeVertCX>125000</sizeVertCX><sizeVertCY>742857</sizeVertCY></Rect></Wnd9></Sizes></Row2></Right><Bottom><Row0><Sizes><Wnd1><Rect><Top>-2</Top><Left>-2</Left><Bottom>198</Bottom><Right>1922</Right><x>-2</x><y>-2</y><xscreen>1924</xscreen><yscreen>200</yscreen><sizeHorzCX>1002083</sizeHorzCX><sizeHorzCY>178571</sizeHorzCY><sizeVertCX>125000</sizeVertCX><sizeVertCY>178571</sizeVertCY></Rect></Wnd1></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
+  </Desktop>
+</Project>
+
+

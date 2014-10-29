@@ -1,0 +1,411 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V6.10.2.50871/W32 for MSP430         28/Oct/2014  22:48:19
+# Copyright 1996-2014 IAR Systems AB.
+# Evaluation license - IAR Embedded Workbench for Texas Instruments MSP430, Evaluation Version 6.10
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  D:\Documents\GitHub\SmartMeter\Source\emeter-ng\hal_UCS.c
+#    Command line  =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\hal_UCS.c -D
+#        "CUSTOM_EMETER_H=\"emeter-1ph-neutral-6733_shunt.h\"" -D X_ZEBU_ -lcN
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\List\ -o
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\Obj\ --debug
+#        -D__MSP430F6736__ -e --double=32 --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.0\430\lib\dlib\dl430xlsfn.h" -I
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng/../emeter-toolkit\
+#        --core=430X --data_model=small -Ohs --multiplier=32
+#        --multiplier_location=4C0 --hw_workaround=CPU40 --hw_workaround=CPU39
+#        --code_model=large
+#    List file     =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\List\hal_UCS.lst
+#    Object file   =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\Obj\hal_UCS.r43
+#
+###############################################################################
+
+D:\Documents\GitHub\SmartMeter\Source\emeter-ng\hal_UCS.c
+      1          //*******************************************************************************
+      2          //  Provides Functions to Initialize the UCS/FLL and clock sources
+      3          //    File: hal_ucs.c
+      4          //
+      5          //    Texas Instruments
+      6          //
+      7          //    Version 1.2
+      8          //    11/24/09
+      9          //
+     10          //    V1.0  Initial Version
+     11          //    V1.1  Added timeout function
+     12          //    V1.1  Added parameter for XTDrive
+     13          //*******************************************************************************
+     14          
+     15          /* ***********************************************************
+     16          * THIS PROGRAM IS PROVIDED "AS IS". TI MAKES NO WARRANTIES OR
+     17          * REPRESENTATIONS, EITHER EXPRESS, IMPLIED OR STATUTORY,
+     18          * INCLUDING ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS
+     19          * FOR A PARTICULAR PURPOSE, LACK OF VIRUSES, ACCURACY OR
+     20          * COMPLETENESS OF RESPONSES, RESULTS AND LACK OF NEGLIGENCE.
+     21          * TI DISCLAIMS ANY WARRANTY OF TITLE, QUIET ENJOYMENT, QUIET
+     22          * POSSESSION, AND NON-INFRINGEMENT OF ANY THIRD PARTY
+     23          * INTELLECTUAL PROPERTY RIGHTS WITH REGARD TO THE PROGRAM OR
+     24          * YOUR USE OF THE PROGRAM.
+     25          *
+     26          * IN NO EVENT SHALL TI BE LIABLE FOR ANY SPECIAL, INCIDENTAL,
+     27          * CONSEQUENTIAL OR INDIRECT DAMAGES, HOWEVER CAUSED, ON ANY
+     28          * THEORY OF LIABILITY AND WHETHER OR NOT TI HAS BEEN ADVISED
+     29          * OF THE POSSIBILITY OF SUCH DAMAGES, ARISING IN ANY WAY OUT
+     30          * OF THIS AGREEMENT, THE PROGRAM, OR YOUR USE OF THE PROGRAM.
+     31          * EXCLUDED DAMAGES INCLUDE, BUT ARE NOT LIMITED TO, COST OF
+     32          * REMOVAL OR REINSTALLATION, COMPUTER TIME, LABOR COSTS, LOSS
+     33          * OF GOODWILL, LOSS OF PROFITS, LOSS OF SAVINGS, OR LOSS OF
+     34          * USE OR INTERRUPTION OF BUSINESS. IN NO EVENT WILL TI'S
+     35          * AGGREGATE LIABILITY UNDER THIS AGREEMENT OR ARISING OUT OF
+     36          * YOUR USE OF THE PROGRAM EXCEED FIVE HUNDRED DOLLARS
+     37          * (U.S.$500).
+     38          *
+     39          * Unless otherwise stated, the Program written and copyrighted
+     40          * by Texas Instruments is distributed as "freeware".  You may,
+     41          * only under TI's copyright in the Program, use and modify the
+     42          * Program without any charge or restriction.  You may
+     43          * distribute to third parties, provided that you transfer a
+     44          * copy of this license to the third party and the third party
+     45          * agrees to these terms by its first use of the Program. You
+     46          * must reproduce the copyright notice and any other legend of
+     47          * ownership on each copy or partial copy, of the Program.
+     48          *
+     49          * You acknowledge and agree that the Program contains
+     50          * copyrighted material, trade secrets and other TI proprietary
+     51          * information and is protected by copyright laws,
+     52          * international copyright treaties, and trade secret laws, as
+     53          * well as other intellectual property laws.  To protect TI's
+     54          * rights in the Program, you agree not to decompile, reverse
+     55          * engineer, disassemble or otherwise translate any object code
+     56          * versions of the Program to a human-readable form.  You agree
+     57          * that in no event will you alter, remove or destroy any
+     58          * copyright notice included in the Program.  TI reserves all
+     59          * rights not specifically granted under this license. Except
+     60          * as specifically provided herein, nothing in this agreement
+     61          * shall be construed as conferring by implication, estoppel,
+     62          * or otherwise, upon you, any license or other right under any
+     63          * TI patents, copyrights or trade secrets.
+     64          *
+     65          * You may not use the Program in non-TI devices.
+     66          * ********************************************************* */
+     67          
+     68          
+     69          #include "msp430.h"
+     70          #include "hal_UCS.h"
+     71          
+     72          //************************************************************************
+     73          // Check and define required Defines
+     74          //************************************************************************
+     75          
+     76          #ifndef XT1LFOFFG               // Defines if not available in header file
+     77          #define XT1LFOFFG 0
+     78          #endif
+     79          #ifndef XT1HFOFFG               // Defines if not available in header file
+     80          #define XT1HFOFFG 0
+     81          #endif
+     82          #ifndef XT2OFFG                 // Defines if not available in header file
+     83          #define XT2OFFG 0
+     84          #endif
+     85          #ifndef XTS                    // Defines if not available in header file
+     86          #define XTS 0
+     87          #endif
+     88          
+     89          //====================================================================
+     90          /**
+     91           * Startup routine for 32kHz Cristal on LFXT1
+     92           *
+     93          */
+     94          void LFXT_Start(unsigned int xtdrive)
+     95          {
+     96          #ifdef _ZEBU_
+     97          #else
+     98            UCSCTL6_L |= XT1DRIVE1_L+XT1DRIVE0_L; // Highest drive setting for XT1 startup
+     99          
+    100            while (SFRIFG1 & OFIFG) {   // check OFIFG fault flag
+    101              UCSCTL7 &= ~(DCOFFG+XT1LFOFFG+XT1HFOFFG+XT2OFFG); // Clear OSC flaut Flags fault flags
+    102              SFRIFG1 &= ~OFIFG;        // Clear OFIFG fault flag
+    103            }
+    104            UCSCTL6 = (UCSCTL6 & ~(XT1DRIVE_3)) |(xtdrive); // set Drive mode
+    105          #endif
+    106          }
+    107          
+    108          //====================================================================
+    109          /**
+    110           * Startup routine for 32kHz Cristal on LFXT1 with timeout counter
+    111           *
+    112          */
+    113          unsigned int LFXT_Start_Timeout(unsigned int xtdrive, unsigned int timeout)
+    114          {
+    115          #ifdef _ZEBU_
+    116          #else
+    117            UCSCTL6_L |= XT1DRIVE1_L+XT1DRIVE0_L; // Highest drive setting for XT1 startup
+    118          
+    119            while ((SFRIFG1 & OFIFG) && timeout--){   // check OFIFG fault flag
+    120              UCSCTL7 &= ~(DCOFFG+XT1LFOFFG+XT1HFOFFG+XT2OFFG); // Clear OSC flaut Flags fault flags
+    121              SFRIFG1 &= ~OFIFG;        // Clear OFIFG fault flag
+    122            }
+    123            UCSCTL6 = (UCSCTL6 & ~(XT1DRIVE_3)) |(xtdrive); // set Drive mode
+    124          #endif
+    125            if (timeout)
+    126              return (UCS_STATUS_OK);
+    127            else
+    128              return (UCS_STATUS_ERROR);
+    129          }
+    130          
+    131          
+    132          //====================================================================
+    133          /**
+    134           * Startup routine for  XT1
+    135           *
+    136          */
+    137          void XT1_Start(unsigned int xtdrive)
+    138          {
+    139          #ifdef _ZEBU_
+    140          #else
+    141            UCSCTL6 &= ~(XT1OFF & XT1DRIVE_3);  // enalbe XT1
+    142            UCSCTL6 |= (XTS & xtdrive);         // enalbe XT1 and set XT1Drive
+    143          
+    144            while (SFRIFG1 & OFIFG) {   // check OFIFG fault flag
+    145              UCSCTL7 &= ~(DCOFFG+XT1LFOFFG+XT1HFOFFG+XT2OFFG); // Clear OSC flaut Flags
+    146              SFRIFG1 &= ~OFIFG;        // Clear OFIFG fault flag
+    147            }
+    148          #endif
+    149          }
+    150          
+    151          //====================================================================
+    152          /**
+    153           * Startup routine for XT1 with timeout counter
+    154           *
+    155          */
+    156          unsigned int XT1_Start_Timeout(unsigned int xtdrive, unsigned int timeout)
+    157          {
+    158            UCSCTL6 &= ~(XT1OFF & XT1DRIVE_3);  // enalbe XT1
+    159            UCSCTL6 |= (XTS & xtdrive);         // enalbe XT1 and set XT1Drive
+    160          
+    161            while ((SFRIFG1 & OFIFG) && timeout--) {   // check OFIFG fault flag
+    162              UCSCTL7 &= ~(DCOFFG+XT1LFOFFG+XT1HFOFFG+XT2OFFG); // Clear OSC flaut Flags
+    163              SFRIFG1 &= ~OFIFG;        // Clear OFIFG fault flag
+    164            }
+    165            if (timeout)
+    166              return (UCS_STATUS_OK);
+    167            else
+    168              return (UCS_STATUS_ERROR);
+    169          }
+    170          
+    171          //====================================================================
+    172          /**
+    173           * Use  XT1 in Bypasss mode
+    174           *
+    175          */
+    176          void XT1_Bypass(void)
+    177          {
+    178            UCSCTL6 = XT1BYPASS;
+    179          
+    180            while (SFRIFG1 & OFIFG) {   // check OFIFG fault flag
+    181              UCSCTL7 &= ~(DCOFFG+XT1LFOFFG+XT1HFOFFG+XT2OFFG); // Clear OSC flaut Flags
+    182              SFRIFG1 &= ~OFIFG;        // Clear OFIFG fault flag
+    183            }
+    184          }
+    185          
+    186          //====================================================================
+    187          /**
+    188           * Startup routine for  XT2
+    189           *
+    190          */
+    191          void XT2_Start(unsigned int xtdrive)
+    192          {
+    193            UCSCTL6 &= ~(XT2OFF & XT1DRIVE_3);  // enalbe XT2
+    194            UCSCTL6 |= (xtdrive);               // Set XT2Drive
+    195          
+    196            while (SFRIFG1 & OFIFG) {   // check OFIFG fault flag
+    197              UCSCTL7 &= ~(DCOFFG+XT1LFOFFG+XT1HFOFFG+XT2OFFG); // Clear OSC flaut Flags
+    198              SFRIFG1 &= ~OFIFG;        // Clear OFIFG fault flag
+    199            }
+    200          
+    201          }
+    202          
+    203          //====================================================================
+    204          /**
+    205           * Startup routine for XT2 with timeout counter
+    206           *
+    207          */
+    208          unsigned int XT2_Start_Timeout(unsigned int xtdrive, unsigned int timeout)
+    209          {
+    210            UCSCTL6 &= ~(XT2OFF & XT1DRIVE_3); // enalbe XT2
+    211            UCSCTL6 |= (xtdrive);             // Set XT2Drive
+    212          
+    213            while ((SFRIFG1 & OFIFG) && timeout--){   // check OFIFG fault flag
+    214              UCSCTL7 &= ~(DCOFFG+XT1LFOFFG+XT1HFOFFG+XT2OFFG); // Clear OSC flaut Flags
+    215              SFRIFG1 &= ~OFIFG;        // Clear OFIFG fault flag
+    216            }
+    217            if (timeout)
+    218              return (UCS_STATUS_OK);
+    219            else
+    220              return (UCS_STATUS_ERROR);
+    221          }
+    222          
+    223          //====================================================================
+    224          /**
+    225           * Use XT2 in Bypasss mode
+    226           *
+    227          */
+    228          void XT2_Bypass(void)
+    229          {
+    230          #ifdef XT2BYPASS              // on devices without XT2 this function will be empty
+    231            UCSCTL6 |= XT2BYPASS;
+    232          
+    233            while (SFRIFG1 & OFIFG) {   // check OFIFG fault flag
+    234              UCSCTL7 &= ~(DCOFFG+XT1LFOFFG+XT1HFOFFG+XT2OFFG); // Clear OSC flaut Flags
+    235              SFRIFG1 &= ~OFIFG;        // Clear OFIFG fault flag
+    236            }
+    237          #endif
+    238          }
+    239          
+    240          //====================================================================
+    241          /**
+    242            * Initializes FLL of the UCS
+    243            *
+    244            * \param fsystem  required system frequency (MCLK) in kHz
+    245            * \param ratio    ratio between fsystem and FLLREFCLK
+    246            */
+    247          void Init_FLL(unsigned int fsystem, const unsigned int ratio)
+    248          {
+    249          #ifdef _ZEBU_
+    250          	UCSCTL1= DCORSEL_5 ;
+    251          
+    252          
+    253          #else
+    254          
+    255            unsigned int d, dco_div_bits;
+    256            unsigned int mode = 0;
+    257          
+    258            // save actual state of FLL loop control
+    259            unsigned short globalInterruptState = __get_SR_register() & SCG0;
+    260            __bic_SR_register(SCG0);      // Disable FLL loop control
+    261          
+    262            d = ratio;
+    263            dco_div_bits = FLLD__2;        // Have at least a divider of 2
+    264            if (fsystem > 16000){
+    265              d >>= 1 ;
+    266              mode = 1;
+    267            }
+    268            else
+    269              fsystem <<= 1;               // fsystem = fsystem * 2
+    270          
+    271            while (d > 512)
+    272            {
+    273              dco_div_bits = dco_div_bits + FLLD0;  // set next higher div level
+    274              d >>= 1;
+    275            }
+    276          
+    277            UCSCTL0 = 0x000;               // Set DCO to lowest Tap
+    278          
+    279            UCSCTL2 &= ~(0x3FF);           // Reset FN bits
+    280            UCSCTL2 = dco_div_bits | (d - 1);
+    281          
+    282            if (fsystem <= 630)            //           fsystem < 0.63MHz
+    283          	UCSCTL1= DCORSEL_0 ;
+    284            else if (fsystem <  1250)      // 0.63MHz < fsystem < 1.25MHz
+    285          	UCSCTL1= DCORSEL_1 ;
+    286            else if (fsystem <  2500)      // 1.25MHz < fsystem <  2.5MHz
+    287          	UCSCTL1= DCORSEL_2 ;
+    288            else if (fsystem <  5000)      // 2.5MHz  < fsystem <    5MHz
+    289          	UCSCTL1= DCORSEL_3 ;
+    290            else if (fsystem <  10000)     // 5MHz    < fsystem <   10MHz
+    291          	UCSCTL1= DCORSEL_4 ;
+    292            else if (fsystem <  20000)     // 10MHz   < fsystem <   20MHz
+    293          	UCSCTL1= DCORSEL_5 ;
+    294            else if (fsystem <  40000)     // 20MHz   < fsystem <   40MHz
+    295          	UCSCTL1= DCORSEL_6 ;
+    296            else
+    297          	UCSCTL1= DCORSEL_7 ;
+    298          /*
+    299            while (SFRIFG1 & OFIFG) {                               // check OFIFG fault flag
+    300              UCSCTL7 &= ~(DCOFFG+XT1LFOFFG+XT1HFOFFG+XT2OFFG);     // Clear OSC flaut Flags
+    301              SFRIFG1 &= ~OFIFG;                                    // Clear OFIFG fault flag
+    302            }
+    303          */
+    304            if (mode == 1)                           				  // fsystem > 16000
+    305              SELECT_MCLK_SMCLK(SELM__DCOCLK + SELS__DCOCLK);       // select DCOCLK
+    306            else
+    307              SELECT_MCLK_SMCLK(SELM__DCOCLKDIV + SELS__DCOCLKDIV); // selcet DCODIVCLK
+    308          
+    309            __bis_SR_register(globalInterruptState);                // restore previous state
+    310          #endif
+    311          
+    312          } // End of fll_init()
+    313          
+    314          //====================================================================
+    315          /**
+    316            * Initializes FLL of the UCS and wait till settled
+    317            *
+    318            * \param fsystem  required system frequency (MCLK) in kHz
+    319            * \param ratio    ratio between fsystem and FLLREFCLK
+    320            */
+    321          void Init_FLL_Settle(unsigned int fsystem, const unsigned int ratio)
+    322          {
+    323            volatile unsigned int x = ratio * 10;       // we have 32 steps in the DCO / loop takes at least three cycles
+    324                                                        // (int)(32/3) = 10
+    325            Init_FLL(fsystem, ratio);
+    326            while (x--);
+    327          }
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+     12   Init_FLL
+      6   Init_FLL_Settle
+        6   -> Init_FLL
+      4   LFXT_Start
+      4   LFXT_Start_Timeout
+      4   XT1_Bypass
+      4   XT1_Start
+      4   XT1_Start_Timeout
+      4   XT2_Bypass
+      4   XT2_Start
+      4   XT2_Start_Timeout
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      44  ?Subroutine0
+     226  Init_FLL
+      38  Init_FLL_Settle
+      60  LFXT_Start
+      58  LFXT_Start_Timeout
+      10  XT1_Bypass
+      14  XT1_Start
+      52  XT1_Start_Timeout
+      10  XT2_Bypass
+      10  XT2_Start
+      48  XT2_Start_Timeout
+       2  _A_SFRIFG1_L
+       2  _A_UCSCTL0_L
+       2  _A_UCSCTL1_L
+       2  _A_UCSCTL2_L
+       2  _A_UCSCTL4_L
+       2  _A_UCSCTL6_L
+       2  _A_UCSCTL7_L
+
+ 
+ 570 bytes in segment CODE
+  14 bytes in segment DATA16_AN
+ 
+ 570 bytes of CODE memory
+   0 bytes of DATA memory (+ 14 bytes shared)
+
+Errors: none
+Warnings: none

@@ -1,0 +1,7 @@
+
+
+    unifdef -x definition_file   target_file > result_file
+
+    So for example if you want to strip off the #ifdefs in emeter-structs.h and the definition of the #ifdef parameters are in emeter.h, you type
+
+    unifdef -x emeter.h emeter_structs.h > emeter_structs_clean.h 

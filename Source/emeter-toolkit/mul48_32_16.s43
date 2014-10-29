@@ -1,0 +1,155 @@
+;******************************************************************************
+;  mul48.s43 (IAR version) - 48 bit 16x32=>top 32 bits multiply
+;
+;  Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/ 
+; 
+;  Redistribution and use in source and binary forms, with or without 
+;  modification, are permitted provided that the following conditions 
+;  are met:
+;
+;    Redistributions of source code must retain the above copyright 
+;    notice, this list of conditions and the following disclaimer.
+;
+;    Redistributions in binary form must reproduce the above copyright
+;    notice, this list of conditions and the following disclaimer in the 
+;    documentation and/or other materials provided with the   
+;    distribution.
+;
+;    Neither the name of Texas Instruments Incorporated nor the names of
+;    its contributors may be used to endorse or promote products derived
+;    from this software without specific prior written permission.
+;
+;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
+;  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+;  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+;  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+;  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+;  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+;  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+;  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+;  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
+;  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+;  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+;
+;******************************************************************************
+
+#include "io.h"
+#include "macros.m43"
+
+#if !defined(__IAR_SYSTEMS_ASM__)  ||  !(((__TID__ >> 8) & 0x7f) == 43)
+#error This file is compatible with the IAR MSP430 assembler.
+#endif
+
+#if __VER__ >= 400
+#define x_ls            R12
+#define x_ms            R13
+#define y               R14
+#else
+#define x_ls            R12
+#define x_ms            R13
+#define y               R14
+#endif
+
+;int32_t mul48_32_16(int32_t x, int16_t y);
+    public mul48_32_16
+
+    RSEG CODE
+mul48_32_16
+#if defined(__MSP430_HAS_MPY32__)  &&  !defined(__TOOLKIT_USE_SOFT_MPY__)
+    push.w  SR
+    dint
+    nop
+    mov.w   x_ls,&MPYS32L
+    mov.w   x_ms,&MPYS32H
+    mov.w   y,&OP2
+    mov.w   &RES1,x_ls
+    mov.w   &RES2,x_ms
+    pop.w   SR
+#elif defined(__MSP430_HAS_MPY__)  &&  !defined(__TOOLKIT_USE_SOFT_MPY__)
+#if defined(__MSP430_HAS_MSP430X_CPU__)  ||  defined(__MSP430_HAS_MSP430XV2_CPU__)
+    pushm.w #8,R11
+#else
+    push.w  R4
+    push.w  R5
+    push.w  R6
+    push.w  R7
+    push.w  R8
+    push.w  R9
+    push.w  R10
+    push.w  R11
+#endif
+    mov.w   x_ms,R7
+    mov.w   y,R4
+    mov.w   y,R5
+    inv.w   R5
+    rla.w   R5
+    subc.w  R5,R5
+    clr.w   x_ms
+    mov.w   R5,R15
+
+    push.w  SR
+    dint
+    nop
+    mov.w   x_ls,&MPY
+    mov.w   y,&OP2
+    mov.w   x_ls,&MAC
+    mov.w   &RESLO,x_ls
+    mov.w   &RESHI,&RESLO
+    mov.w   R15,&OP2
+    mov.w   x_ms,&MAC
+    mov.w   y,&OP2
+    mov.w   &RESLO,x_ms
+    pop.w   SR
+        
+    mov.w   x_ls,R8
+    mov.w   x_ms,R11
+    mov.w   x_ms,R10
+    inv.w   R11
+    rla.w   R11
+    subc.w  R11,R11
+    mov.w   R7,x_ls
+    inv.w   R7
+    rla.w   R7
+    subc.w  R7,R7
+    mov.w   R7,x_ms
+    mov.w   R4,y
+    mov.w   R5,R15
+
+    push.w  SR
+    dint
+    nop
+    mov.w   x_ls,&MPY
+    mov.w   y,&OP2
+    mov.w   x_ls,&MAC
+    mov.w   &RESLO,x_ls
+    mov.w   &RESHI,&RESLO
+    mov.w   R15,&OP2
+    mov.w   x_ms,&MAC
+    mov.w   y,&OP2
+    mov.w   &RESLO,x_ms
+    pop.w   SR
+
+    add.w   x_ls,R10
+    mov.w   R10,x_ls
+    addc.w  R11,x_ms
+    rla.w   x_ls
+    rlc.w   x_ms
+    tst.w   R8
+    jge     mul48_1
+    bis.w   #1,x_ls
+mul48_1
+#if defined(__MSP430_HAS_MSP430X_CPU__)  ||  defined(__MSP430_HAS_MSP430XV2_CPU__)
+    popm.w  #8,R11
+#else
+    pop.w   R11
+    pop.w   R10
+    pop.w   R9
+    pop.w   R8
+    pop.w   R7
+    pop.w   R6
+    pop.w   R5
+    pop.w   R4
+#endif
+#endif
+    xret
+    end

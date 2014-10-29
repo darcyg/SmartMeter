@@ -1,0 +1,1454 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V6.10.2.50871/W32 for MSP430         28/Oct/2014  22:48:18
+# Copyright 1996-2014 IAR Systems AB.
+# Evaluation license - IAR Embedded Workbench for Texas Instruments MSP430, Evaluation Version 6.10
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\emeter-main.c
+#    Command line  =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\emeter-main.c -D
+#        "CUSTOM_EMETER_H=\"emeter-1ph-neutral-6733_shunt.h\"" -D X_ZEBU_ -lcN
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\List\ -o
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\Obj\ --debug
+#        -D__MSP430F6736__ -e --double=32 --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.0\430\lib\dlib\dl430xlsfn.h" -I
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng/../emeter-toolkit\
+#        --core=430X --data_model=small -Ohs --multiplier=32
+#        --multiplier_location=4C0 --hw_workaround=CPU40 --hw_workaround=CPU39
+#        --code_model=large
+#    List file     =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\List\emeter-main.lst
+#    Object file   =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\Obj\emeter-main.r43
+#
+###############################################################################
+
+D:\Documents\GitHub\SmartMeter\Source\emeter-ng\emeter-main.c
+      1          //--------------------------------------------------------------------------
+      2          //
+      3          //  Software for MSP430 based e-meters.
+      4          //
+      5          //  THIS PROGRAM IS PROVIDED "AS IS". TI MAKES NO WARRANTIES OR
+      6          //  REPRESENTATIONS, EITHER EXPRESS, IMPLIED OR STATUTORY,
+      7          //  INCLUDING ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS
+      8          //  FOR A PARTICULAR PURPOSE, LACK OF VIRUSES, ACCURACY OR
+      9          //  COMPLETENESS OF RESPONSES, RESULTS AND LACK OF NEGLIGENCE.
+     10          //  TI DISCLAIMS ANY WARRANTY OF TITLE, QUIET ENJOYMENT, QUIET
+     11          //  POSSESSION, AND NON-INFRINGEMENT OF ANY THIRD PARTY
+     12          //  INTELLECTUAL PROPERTY RIGHTS WITH REGARD TO THE PROGRAM OR
+     13          //  YOUR USE OF THE PROGRAM.
+     14          //
+     15          //  IN NO EVENT SHALL TI BE LIABLE FOR ANY SPECIAL, INCIDENTAL,
+     16          //  CONSEQUENTIAL OR INDIRECT DAMAGES, HOWEVER CAUSED, ON ANY
+     17          //  THEORY OF LIABILITY AND WHETHER OR NOT TI HAS BEEN ADVISED
+     18          //  OF THE POSSIBILITY OF SUCH DAMAGES, ARISING IN ANY WAY OUT
+     19          //  OF THIS AGREEMENT, THE PROGRAM, OR YOUR USE OF THE PROGRAM.
+     20          //  EXCLUDED DAMAGES INCLUDE, BUT ARE NOT LIMITED TO, COST OF
+     21          //  REMOVAL OR REINSTALLATION, COMPUTER TIME, LABOR COSTS, LOSS
+     22          //  OF GOODWILL, LOSS OF PROFITS, LOSS OF SAVINGS, OR LOSS OF
+     23          //  USE OR INTERRUPTION OF BUSINESS. IN NO EVENT WILL TI'S
+     24          //  AGGREGATE LIABILITY UNDER THIS AGREEMENT OR ARISING OUT OF
+     25          //  YOUR USE OF THE PROGRAM EXCEED FIVE HUNDRED DOLLARS
+     26          //  (U.S.$500).
+     27          //
+     28          //  Unless otherwise stated, the Program written and copyrighted
+     29          //  by Texas Instruments is distributed as "freeware".  You may,
+     30          //  only under TI's copyright in the Program, use and modify the
+     31          //  Program without any charge or restriction.  You may
+     32          //  distribute to third parties, provided that you transfer a
+     33          //  copy of this license to the third party and the third party
+     34          //  agrees to these terms by its first use of the Program. You
+     35          //  must reproduce the copyright notice and any other legend of
+     36          //  ownership on each copy or partial copy, of the Program.
+     37          //
+     38          //  You acknowledge and agree that the Program contains
+     39          //  copyrighted material, trade secrets and other TI proprietary
+     40          //  information and is protected by copyright laws,
+     41          //  international copyright treaties, and trade secret laws, as
+     42          //  well as other intellectual property laws.  To protect TI's
+     43          //  rights in the Program, you agree not to decompile, reverse
+     44          //  engineer, disassemble or otherwise translate any object code
+     45          //  versions of the Program to a human-readable form.  You agree
+     46          //  that in no event will you alter, remove or destroy any
+     47          //  copyright notice included in the Program.  TI reserves all
+     48          //  rights not specifically granted under this license. Except
+     49          //  as specifically provided herein, nothing in this agreement
+     50          //  shall be construed as conferring by implication, estoppel,
+     51          //  or otherwise, upon you, any license or other right under any
+     52          //  TI patents, copyrights or trade secrets.
+     53          //
+     54          //  You may not use the Program in non-TI devices.
+     55          //
+     56          //  File: emeter-main.c
+     57          //
+     58          //  Steve Underwood <steve-underwood@ti.com>
+     59          //  Texas Instruments Hong Kong Ltd.
+     60          //
+     61          //  $Id: emeter-main.c,v 1.10 2009/04/27 06:21:22 a0754793 Exp $
+     62          //
+     63          /*! \file emeter-structs.h */
+     64          //
+     65          //--------------------------------------------------------------------------
+     66          //
+     67          //  MSP430 foreground (non-interrupt) routines for e-meters
+     68          //
+     69          //  This software is appropriate for single phase and three phase e-meters
+     70          //  using a voltage sensor plus a CT or shunt resistor current sensors, or
+     71          //  a combination of a CT plus a shunt.
+     72          //
+     73          //    Foreground process includes:
+     74          //    -Using timer tick to wait
+     75          //    -Calculating the power per channel
+     76          //    -Determine if current channel needs scaling.
+     77          //    -Determine if needs to be in low power modes.
+     78          //    -Compensate reference from temperature sensor
+     79          //
+     80          #include <stdint.h>
+     81          #include <stdlib.h>
+     82          #if !defined(__MSP430__)
+     83          #include <stdio.h>
+     84          #include <fcntl.h>
+     85          #include <unistd.h>
+     86          #endif
+     87          #if defined(__GNUC__)
+     88          #include <signal.h>
+     89          #endif
+     90          #include <math.h>
+     91          #include <io.h>
+     92          #include <emeter-toolkit.h>
+     93          #define __MAIN_PROGRAM__
+     94          
+     95          #include "emeter-structs.h"
+     96          #if defined(MESH_NET_SUPPORT)
+     97          #include "mesh_structure.h"
+     98          #endif
+     99          
+    100          #if defined(TOTAL_ACTIVE_ENERGY_SUPPORT)
+    101          typedef union
+    102          {
+    103              unsigned char uint8[4];
+    104              unsigned int uint16[2];
+    105              uint32_t uint32;
+    106          } power_array;
+    107          
+    108          
+    109          uint8_t total_active_energy_pulse_remaining_time;
+    110          int32_t total_active_power;
+    111          power_array    total_active_power_array;
+    112          int32_t total_active_power_counter;
+    113              #if TOTAL_ENERGY_PULSES_PER_KW_HOUR < 1000
+    114          int16_t extra_total_active_power_counter;
+    115              #endif
+    116          uint32_t total_consumed_active_energy;
+    117          #endif
+    118          
+    119          #if defined(TOTAL_REACTIVE_ENERGY_SUPPORT)
+    120          uint8_t total_reactive_energy_pulse_remaining_time;
+    121          int32_t total_reactive_power;
+    122          int32_t total_reactive_power_counter;
+    123              #if TOTAL_ENERGY_PULSES_PER_KW_HOUR < 1000
+    124          int16_t extra_total_reactive_power_counter;
+    125              #endif
+    126          uint32_t total_consumed_reactive_energy;
+    127          #endif
+    128          
+    129          #if 0 //CUSTOM_LCD_SUPPORT
+    130          /* Keep the toolkit library happy */
+    131          const int lcd_cells = LCD_CELLS;
+    132          const int lcd_pos_base = LCD_POS_BASE;
+    133          const int lcd_pos_step = LCD_POS_STEP;
+    134          #endif
+    135          
+    136          #if defined(TEMPERATURE_SUPPORT)
+    137          uint16_t temperature;
+    138          #endif
+    139          
+    140          #if defined(VCC_MEASURE_SUPPORT)
+    141          uint16_t vcc;
+    142          #endif
+    143          
+    144          //MM start
+    145          long long temp=0, temp2=0;
+    146          static int thou,hun,ten,unit,ten_thou, thou_thou, hun_thou;
+    147          int lcd_display_mode=-2, change_display=0, LCDM3constant=0;
+    148          volatile unsigned int LCD_reg; 
+    149          //mm 
+    150          enum display_LCD
+    151          {
+    152             DISPLAY_VOLTAGE                         = 0,     
+    153             DISPLAY_CURRENT                         = 2,    
+    154             DISPLAY_ACTIVE_POWER                    = 4,
+    155             DISPLAY_REACTIVE_POWER                    = 6,
+    156             DISPLAY_APPARENT_POWER                    = 8,
+    157                DISPLAY_FREQUENCY                       = 10,
+    158             DISPLAY_POWER_FACTOR                    = 12,
+    159                DISPLAY_ACCUMULATED_POWER_TOTAL         = 14
+    160          
+    161          };
+    162           const unsigned char LCD_Char_Map[] =
+    163          {
+    164              BIT2 | BIT3 | BIT4 | BIT5 | BIT6 | BIT7,                // '0' or 'O'
+    165              BIT5 | BIT6,                                            // '1' or 'I'
+    166              BIT0 | BIT1 | BIT3 | BIT4 | BIT6 | BIT7,                // '2' or 'Z'
+    167              BIT0 | BIT1 | BIT4 | BIT5 | BIT6 | BIT7,                // '3'
+    168              BIT0 | BIT1 | BIT2 | BIT5 | BIT6,                       // '4' or 'y'
+    169              BIT0 | BIT1 | BIT2 | BIT4 | BIT5 | BIT7,                // '5' or 'S'
+    170              BIT0 | BIT1 | BIT2 | BIT3 | BIT4 | BIT5 | BIT7,         // '6' or 'b'
+    171              BIT5 | BIT6 | BIT7,                                     // '7'
+    172              BIT0 | BIT1 | BIT2 | BIT3 | BIT4 | BIT5 | BIT6 | BIT7,  // '8' or 'B'
+    173              BIT0 | BIT1 | BIT2 | BIT4 | BIT5 | BIT6 | BIT7,         // '9' or 'g'
+    174          };
+    175          //MM end
+    176          
+    177          /* Meter status flag bits. */
+    178          uint16_t meter_status;
+    179          
+    180          /* Current operating mode - normal, limp, power down, etc. */
+    181          int8_t operating_mode;
+    182          
+    183          /* Persistence check counters for anti-tamper measures. */
+    184          #if defined(PHASE_REVERSED_DETECTION_SUPPORT)
+    185          int8_t current_reversed;
+    186          #endif
+    187          #if defined(POWER_BALANCE_DETECTION_SUPPORT)
+    188          int8_t current_unbalanced;
+    189          #endif
+    190          #if defined(MAGNETIC_INTERFERENCE_SUPPORT)
+    191          int8_t magnetic_interference_persistence;
+    192          #endif
+    193          
+    194          #if defined(IHD430_SUPPORT)
+    195          unsigned char RF_Tx[17]={0xFE,0x0C,0x29,0x00,0x09,0x00,0x00,0x00,0x00,0x00,0x05,0x01};
+    196          #endif 
+    197          
+    198          /* The main per-phase working parameter structure */
+    199          #if !defined(SINGLE_PHASE)
+    200          struct phase_parms_s chan[NUM_PHASES];
+    201              #if defined(NEUTRAL_MONITOR_SUPPORT)
+    202          struct neutral_parms_s neutral;
+    203              #endif
+    204          #else
+    205          struct phase_parms_s chan1;
+    206          #endif
+    207          
+    208          /* The main per-phase non-volatile parameter structure */
+    209          __infomem__ const struct info_mem_s nv_parms =
+    210          {
+    211              {
+    212              {
+    213                  0xFFFF,
+    214          #if defined(SELF_TEST_SUPPORT)
+    215                  0xFFFF,
+    216                  0xFFFF,
+    217          #endif
+    218          #if !defined(SINGLE_PHASE)
+    219                  {
+    220          #endif
+    221                      {
+    222                          {
+    223          #if defined(IRMS_SUPPORT)
+    224                              {DEFAULT_I_RMS_SCALE_FACTOR_A},
+    225              #if defined(LIMP_MODE_SUPPORT)
+    226                              {DEFAULT_I_RMS_LIMP_SCALE_FACTOR_A},
+    227              #endif
+    228                              0,
+    229          #endif
+    230          #if GAIN_STAGES == 1
+    231                              DEFAULT_P_SCALE_FACTOR_A_LOW,
+    232          #else
+    233                              {DEFAULT_P_SCALE_FACTOR_A_LOW, DEFAULT_P_SCALE_FACTOR_A_HIGH},
+    234          #endif
+    235                              DEFAULT_I_DC_ESTIMATE << 16,
+    236          #if defined(PHASE_CORRECTION_SUPPORT)
+    237              #if GAIN_STAGES == 1
+    238                              DEFAULT_BASE_PHASE_A_CORRECTION_LOW,
+    239              #else
+    240                              {DEFAULT_BASE_PHASE_A_CORRECTION_LOW, DEFAULT_BASE_PHASE_A_CORRECTION_HIGH},
+    241              #endif
+    242          #endif
+    243                          },
+    244          #if defined(VRMS_SUPPORT)
+    245                          DEFAULT_V_RMS_SCALE_FACTOR_A,
+    246              #if defined(LIMP_MODE_SUPPORT)
+    247                          DEFAULT_V_RMS_LIMP_SCALE_FACTOR_A,
+    248              #endif
+    249          #endif
+    250                          DEFAULT_V_DC_ESTIMATE << 16,
+    251          #if defined(LIMP_MODE_SUPPORT)
+    252                          DEFAULT_V_LIMP_DC_ESTIMATE << 16,
+    253          #endif
+    254                      },
+    255          #if !defined(SINGLE_PHASE)
+    256                      {
+    257                          {
+    258              #if defined(IRMS_SUPPORT)
+    259                              {DEFAULT_I_RMS_SCALE_FACTOR_B},
+    260                  #if defined(LIMP_MODE_SUPPORT)
+    261                              {DEFAULT_I_RMS_LIMP_SCALE_FACTOR},
+    262                  #endif
+    263                              0,
+    264              #endif
+    265              #if GAIN_STAGES == 1
+    266                              DEFAULT_P_SCALE_FACTOR_B_LOW,
+    267              #else
+    268                              {DEFAULT_P_SCALE_FACTOR_B_LOW, DEFAULT_P_SCALE_FACTOR_B_HIGH},
+    269              #endif
+    270                              DEFAULT_I_DC_ESTIMATE << 16,
+    271              #if defined(PHASE_CORRECTION_SUPPORT)
+    272                  #if GAIN_STAGES == 1
+    273                              DEFAULT_BASE_PHASE_B_CORRECTION_LOW,
+    274                  #else
+    275                              {DEFAULT_BASE_PHASE_B_CORRECTION_LOW, DEFAULT_BASE_PHASE_B_CORRECTION_HIGH},
+    276                  #endif
+    277              #endif
+    278                          },
+    279              #if defined(VRMS_SUPPORT)
+    280                          DEFAULT_V_RMS_SCALE_FACTOR_B,
+    281                  #if defined(LIMP_MODE_SUPPORT)
+    282                          DEFAULT_V_RMS_LIMP_SCALE_FACTOR,
+    283                  #endif
+    284              #endif
+    285                          DEFAULT_V_DC_ESTIMATE << 16,
+    286              #if defined(LIMP_MODE_SUPPORT)
+    287                          DEFAULT_V_LIMP_DC_ESTIMATE << 16,
+    288              #endif
+    289                      },
+    290                      {
+    291                          {
+    292              #if defined(IRMS_SUPPORT)
+    293                              {DEFAULT_I_RMS_SCALE_FACTOR_C},
+    294                  #if defined(LIMP_MODE_SUPPORT)
+    295                              {DEFAULT_I_RMS_LIMP_SCALE_FACTOR},
+    296                  #endif
+    297                              0,
+    298              #endif
+    299              #if GAIN_STAGES == 1
+    300                              DEFAULT_P_SCALE_FACTOR_C_LOW,
+    301              #else
+    302                              {DEFAULT_P_SCALE_FACTOR_C_LOW, DEFAULT_P_SCALE_FACTOR_C_HIGH},
+    303              #endif
+    304                              DEFAULT_I_DC_ESTIMATE << 16,
+    305              #if defined(PHASE_CORRECTION_SUPPORT)
+    306                  #if GAIN_STAGES == 1
+    307                              DEFAULT_BASE_PHASE_C_CORRECTION_LOW,
+    308                  #else
+    309                              {DEFAULT_BASE_PHASE_C_CORRECTION_LOW, DEFAULT_BASE_PHASE_C_CORRECTION_HIGH},
+    310                  #endif
+    311              #endif
+    312                          },
+    313              #if defined(VRMS_SUPPORT)
+    314                          DEFAULT_V_RMS_SCALE_FACTOR_C,
+    315                  #if defined(LIMP_MODE_SUPPORT)
+    316                          DEFAULT_V_RMS_LIMP_SCALE_FACTOR,
+    317                  #endif
+    318              #endif
+    319                          DEFAULT_V_DC_ESTIMATE << 16,
+    320              #if defined(LIMP_MODE_SUPPORT)
+    321                          DEFAULT_V_LIMP_DC_ESTIMATE << 16,
+    322              #endif
+    323                      }
+    324                  },
+    325          #endif
+    326          #if defined(NEUTRAL_MONITOR_SUPPORT)
+    327                  {
+    328              #if defined(IRMS_SUPPORT)
+    329                      DEFAULT_I_RMS_SCALE_FACTOR_NEUTRAL,
+    330                  #if defined(LIMP_MODE_SUPPORT)
+    331                      DEFAULT_I_RMS_LIMP_SCALE_FACTOR_NEUTRAL,
+    332                  #endif
+    333                      0,
+    334              #endif
+    335                      DEFAULT_P_SCALE_FACTOR_NEUTRAL,
+    336                      DEFAULT_I_DC_ESTIMATE << 16,
+    337              #if defined(PHASE_CORRECTION_SUPPORT)
+    338                      DEFAULT_NEUTRAL_BASE_PHASE_CORRECTION,
+    339              #endif
+    340                  },
+    341          #endif
+    342          #if defined(TEMPERATURE_SUPPORT)
+    343                  25,
+    344                  DEFAULT_TEMPERATURE_OFFSET,
+    345                  DEFAULT_TEMPERATURE_SCALING,
+    346          #endif
+    347          #if defined(CORRECTED_RTC_SUPPORT)
+    348                  0,
+    349          #endif
+    350                  {
+    351                      0,
+    352                      0,
+    353                      0,
+    354                      0,
+    355                      0,
+    356                      0
+    357                  },
+    358                  0,
+    359                  "",
+    360                  "",
+    361                  ""
+    362              }
+    363              }
+    364          };
+    365          
+    366          #if !defined(__IAR_SYSTEMS_ICC__)
+    367          static __inline__ long labs(long __x);
+    368          static __inline__ long labs(long __x)
+    369          {
+    370              return (__x < 0) ? -__x : __x;
+    371          }
+    372          #endif
+    373          
+    374          #if defined(SELF_TEST_SUPPORT)
+    375          int record_meter_failure(int type)
+    376          {
+    377              /* The error type should be a value between 0 and 15, specifying the unrecoverable error
+    378                 type to be recorded in the failures word in flash. */
+    379              /* Don't worry about the time taken to write to flash - we are recording a serious
+    380                 error condition! */
+    381              flash_write_int16((int *) &(nv_parms.seg_a.s.meter_failures), nv_parms.seg_a.s.meter_failures & ~(1 << type));
+    382              flash_secure();
+    383              return TRUE;
+    384          }
+    385          
+    386          int record_meter_warning(int type)
+    387          {
+    388              /* The warning type should be a value between 0 and 15, specifying the warning type to be
+    389                 recorded in the recoverable failures word in flash. */
+    390              /* Don't worry about the time taken to write to flash - we are recording a serious
+    391                 problem! */
+    392              flash_write_int16((int *) &(nv_parms.seg_a.s.meter_warnings), nv_parms.seg_a.s.meter_warnings & ~(1 << type));
+    393              flash_secure();
+    394              return TRUE;
+    395          }
+    396          #endif
+    397          
+    398          #if defined(BATTERY_MONITOR_SUPPORT)
+    399          void test_battery(void)
+    400          {
+    401              P3DIR |= (BIT1);
+    402              P3OUT &= ~(BIT1);
+    403              battery_countdown = 1000;
+    404          }
+    405          #endif
+    406          
+    407          #if defined(IO_EXPANDER_SUPPORT)
+    408          /* This routine supports the use of a device like the 74HC595 to expand the number of
+    409             output bits available on the lower pin count MSP430s. */
+    410          void set_io_expander(int what, int which)
+    411          {
+    412              static uint8_t io_state = 0;
+    413              int i;
+    414              int j;
+    415          
+    416              if (what < 0)
+    417                  io_state &= ~which;
+    418              else if (what > 0)
+    419                  io_state |= which;
+    420              else
+    421                  io_state = which;
+    422              /* Pump the data into the shift register */
+    423              for (i = 8, j = io_state;  i > 0;  i--)
+    424              {
+    425                  P1OUT &= ~BIT4;
+    426                  if ((j & 0x80))
+    427                      P1OUT |= BIT7;
+    428                  else
+    429                      P1OUT &= ~BIT7;
+    430                  P1OUT |= BIT4;
+    431                  j <<= 1;
+    432              }
+    433              /* Clock the data into the output register */
+    434              P1OUT &= ~BIT6;
+    435              P1OUT |= BIT6;
+    436          }
+    437          #endif
+    438          
+    439          #if defined(__AQCOMPILER__)  ||  defined(__IAR_SYSTEMS_ICC__)
+    440          void main(void)
+    441          #else
+    442          int main(int argc, char *argv[])
+    443          #endif
+    444          {
+    445          #if !defined(SINGLE_PHASE)
+    446              int ch;
+    447              static struct phase_parms_s *phase;
+    448              static struct phase_nv_parms_s const *phase_nv;
+    449          #endif
+    450              static int32_t x;
+    451              int i;
+    452          
+    453          #if !defined(__MSP430__)
+    454              if (start_host_environment(argc, argv) < 0)
+    455                  exit(2);
+    456          #endif
+    457              system_setup();
+    458          
+    459          #if !defined(ESP_SUPPORT)  &&  defined(PHASE_CORRECTION_SUPPORT)  &&  !defined(DYNAMIC_PHASE_CORRECTION_SUPPORT)
+    460              #if !defined(SINGLE_PHASE)
+    461              for (ch = 0;  ch < NUM_PHASES;  ch++)
+    462              {
+    463                  phase = &chan[ch];
+    464                  phase_nv = &nv_parms.seg_a.s.chan[ch];
+    465              #endif
+    466              #if defined(__MSP430_HAS_ADC12__)  ||  defined(__MSP430_HAS_ADC10__)
+    467                  set_phase_correction(&phase->metrology.current.in_phase_correction[0], phase_nv->current.phase_correction[0]);
+    468                  #if GAIN_STAGES > 1
+    469                  set_phase_correction(&phase->metrology.current.in_phase_correction[1], phase_nv->current.phase_correction[1]);
+    470                  #endif
+    471                  #if defined(SINGLE_PHASE)  &&  defined(NEUTRAL_MONITOR_SUPPORT)
+    472                  set_phase_correction(&phase->neutral.in_phase_correction[0], nv_parms.seg_a.s.neutral.phase_correction[0]);
+    473                      #if GAIN_STAGES > 1
+    474                  set_phase_correction(&phase->neutral.in_phase_correction[1], nv_parms.seg_a.s.neutral.phase_correction[1]);
+    475                      #endif
+    476                  #endif
+    477              #else
+    478                  #if defined(SINGLE_PHASE)
+    479                  set_sd16_phase_correction(&phase->metrology.current.in_phase_correction[0], 0, phase_nv->current.phase_correction[0]);
+    480                      #if defined(NEUTRAL_MONITOR_SUPPORT)
+    481                  set_sd16_phase_correction(&phase->metrology.neutral.in_phase_correction[0], 1, nv_parms.seg_a.s.neutral.phase_correction[0]);
+    482                      #endif
+    483                  #else
+    484                  set_sd16_phase_correction(&phase->metrology.current.in_phase_correction[0], ch, phase_nv->current.phase_correction[0]);
+    485                  #endif
+    486              #endif
+    487              #if !defined(SINGLE_PHASE)
+    488              }
+    489              #endif
+    490          #endif
+    491          
+    492          #if defined(ESP_SUPPORT)
+    493              esp_init();
+    494              esp_start_measurement();
+    495          #endif
+    496          
+    497          #if defined(MULTI_RATE_SUPPORT)
+    498              tariff_initialise();
+    499          #endif
+    500              send_message(0, 1);
+    501          
+    502              for (;;)
+    503              {
+    504                  kick_watchdog();
+    505          #if !defined(__MSP430__)
+    506                  /* In the host environment we need to simulate interrupts here */
+    507                  adc_interrupt();
+    508          #endif
+    509          #if !defined(SINGLE_PHASE)
+    510                  phase = chan;
+    511                  phase_nv = nv_parms.seg_a.s.chan;
+    512          
+    513                  for (ch = 0;  ch < NUM_PHASES;  ch++)
+    514                  {
+    515          #endif
+    516                      /* Unless we are in normal operating mode, we should wait to be
+    517                         woken by a significant event from the interrupt routines. */
+    518          ////#if  1 //// 0 //defined(__MSP430__)
+    519          ////            if (operating_mode != OPERATING_MODE_NORMAL)
+    520          #ifdef USE_LPM
+    521                          _BIS_SR(LPM0_bits);
+    522          #endif
+    523          #if defined(POWER_DOWN_SUPPORT)
+    524                      if (operating_mode == OPERATING_MODE_POWERFAIL)
+    525                          switch_to_powerfail_mode();
+    526          #endif
+    527          #if defined(LIMP_MODE_SUPPORT)  &&  defined(IEC1107_SUPPORT)
+    528                      if (nv_parms.seg_a.s.meter_uncalibrated)
+    529                          enable_ir_receiver();
+    530          #endif
+    531                      if ((phase->status & NEW_LOG))
+    532                      {
+    533                          /* The background activity has informed us that it is time to
+    534                             perform a block processing operation. */
+    535                          phase->status &= ~NEW_LOG;
+    536          #if defined(MAGNETIC_INTERFERENCE_SUPPORT)
+    537                          if ((meter_status & STATUS_HIGH_MAGNETIC_FIELD))
+    538                          {
+    539                              /* The meter is suffering magnetic tampering, so continuously
+    540                                 charge for a great deal of electricity. */
+    541                              x = phase->readings.V_rms*MAGNETIC_INTERFERENCE_CURRENT/(10*100);
+    542                          }
+    543                          else
+    544          #endif
+    545                       
+    546                    
+    547                    
+    548            //MM Added for LCD Fix; Start     
+    549                   
+    550              
+    551              
+    552               #if defined(IHD430_SUPPORT)
+    553                   
+    554                         RF_Tx[12]=total_active_power_array.uint8[0];
+    555                         RF_Tx[13]=total_active_power_array.uint8[1];
+    556                         RF_Tx[14]=total_active_power_array.uint8[2];
+    557                         RF_Tx[15]=total_active_power_array.uint8[3]; 
+    558                         RF_Tx[16] =0x28 ^ RF_Tx[12] ^ RF_Tx[13] ^ RF_Tx[14] ^ RF_Tx[15];
+    559                         for (i=0; i<17; i++)
+    560                         {
+    561                            UCA2TXBUF=RF_Tx[i];
+    562                            while(!(UCA2IFG&UCTXIFG));
+    563                         }               
+    564                   #endif
+    565              lcd_display_mode++;
+    566               switch( lcd_display_mode ) 
+    567                        {
+    568                            case DISPLAY_VOLTAGE:
+    569                                change_display=1;
+    570                                temp= phase->readings.V_rms;
+    571                                 if (temp <0) temp=0;
+    572                                 LCDM1=0xC;
+    573                                 LCDM2=0x29;
+    574                                break;
+    575                            case DISPLAY_CURRENT:
+    576                                 change_display=1;
+    577                                 temp= phase->readings.I_rms;
+    578                                 if (temp <0) temp=0;
+    579                                 LCDM1=0x9C;
+    580                                 LCDM2=0x1;
+    581                                 //MM Take care of different decimal.
+    582                                break;
+    583                            case DISPLAY_ACTIVE_POWER:
+    584                               change_display=1;
+    585                                temp= phase->readings.active_power;
+    586                                if (temp <0) temp=0;
+    587                                LCDM1=0xCF;
+    588                                 LCDM2=0x1;
+    589                                break;
+    590                            case DISPLAY_REACTIVE_POWER:
+    591                                change_display=1;
+    592                                 temp= phase->readings.reactive_power;
+    593                                 if (temp <0) temp=0;
+    594                                 LCDM1=0xC7;
+    595                                 LCDM2=0x3;
+    596                                break;
+    597                            case DISPLAY_APPARENT_POWER:
+    598                                change_display=1;
+    599                                 temp= phase->readings.apparent_power;
+    600                                 if (temp <0) temp=0;
+    601                                 LCDM1=0xB7;
+    602                                 LCDM2=0x1;
+    603                                break;
+    604                            case DISPLAY_FREQUENCY:
+    605                                change_display=1;
+    606                                 temp= phase->readings.frequency;
+    607                                 if (temp <0) temp=0;
+    608                                 LCDM1=0x8F;
+    609                                 LCDM2=0x1;
+    610                                break;  
+    611                            case DISPLAY_POWER_FACTOR:
+    612                                change_display=1;
+    613                                 temp= phase->readings.power_factor/10;
+    614                                 LCDM1=0x8F;
+    615                                 LCDM2=0x50;
+    616                                 if (temp < 0)
+    617                                 {
+    618                                    temp*= -1;
+    619                                   LCDM3=0x1C;
+    620                                 }
+    621                                 else
+    622                                 {
+    623                                    LCDM3= 0x9C; 
+    624                                 }
+    625                                 LCDM3constant=1;
+    626                                 //Take negative and positive case for inductive and capacitive
+    627                                break;                  
+    628                           case    DISPLAY_ACCUMULATED_POWER_TOTAL: 
+    629                                change_display=1;
+    630                                temp= phase->consumed_active_energy/10;
+    631                                LCDM1=0x9F;
+    632                                 LCDM2=0x1;
+    633                                break; 
+    634                        default:
+    635                          change_display=0;
+    636                          break;
+    637                          
+    638                                               
+    639                      }
+    640               //temp=12345;
+    641                   //total_active_power=0x12345;
+    642          // MM    Comment back in to display active power
+    643          //            if (total_active_power <0)
+    644          //            temp=-(total_active_power);
+    645          //          else
+    646          //            temp=total_active_power;
+    647              
+    648          //MM Comment in two lines below  for counter test         //temp=12345;
+    649          //          temp2++;
+    650          //          temp=temp2;
+    651                   
+    652                      if(change_display)
+    653                      {
+    654          //               LCDM1 = 0;
+    655          //          LCDM2 = 0;          
+    656                    
+    657                       if(!LCDM3constant)
+    658                       {
+    659                         LCDM3 = 0;             
+    660                       }
+    661                       else
+    662                       {
+    663                         LCDM3constant=0;
+    664                       }
+    665                         
+    666                    LCDM4 = 0;
+    667                    LCDM5 = 0;
+    668                    LCDM6 = 0;
+    669                    LCDM7 = 0;
+    670                    LCDM8 = 0;
+    671                    LCDM9 = 0;
+    672                    LCDM10 = 0;
+    673                    LCDM11 = 0;
+    674                    LCDM12 = 0;          
+    675                    LCDM13 = 0;
+    676                    LCDM14 = 0;
+    677                    LCDM15 = 0;
+    678                    LCDM16 = 0;
+    679                    LCDM17 = 0;
+    680                    LCDM18 = 0;
+    681                    LCDM19 = 0;
+    682                    LCDM20 = 0;
+    683                    
+    684                   
+    685                 thou_thou=0;
+    686                   hun_thou=0;       
+    687                  ten_thou=0;
+    688              thou=0;
+    689              hun=0;
+    690              ten=0;
+    691              unit=0; 
+    692                          while (temp >=1000000)
+    693                          {
+    694                              thou_thou++;
+    695                              temp-=1000000;
+    696                          }
+    697                           while (temp >=100000)
+    698                          {
+    699                              hun_thou++;
+    700                              temp-=100000;
+    701                          }
+    702                          while (temp >=10000)
+    703                          {
+    704                              ten_thou++;
+    705                              temp-=10000;
+    706                          }
+    707                          while (temp >=1000)
+    708                          {
+    709                              thou++;
+    710                              temp-=1000;
+    711                          }
+    712                          while (temp >=100)
+    713                          {
+    714                              hun++;
+    715                              temp-=100;
+    716                          }
+    717                          while (temp >=10)
+    718                          {
+    719                              ten++;
+    720                              temp-=10;
+    721                          }
+    722                          while (temp >=1)
+    723                          {
+    724                              unit++;
+    725                              temp--;
+    726                          }
+    727                         
+    728                          //MM: LCD fix to display higher active power readings
+    729                          if(thou_thou)
+    730                          {
+    731                            LCDM11 = LCD_Char_Map[hun];
+    732                            LCDM9 = LCD_Char_Map[thou];
+    733                            //LCDM8 = 0x1;
+    734                            LCDM7 = LCD_Char_Map[ten_thou];
+    735                            LCDM5 = LCD_Char_Map[hun_thou];
+    736                            LCDM3 = LCD_Char_Map[thou_thou];          
+    737                          }
+    738                          else if(hun_thou)
+    739                          {        
+    740                            
+    741                            LCDM11 = LCD_Char_Map[ten];
+    742                            if (lcd_display_mode==DISPLAY_CURRENT) LCDM8 = 0x1;      
+    743                            else if(lcd_display_mode!=DISPLAY_ACCUMULATED_POWER_TOTAL) LCDM10 = 0x1; //MM do nothing    
+    744                            LCDM9 = LCD_Char_Map[hun];
+    745                            LCDM7 = LCD_Char_Map[thou];
+    746                            LCDM5 = LCD_Char_Map[ten_thou];
+    747                            LCDM3 = LCD_Char_Map[hun_thou]; 
+    748                          }
+    749                          else
+    750                          {
+    751                            LCDM11 = LCD_Char_Map[unit];
+    752                            LCDM9 = LCD_Char_Map[ten];
+    753                            if (lcd_display_mode==DISPLAY_CURRENT || lcd_display_mode==DISPLAY_POWER_FACTOR) 
+    754                            {
+    755                              LCDM6 = 0x1;
+    756                            }
+    757                            else if(lcd_display_mode==DISPLAY_ACCUMULATED_POWER_TOTAL) 
+    758                            {
+    759                              
+    760                              LCDM10 = 0x1;
+    761                                
+    762                            }
+    763                            else
+    764                            {
+    765                                                 LCDM8 = 0x1; 
+    766                            }
+    767                               
+    768                            if (lcd_display_mode!=DISPLAY_POWER_FACTOR) 
+    769                               {
+    770                                 
+    771                                 LCDM3 = LCD_Char_Map[ten_thou];
+    772           
+    773                               }
+    774          
+    775                            LCDM7 = LCD_Char_Map[hun];
+    776                            LCDM5 = LCD_Char_Map[thou];
+    777                           
+    778                          }
+    779                          if (lcd_display_mode==DISPLAY_ACCUMULATED_POWER_TOTAL)
+    780                          {
+    781                              lcd_display_mode=-2; 
+    782                          }
+    783                         
+    784                      }  
+    785                      
+    786                    //MM end        
+    787                            
+    788                          if (operating_mode == OPERATING_MODE_NORMAL)
+    789                          {
+    790                              /* We can only do real power assessment in full operating mode */
+    791          #if !defined(SINGLE_PHASE)
+    792                              x = active_power(phase, phase_nv);
+    793              #if defined(PRECALCULATED_PARAMETER_SUPPORT)
+    794                  #if defined(IRMS_SUPPORT)
+    795                              phase->readings.I_rms = current(phase, phase_nv, ch);
+    796                  #endif
+    797                  #if defined(VRMS_SUPPORT)
+    798                              phase->readings.V_rms = voltage(phase, phase_nv);
+    799                  #endif
+    800              #endif
+    801          #else
+    802                              x = active_power();
+    803                              
+    804              #if defined(PRECALCULATED_PARAMETER_SUPPORT)
+    805                  #if defined(IRMS_SUPPORT)
+    806                              phase->readings.I_rms = current();
+    807                  #endif
+    808                  #if defined(VRMS_SUPPORT)
+    809                              phase->readings.V_rms = voltage();
+    810                  #endif
+    811              #endif
+    812          #endif
+    813                          }
+    814          #if defined(LIMP_MODE_SUPPORT)
+    815                          else if (operating_mode == OPERATING_MODE_LIMP)
+    816                          {
+    817                              /* In limp mode we must assess estimated power from only the measured current. */
+    818                              /* We cannot properly determine current reversal in this mode. Also, current
+    819                                 imbalance is really just a measure of which lead is still connected.
+    820                                 Just treat both the imbalance and reversal conditions as OK */
+    821              #if !defined(SINGLE_PHASE)
+    822                              x = current(phase, phase_nv, ch);
+    823                  #if defined(PRECALCULATED_PARAMETER_SUPPORT)  &&  defined(VRMS_SUPPORT)
+    824                              phase->readings.V_rms = voltage(phase, phase_nv);
+    825                  #endif
+    826              #else
+    827                              x = current();
+    828                  #if defined(PRECALCULATED_PARAMETER_SUPPORT)  &&  defined(VRMS_SUPPORT)
+    829                              phase->readings.V_rms = voltage();
+    830                  #endif
+    831              #endif
+    832              #if defined(PRECALCULATED_PARAMETER_SUPPORT)  &&  defined(IRMS_SUPPORT)
+    833                              phase->readings.I_rms = x;
+    834              #endif
+    835                              x = x*MAINS_NOMINAL_VOLTAGE/10;
+    836                          }
+    837          #endif
+    838                          if (labs(x) < RESIDUAL_POWER_CUTOFF  ||  (phase->status & V_OVERRANGE))
+    839                          {
+    840                              x = 0;
+    841          #if defined(PRECALCULATED_PARAMETER_SUPPORT)  &&  defined(IRMS_SUPPORT)
+    842                              /* Avoid displaying a residual current, which is nothing more
+    843                                 than integrated noise. */
+    844                              //phase->I_rms = 0;
+    845          #endif
+    846                              /* Turn off the LEDs, regardless of the internal state of the
+    847                                 reverse and imbalance assessments. */
+    848          #if defined(PHASE_REVERSED_DETECTION_SUPPORT)
+    849                              meter_status &= ~STATUS_REVERSED;
+    850                              clr_reverse_current_indicator();
+    851          #endif
+    852          #if defined(POWER_BALANCE_DETECTION_SUPPORT)
+    853                              meter_status &= ~STATUS_EARTHED;
+    854                              clr_earthed_indicator();
+    855          #endif
+    856                          }
+    857                          else
+    858                          {
+    859                              if (operating_mode == OPERATING_MODE_NORMAL)
+    860                              {
+    861          #if defined(PHASE_REVERSED_DETECTION_SUPPORT)  &&  defined(PHASE_REVERSED_IS_TAMPERING)
+    862                                  if ((phase->status & PHASE_REVERSED))
+    863                                  {
+    864                                      meter_status |= STATUS_REVERSED;
+    865                                      set_reverse_current_indicator();
+    866                                  }
+    867                                  else
+    868                                  {
+    869                                      meter_status &= ~STATUS_REVERSED;
+    870                                      clr_reverse_current_indicator();
+    871                                  }
+    872          #endif
+    873          #if defined(POWER_BALANCE_DETECTION_SUPPORT)
+    874                                  if ((phase->status & PHASE_UNBALANCED))
+    875                                  {
+    876                                      meter_status |= STATUS_EARTHED;
+    877                                      set_earthed_indicator();
+    878                                  }
+    879                                  else
+    880                                  {
+    881                                      meter_status &= ~STATUS_EARTHED;
+    882                                      clr_earthed_indicator();
+    883                                  }
+    884          #endif
+    885                              }
+    886          #if defined(LIMP_MODE_SUPPORT)
+    887                              else
+    888                              {
+    889              #if defined(PHASE_REVERSED_DETECTION_SUPPORT)
+    890                                  /* We cannot tell forward from reverse current in limp mode,
+    891                                     so just say it is not reversed. */
+    892                                  meter_status &= ~STATUS_REVERSED;
+    893                                  clr_reverse_current_indicator();
+    894              #endif
+    895              #if defined(POWER_BALANCE_DETECTION_SUPPORT)
+    896                                  /* We are definitely in the unbalanced state, but only set
+    897                                     the indicator if we have persistence checked, and the current
+    898                                     is sufficient to sustain operation. */
+    899                                  if ((phase->status & PHASE_UNBALANCED)  &&  phase->readings.I_rms >= LIMP_MODE_MINIMUM_CURRENT)
+    900                                  {
+    901                                      meter_status |= STATUS_EARTHED;
+    902                                      set_earthed_indicator();
+    903                                  }
+    904                                  else
+    905                                  {
+    906                                      meter_status &= ~STATUS_EARTHED;
+    907                                      clr_earthed_indicator();
+    908                                  }
+    909              #endif
+    910                                  /* Only run the IR interface if we are sure there is enough power from the
+    911                                     supply to support the additional current drain. If we have not yet been
+    912                                     calibrated we had better keep the IR port running so we can complete the
+    913                                     calibration. */
+    914          #if defined(LIMP_MODE_SUPPORT)  &&  defined(IEC1107_SUPPORT)
+    915                                  if (phase->I_rms >= LIMP_MODE_MINIMUM_CURRENT_FOR_IR
+    916                                      ||
+    917                                      nv_parms.seg_a.s.meter_uncalibrated)
+    918                                  {
+    919                                      enable_ir_receiver();
+    920                                  }
+    921                                  else
+    922                                  {
+    923                                      disable_ir_receiver();
+    924                                  }
+    925          #endif
+    926                              }
+    927          #endif
+    928                          }
+    929                          //x /= 10;
+    930          #if defined(SINGLE_PHASE)  &&  defined(TOTAL_ACTIVE_ENERGY_SUPPORT)
+    931                          total_active_power = x;
+    932          #else
+    933                          total_active_power += (x - phase->readings.active_power);
+    934          #endif
+    935          #if defined(PHASE_REVERSED_DETECTION_SUPPORT)  &&  defined(PHASE_REVERSED_IS_GENERATION)
+    936          #endif
+    937                         #if defined(IHD430_SUPPORT)
+    938                          total_active_power_array.uint32=total_active_power;
+    939          
+    940                          #endif
+    941                          phase->readings.active_power = x;
+    942          #if defined(PRECALCULATED_PARAMETER_SUPPORT)
+    943              #if defined(REACTIVE_POWER_SUPPORT)
+    944                  #if defined(SINGLE_PHASE)
+    945                          x = reactive_power();
+    946                  #else
+    947                          x = reactive_power(phase, phase_nv);
+    948                  #endif
+    949                  #if defined(SINGLE_PHASE)  &&  defined(TOTAL_REACTIVE_ENERGY_SUPPORT)
+    950                          total_reactive_power = x;
+    951                  #else
+    952                          total_reactive_power += (x - phase->readings.reactive_power);
+    953                  #endif
+    954                          phase->readings.reactive_power = x;
+    955              #endif
+    956              #if defined(APPARENT_POWER_SUPPORT)
+    957                  #if defined(SINGLE_PHASE)
+    958                          phase->readings.apparent_power = apparent_power();
+    959                  #else
+    960                          phase->readings.apparent_power = apparent_power(phase, phase_nv);
+    961                  #endif
+    962              #endif
+    963              #if defined(POWER_FACTOR_SUPPORT)
+    964                          /* The power factor should be calculated last */
+    965                  #if defined(SINGLE_PHASE)
+    966                          phase->readings.power_factor = power_factor();
+    967                  #else
+    968                          phase->readings.power_factor = power_factor(phase, phase_nv);
+    969                  #endif
+    970              #endif
+    971          #endif
+    972          #if defined(PER_PHASE_ACTIVE_ENERGY_SUPPORT)
+    973          //                phase->active_energy_counter += x*phase->metrology.dot_prod_logged.sample_count;
+    974          //                while (phase->active_energy_counter > ENERGY_WATT_HOUR_THRESHOLD)
+    975          //                {
+    976          //                    phase->active_energy_counter -= ENERGY_WATT_HOUR_THRESHOLD;
+    977          //                    phase->consumed_active_energy++;
+    978          //                }
+    979          #endif
+    980          #if defined(PRECALCULATED_PARAMETER_SUPPORT)  && defined(MAINS_FREQUENCY_SUPPORT)
+    981              #if defined(SINGLE_PHASE)
+    982                          phase->readings.frequency = frequency();
+    983              #else
+    984                          phase->readings.frequency = frequency(phase, phase_nv);
+    985              #endif
+    986          #endif
+    987          #if defined(MAGNETIC_INTERFERENCE_SUPPORT)
+    988              #if !defined(SINGLE_PHASE)
+    989                          if (ch == 0)
+    990              #endif
+    991                          {
+    992                              if ((meter_status & STATUS_HIGH_MAGNETIC_FIELD))
+    993                              {
+    994                                  if (phase->sample_count_logged/magnetic_sensor_count_logged < MAGNETIC_INTERFERENCE_SAMPLE_RATIO)
+    995                                  {
+    996                                      if (--magnetic_interference_persistence <= -MAGNETIC_INTERFERENCE_PERSISTENCE_CHECK)
+    997                                      {
+    998                                          meter_status &= ~STATUS_HIGH_MAGNETIC_FIELD;
+    999                                          magnetic_interference_persistence = 0;
+   1000                                      }
+   1001                                  }
+   1002                                  else
+   1003                                  {
+   1004                                      magnetic_interference_persistence = 0;
+   1005                                  }
+   1006                              }
+   1007                              else
+   1008                              {
+   1009                                  if (phase->sample_count_logged/magnetic_sensor_count_logged >= MAGNETIC_INTERFERENCE_SAMPLE_RATIO)
+   1010                                  {
+   1011                                      if (++magnetic_interference_persistence >= MAGNETIC_INTERFERENCE_PERSISTENCE_CHECK)
+   1012                                      {
+   1013                                          meter_status |= STATUS_HIGH_MAGNETIC_FIELD;
+   1014                                          magnetic_interference_persistence = 0;
+   1015                                      }
+   1016                                  }
+   1017                                  else
+   1018                                  {
+   1019                                      magnetic_interference_persistence = 0;
+   1020                                  }
+   1021                              }
+   1022                          }
+   1023          #endif
+   1024                      }
+   1025          #if defined(LIMP_MODE_SUPPORT)
+   1026                      /* The voltage channel DC estimate will never move very much when the
+   1027                         meter is operating normally. If it does move, there must be some
+   1028                         tampering, such as a diode between the grid and the meter. */
+   1029                      if (operating_mode == OPERATING_MODE_NORMAL)
+   1030                      {
+   1031                          if (phase->readings.V_rms < LIMP_MODE_VOLTAGE_THRESHOLD*100
+   1032                              ||
+   1033                              phase->metrology.V_dc_estimate[0] > UPPER_TAMPER_V_DC_ESTIMATE
+   1034                              ||
+   1035                              phase->metrology.V_dc_estimate[0] < LOWER_TAMPER_V_DC_ESTIMATE)
+   1036                          {
+   1037                              switch_to_limp_mode();
+   1038                          }
+   1039                      }
+   1040                      else if (operating_mode == OPERATING_MODE_LIMP)
+   1041                      {
+   1042                          if (phase->readings.V_rms >= NORMAL_MODE_VOLTAGE_THRESHOLD*100
+   1043                              &&
+   1044                              phase->metrology.V_dc_estimate[1] <= UPPER_LIMP_TAMPER_V_DC_ESTIMATE
+   1045                              &&
+   1046                              phase->metrology.V_dc_estimate[1] >= LOWER_LIMP_TAMPER_V_DC_ESTIMATE)
+   1047                          {
+   1048                              /* The LCD might need to be revived */
+   1049              #if defined(__MSP430__)
+   1050                              LCDawaken();
+   1051              #else
+   1052                              /* Tell the world we are ready to start */
+   1053              #endif
+   1054                              switch_to_normal_mode();
+   1055                          }
+   1056                      }
+   1057          #endif
+   1058          
+   1059          #if !defined(SINGLE_PHASE)
+   1060                      phase++;
+   1061                      phase_nv++;
+   1062                  }
+   1063          #endif
+   1064          #if !defined(SINGLE_PHASE)  &&  defined(NEUTRAL_MONITOR_SUPPORT)  &&  defined(IRMS_SUPPORT)
+   1065                  if ((neutral.status & NEW_LOG))
+   1066                  {
+   1067                      /* The background activity has informed us that it is time to
+   1068                         perform a block processing operation. */
+   1069                      neutral.status &= ~NEW_LOG;
+   1070                      neutral.readings.I_rms = neutral_current();
+   1071                  }
+   1072          #endif
+   1073          
+   1074          #if defined(MULTI_RATE_SUPPORT)
+   1075                  tariff_management();
+   1076          #endif
+   1077          
+   1078                  /* Do display and other housekeeping here */
+   1079                  if ((meter_status & TICKER))
+   1080                  {
+   1081                      /* Two seconds have passed */
+   1082                      /* We have a 2 second tick */
+   1083                      meter_status &= ~TICKER;
+   1084          #if defined(__MSP430__)  &&  defined(BASIC_LCD_SUPPORT)
+   1085                      /* Update the display, cycling through the phases */
+   1086                      update_display();
+   1087          #endif
+   1088                      custom_2second_handler();
+   1089          #if (defined(RTC_SUPPORT)  ||  defined(CUSTOM_RTC_SUPPORT))  &&  defined(CORRECTED_RTC_SUPPORT)
+   1090                      correct_rtc();
+   1091          #endif
+   1092                  }
+   1093                  custom_keypad_handler();
+   1094                  custom_mainloop_handler();
+   1095          #if defined(MESH_NET_SUPPORT)
+   1096                  if (rf_service)
+   1097                  {
+   1098                      rf_service = 0;
+   1099                      rf_tick_service();
+   1100                  }
+   1101          #endif
+   1102              }
+   1103          #if !defined(__AQCOMPILER__)  &&  !defined(__IAR_SYSTEMS_ICC__)
+   1104              return  0;
+   1105          #endif
+   1106          }
+   1107          
+   1108          #if defined(PRECALCULATED_PARAMETER_SUPPORT)
+   1109          int32_t current_consumed_active_energy(int ph)
+   1110          {
+   1111          #if defined(TOTAL_ACTIVE_ENERGY_SUPPORT)
+   1112              if (ph == FAKE_PHASE_TOTAL)
+   1113                  return total_consumed_active_energy;
+   1114          #endif
+   1115          #if defined(PER_PHASE_ACTIVE_ENERGY_SUPPORT)
+   1116          #if defined(SINGLE_PHASE)
+   1117              return chan1.consumed_active_energy;
+   1118          #else
+   1119              return chan[ph].consumed_active_energy;
+   1120          #endif
+   1121          #else
+   1122              return 0;
+   1123          #endif
+   1124          }
+   1125          
+   1126          int32_t current_active_power(int ph)
+   1127          {
+   1128              if (ph == FAKE_PHASE_TOTAL)
+   1129                  return total_active_power;
+   1130          #if defined(SINGLE_PHASE)
+   1131              return chan1.readings.active_power;
+   1132          #else
+   1133              return chan[ph].readings.active_power;
+   1134          #endif
+   1135          }
+   1136          
+   1137          #if defined(REACTIVE_POWER_SUPPORT)
+   1138          int32_t current_consumed_reactive_energy(int ph)
+   1139          {
+   1140          #if defined(TOTAL_REACTIVE_ENERGY_SUPPORT)
+   1141              if (ph == FAKE_PHASE_TOTAL)
+   1142                  return total_consumed_reactive_energy;
+   1143          #endif
+   1144          #if defined(PER_PHASE_REACTIVE_ENERGY_SUPPORT)
+   1145          #if defined(SINGLE_PHASE)
+   1146              return chan1.consumed_reactive_energy;
+   1147          #else
+   1148              return chan[ph].consumed_reactive_energy;
+   1149          #endif
+   1150          #else
+   1151              return 0;
+   1152          #endif
+   1153          }
+   1154          
+   1155          int32_t current_reactive_power(int ph)
+   1156          {
+   1157              if (ph == FAKE_PHASE_TOTAL)
+   1158                  return total_reactive_power;
+   1159          #if defined(SINGLE_PHASE)
+   1160              return chan1.readings.reactive_power;
+   1161          #else
+   1162              return chan[ph].readings.reactive_power;
+   1163          #endif
+   1164          }
+   1165          #endif
+   1166          
+   1167          #if defined(APPARENT_POWER_SUPPORT)
+   1168          int32_t current_apparent_power(int ph)
+   1169          {
+   1170          #if defined(SINGLE_PHASE)
+   1171              return chan1.readings.apparent_power;
+   1172          #else
+   1173              return chan[ph].readings.apparent_power;
+   1174          #endif
+   1175          }
+   1176          #endif
+   1177          
+   1178          #if defined(POWER_FACTOR_SUPPORT)
+   1179          int32_t current_power_factor(int ph)
+   1180          {
+   1181          #if defined(SINGLE_PHASE)
+   1182              return chan1.readings.power_factor;
+   1183          #else
+   1184              return chan[ph].readings.power_factor;
+   1185          #endif
+   1186          }
+   1187          #endif
+   1188          
+   1189          #if defined(VRMS_SUPPORT)
+   1190          int32_t current_rms_voltage(int ph)
+   1191          {
+   1192              int32_t x;
+   1193          
+   1194          #if defined(SINGLE_PHASE)
+   1195              if (chan1.readings.V_rms == 0xFFFF)
+   1196                  x = -1;
+   1197              else
+   1198                  x = chan1.readings.V_rms;
+   1199          #else
+   1200              if (chan[ph].readings.V_rms == 0xFFFF)
+   1201                  x = -1;
+   1202              else
+   1203                  x = chan[ph].readings.V_rms;
+   1204          #endif
+   1205              return x;
+   1206          }
+   1207          #endif
+   1208          
+   1209          #if defined(IRMS_SUPPORT)
+   1210          int32_t current_rms_current(int ph)
+   1211          {
+   1212              int32_t x;
+   1213          
+   1214          #if !defined(SINGLE_PHASE)  &&  defined(NEUTRAL_MONITOR_SUPPORT)
+   1215              if (ph == 3)
+   1216                  x = neutral.readings.I_rms;
+   1217              else
+   1218          #endif
+   1219          #if defined(SINGLE_PHASE)
+   1220                  x = chan1.readings.I_rms;
+   1221          #else
+   1222                  x = chan[ph].readings.I_rms;
+   1223          #endif
+   1224              if (x == 0xFFFF)
+   1225                  x = -1;
+   1226              return x;
+   1227          }
+   1228          #endif
+   1229          
+   1230          #if defined(MAINS_FREQUENCY_SUPPORT)
+   1231          int32_t current_mains_frequency(int ph)
+   1232          {
+   1233          #if defined(SINGLE_PHASE)
+   1234               return chan1.readings.frequency;
+   1235          #else
+   1236               return chan[ph].readings.frequency;
+   1237          #endif
+   1238          }
+   1239          #endif
+   1240          #else
+   1241          int32_t current_consumed_active_energy(int ph)
+   1242          {
+   1243              retirm chan[ph].consumed_active_energy;
+   1244          }
+   1245          
+   1246          int32_t current_active_power(int ph)
+   1247          {
+   1248              if (ph == FAKE_PHASE_TOTAL)
+   1249                  return total_active_power;
+   1250              return active_power(&chan[ph], &nv_parms.seg_a.s.chan[ch]);
+   1251          }
+   1252          
+   1253          #if defined(REACTIVE_POWER_SUPPORT)
+   1254          int32_t current_consumed_reactive_energy(int ph)
+   1255          {
+   1256              retirm chan[ph].consumed_active_energy;
+   1257          }
+   1258          
+   1259          int32_t current_reactive_power(int ph)
+   1260          {
+   1261              if (ph == FAKE_PHASE_TOTAL)
+   1262                  return total_reactive_power;
+   1263              return reactive_power(&chan[ph], &nv_parms.seg_a.s.chan[ch]);
+   1264          }
+   1265          #endif
+   1266          
+   1267          #if defined(APPARENT_POWER_SUPPORT)
+   1268          int32_t current_apparent_power(int ph)
+   1269          {
+   1270              return apparent_power(&chan[ph], &nv_parms.seg_a.s.chan[ch]);
+   1271          }
+   1272          #endif
+   1273          
+   1274          #if defined(POWER_FACTOR_SUPPORT)
+   1275          int32_t current_power_factor(int ph)
+   1276          {
+   1277              return power_factor(&chan[ph], &nv_parms.seg_a.s.chan[ch]);
+   1278          }
+   1279          #endif
+   1280          
+   1281          #if defined(VRMS_SUPPORT)
+   1282          int32_t current_rms_voltage(int ph)
+   1283          {
+   1284              return voltage(&chan[ph], &nv_parms.seg_a.s.chan[ch]);
+   1285          }
+   1286          #endif
+   1287          
+   1288          #if defined(IRMS_SUPPORT)
+   1289          int32_t current_rms_current(int ph)
+   1290          {
+   1291              return current(&chan[ph], &nv_parms.seg_a.s.chan[ch]);
+   1292          }
+   1293          #endif
+   1294          
+   1295          #if defined(MAINS_FREQUENCY_SUPPORT)
+   1296          int32_t current_mains_frequency(int ph)
+   1297          {
+   1298              return frequency(&chan[ph], &nv_parms.seg_a.s.chan[ch]);
+   1299          }
+   1300          #endif
+   1301          #endif
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   current_active_power
+      4   current_apparent_power
+      4   current_consumed_active_energy
+      4   current_consumed_reactive_energy
+      4   current_mains_frequency
+      4   current_power_factor
+      4   current_reactive_power
+      4   current_rms_current
+      4   current_rms_voltage
+     24   main
+       24   -> _Div64s
+       24   -> active_power
+       24   -> apparent_power
+       24   -> correct_rtc
+       24   -> current
+       24   -> frequency
+       24   -> power_factor
+       24   -> reactive_power
+       24   -> send_message
+       24   -> set_sd16_phase_correction
+       24   -> system_setup
+       24   -> update_display
+       24   -> voltage
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      17  ?<Initializer for RF_Tx>
+       2  ?<Initializer for lcd_display_mode>
+       1  LCDM1
+       1  LCDM10
+       1  LCDM11
+       1  LCDM12
+       1  LCDM13
+       1  LCDM14
+       1  LCDM15
+       1  LCDM16
+       1  LCDM17
+       1  LCDM18
+       1  LCDM19
+       1  LCDM2
+       1  LCDM20
+       1  LCDM3
+       2  LCDM3constant
+       1  LCDM4
+       1  LCDM5
+       1  LCDM6
+       1  LCDM7
+       1  LCDM8
+       1  LCDM9
+      10  LCD_Char_Map
+       2  LCD_reg
+      17  RF_Tx
+       2  _A_UCA2IFG_L
+       2  _A_UCA2TXBUF_L
+       2  _A_WDTCTL_L
+     242  chan1
+       2  change_display
+      24  current_active_power
+      10  current_apparent_power
+      24  current_consumed_active_energy
+      20  current_consumed_reactive_energy
+       8  current_mains_frequency
+      14  current_power_factor
+      24  current_reactive_power
+       1  current_reversed
+      22  current_rms_current
+      28  current_rms_voltage
+       1  current_unbalanced
+       2  hun
+       2  hun_thou
+       2  lcd_display_mode
+    1716  main
+       2  meter_status
+     128  nv_parms
+       1  operating_mode
+       8  temp
+       8  temp2
+       2  temperature
+       2  ten
+       2  ten_thou
+       2  thou
+       2  thou_thou
+       1  total_active_energy_pulse_remaining_time
+       4  total_active_power
+       4  total_active_power_array
+       4  total_active_power_counter
+       4  total_consumed_active_energy
+       4  total_consumed_reactive_energy
+       1  total_reactive_energy_pulse_remaining_time
+       4  total_reactive_power
+       4  total_reactive_power_counter
+       2  unit
+       2  vcc
+       4  x
+
+ 
+ 1 890 bytes in segment CODE
+    26 bytes in segment DATA16_AN
+    10 bytes in segment DATA16_C
+    19 bytes in segment DATA16_I
+    19 bytes in segment DATA16_ID
+   321 bytes in segment DATA16_Z
+   128 bytes in segment INFO
+ 
+ 1 890 bytes of CODE  memory
+   157 bytes of CONST memory
+   340 bytes of DATA  memory (+ 26 bytes shared)
+
+Errors: none
+Warnings: none

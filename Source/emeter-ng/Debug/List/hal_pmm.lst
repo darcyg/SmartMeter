@@ -1,0 +1,300 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V6.10.2.50871/W32 for MSP430         28/Oct/2014  22:48:19
+# Copyright 1996-2014 IAR Systems AB.
+# Evaluation license - IAR Embedded Workbench for Texas Instruments MSP430, Evaluation Version 6.10
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  D:\Documents\GitHub\SmartMeter\Source\emeter-ng\hal_pmm.c
+#    Command line  =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\hal_pmm.c -D
+#        "CUSTOM_EMETER_H=\"emeter-1ph-neutral-6733_shunt.h\"" -D X_ZEBU_ -lcN
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\List\ -o
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\Obj\ --debug
+#        -D__MSP430F6736__ -e --double=32 --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.0\430\lib\dlib\dl430xlsfn.h" -I
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng/../emeter-toolkit\
+#        --core=430X --data_model=small -Ohs --multiplier=32
+#        --multiplier_location=4C0 --hw_workaround=CPU40 --hw_workaround=CPU39
+#        --code_model=large
+#    List file     =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\List\hal_pmm.lst
+#    Object file   =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\Obj\hal_pmm.r43
+#
+###############################################################################
+
+D:\Documents\GitHub\SmartMeter\Source\emeter-ng\hal_pmm.c
+      1          //****************************************************************************//
+      2          // Function Library for setting the PMM
+      3          //    File: hal_pmm.c
+      4          //
+      5          //    Texas Instruments
+      6          //
+      7          //    Version 1.2
+      8          //    12/16/09
+      9          //
+     10          //    V1.0  Initial Version
+     11          //    V1.1  Adjustment to UG
+     12          //    V1.2  Added return values
+     13          //****************************************************************************
+     14          
+     15          
+     16          /* ***********************************************************
+     17          * THIS PROGRAM IS PROVIDED "AS IS". TI MAKES NO WARRANTIES OR
+     18          * REPRESENTATIONS, EITHER EXPRESS, IMPLIED OR STATUTORY,
+     19          * INCLUDING ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS
+     20          * FOR A PARTICULAR PURPOSE, LACK OF VIRUSES, ACCURACY OR
+     21          * COMPLETENESS OF RESPONSES, RESULTS AND LACK OF NEGLIGENCE.
+     22          * TI DISCLAIMS ANY WARRANTY OF TITLE, QUIET ENJOYMENT, QUIET
+     23          * POSSESSION, AND NON-INFRINGEMENT OF ANY THIRD PARTY
+     24          * INTELLECTUAL PROPERTY RIGHTS WITH REGARD TO THE PROGRAM OR
+     25          * YOUR USE OF THE PROGRAM.
+     26          *
+     27          * IN NO EVENT SHALL TI BE LIABLE FOR ANY SPECIAL, INCIDENTAL,
+     28          * CONSEQUENTIAL OR INDIRECT DAMAGES, HOWEVER CAUSED, ON ANY
+     29          * THEORY OF LIABILITY AND WHETHER OR NOT TI HAS BEEN ADVISED
+     30          * OF THE POSSIBILITY OF SUCH DAMAGES, ARISING IN ANY WAY OUT
+     31          * OF THIS AGREEMENT, THE PROGRAM, OR YOUR USE OF THE PROGRAM.
+     32          * EXCLUDED DAMAGES INCLUDE, BUT ARE NOT LIMITED TO, COST OF
+     33          * REMOVAL OR REINSTALLATION, COMPUTER TIME, LABOR COSTS, LOSS
+     34          * OF GOODWILL, LOSS OF PROFITS, LOSS OF SAVINGS, OR LOSS OF
+     35          * USE OR INTERRUPTION OF BUSINESS. IN NO EVENT WILL TI'S
+     36          * AGGREGATE LIABILITY UNDER THIS AGREEMENT OR ARISING OUT OF
+     37          * YOUR USE OF THE PROGRAM EXCEED FIVE HUNDRED DOLLARS
+     38          * (U.S.$500).
+     39          *
+     40          * Unless otherwise stated, the Program written and copyrighted
+     41          * by Texas Instruments is distributed as "freeware".  You may,
+     42          * only under TI's copyright in the Program, use and modify the
+     43          * Program without any charge or restriction.  You may
+     44          * distribute to third parties, provided that you transfer a
+     45          * copy of this license to the third party and the third party
+     46          * agrees to these terms by its first use of the Program. You
+     47          * must reproduce the copyright notice and any other legend of
+     48          * ownership on each copy or partial copy, of the Program.
+     49          *
+     50          * You acknowledge and agree that the Program contains
+     51          * copyrighted material, trade secrets and other TI proprietary
+     52          * information and is protected by copyright laws,
+     53          * international copyright treaties, and trade secret laws, as
+     54          * well as other intellectual property laws.  To protect TI's
+     55          * rights in the Program, you agree not to decompile, reverse
+     56          * engineer, disassemble or otherwise translate any object code
+     57          * versions of the Program to a human-readable form.  You agree
+     58          * that in no event will you alter, remove or destroy any
+     59          * copyright notice included in the Program.  TI reserves all
+     60          * rights not specifically granted under this license. Except
+     61          * as specifically provided herein, nothing in this agreement
+     62          * shall be construed as conferring by implication, estoppel,
+     63          * or otherwise, upon you, any license or other right under any
+     64          * TI patents, copyrights or trade secrets.
+     65          *
+     66          * You may not use the Program in non-TI devices.
+     67          * ********************************************************* */
+     68          
+     69          #include "msp430.h"
+     70          #include "hal_pmm.h"
+     71          
+     72          #define _HAL_PMM_DISABLE_SVML_
+     73          #define _HAL_PMM_DISABLE_SVSL_
+     74          #define _HAL_PMM_DISABLE_FULL_PERFORMANCE_
+     75          
+     76          
+     77          //****************************************************************************//
+     78          #ifdef _HAL_PMM_DISABLE_SVML_
+     79          #define _HAL_PMM_SVMLE SVMLE
+     80          #else
+     81          #define _HAL_PMM_SVMLE 0
+     82          #endif
+     83          #ifdef _HAL_PMM_DISABLE_SVSL_
+     84          #define _HAL_PMM_SVSLE SVSLE
+     85          #else
+     86          #define _HAL_PMM_SVSLE 0
+     87          #endif
+     88          #ifdef _HAL_PMM_DISABLE_FULL_PERFORMANCE_
+     89          #define _HAL_PMM_SVSFP (SVSLFP | SVSLMD)
+     90          #else
+     91          #define _HAL_PMM_SVSFP 0
+     92          #endif
+     93          //****************************************************************************//
+     94          // Set VCore
+     95          //****************************************************************************//
+     96          unsigned int SetVCore (unsigned char level)
+     97          {
+     98            unsigned int actlevel;
+     99            unsigned int status = 0;
+    100            level &= PMMCOREV_3;                       // Set Mask for Max. level
+    101            actlevel = (PMMCTL0 & PMMCOREV_3);         // Get actual VCore
+    102          
+    103            while (((level != actlevel) && (status == 0)) || (level < actlevel))		// step by step increase or decrease
+    104            {
+    105              if (level > actlevel)
+    106                status = SetVCoreUp(++actlevel);
+    107              else
+    108                status = SetVCoreDown(--actlevel);
+    109            }
+    110            return status;
+    111          }
+    112          
+    113          //****************************************************************************//
+    114          // Set VCore Up
+    115          //****************************************************************************//
+    116          unsigned int SetVCoreUp (unsigned char level)
+    117          {
+    118            unsigned int PMMRIE_backup,SVSMHCTL_backup;
+    119          
+    120            // Open PMM registers for write access
+    121            PMMCTL0_H = 0xA5;
+    122          
+    123            // Disable dedicated Interrupts to prevent that needed flags will be cleared
+    124            PMMRIE_backup = PMMRIE;
+    125            PMMRIE &= ~(SVSMHDLYIE | SVSMLDLYIE | SVMLVLRIE | SVMHVLRIE | SVMHVLRPE);
+    126            // Set SVM highside to new level and check if a VCore increase is possible
+    127            SVSMHCTL_backup = SVSMHCTL;
+    128            PMMIFG &= ~(SVMHIFG | SVSMHDLYIFG);
+    129            SVSMHCTL = SVMHE | SVMHFP | (SVSMHRRL0 * level);
+    130            // Wait until SVM highside is settled
+    131            while ((PMMIFG & SVSMHDLYIFG) == 0);
+    132            // Disable full-performance mode to save energy
+    133            SVSMHCTL &= ~_HAL_PMM_SVSFP ;
+    134            // Check if a VCore increase is possible
+    135            if ((PMMIFG & SVMHIFG) == SVMHIFG){			//-> Vcc is to low for a Vcore increase
+    136            	// recover the previous settings
+    137            	PMMIFG &= ~SVSMHDLYIFG;
+    138            	SVSMHCTL = SVSMHCTL_backup;
+    139            	// Wait until SVM highside is settled
+    140            	while ((PMMIFG & SVSMHDLYIFG) == 0);
+    141            	// Clear all Flags
+    142            	PMMIFG &= ~(SVMHVLRIFG | SVMHIFG | SVSMHDLYIFG | SVMLVLRIFG | SVMLIFG | SVSMLDLYIFG);
+    143            	// backup PMM-Interrupt-Register
+    144            	PMMRIE = PMMRIE_backup;
+    145            	
+    146            	// Lock PMM registers for write access
+    147            	PMMCTL0_H = 0x00;
+    148            	return PMM_STATUS_ERROR;                       // return: voltage not set
+    149            }
+    150            // Set also SVS highside to new level		       //-> Vcc is high enough for a Vcore increase
+    151            SVSMHCTL |= SVSHE | (SVSHRVL0 * level);
+    152            // Set SVM low side to new level
+    153            SVSMLCTL = SVMLE | SVMLFP | (SVSMLRRL0 * level);
+    154            SVSMLCTL |= SVSLMD;                                  // also set SVSLMD bit when Full Performance mode is enabled
+    155            // Wait until SVM low side is settled
+    156            while ((PMMIFG & SVSMLDLYIFG) == 0);
+    157            // Clear already set flags
+    158            PMMIFG &= ~(SVMLVLRIFG | SVMLIFG);
+    159            // Set VCore to new level
+    160            PMMCTL0_L = PMMCOREV0 * level;
+    161            // Wait until new level reached
+    162            if (PMMIFG & SVMLIFG)
+    163            while ((PMMIFG & SVMLVLRIFG) == 0);
+    164            // Set also SVS/SVM low side to new level
+    165            PMMIFG &= ~SVSMLDLYIFG;
+    166            SVSMLCTL |= SVSLE | (SVSLRVL0 * level);
+    167            // wait for lowside delay flags
+    168            while ((PMMIFG & SVSMLDLYIFG) == 0);
+    169          
+    170          // Disable SVS/SVM Low
+    171          // Disable full-performance mode to save energy
+    172            SVSMLCTL &= ~(_HAL_PMM_DISABLE_SVSL_+_HAL_PMM_DISABLE_SVML_+_HAL_PMM_SVSFP );
+    173          
+    174            // Clear all Flags
+    175            PMMIFG &= ~(SVMHVLRIFG | SVMHIFG | SVSMHDLYIFG | SVMLVLRIFG | SVMLIFG | SVSMLDLYIFG);
+    176            // backup PMM-Interrupt-Register
+    177            PMMRIE = PMMRIE_backup;
+    178          
+    179            // Lock PMM registers for write access
+    180            PMMCTL0_H = 0x00;
+    181            return PMM_STATUS_OK;                               // return: OK
+    182          }
+    183          
+    184          //****************************************************************************//
+    185          // Set VCore down (Independent from the enabled Interrupts in PMMRIE)
+    186          //****************************************************************************//
+    187          unsigned int SetVCoreDown (unsigned char level)
+    188          {
+    189            unsigned int PMMRIE_backup;
+    190          
+    191            // Open PMM registers for write access
+    192            PMMCTL0_H = 0xA5;
+    193          
+    194            // Disable dedicated Interrupts to prevent that needed flags will be cleared
+    195            PMMRIE_backup = PMMRIE;
+    196            PMMRIE &= ~(SVSMHDLYIE | SVSMLDLYIE | SVMLVLRIE | SVMHVLRIE | SVMHVLRPE);
+    197          
+    198            // Set SVM high side and SVM low side to new level
+    199            PMMIFG &= ~(SVMHIFG | SVSMHDLYIFG | SVMLIFG | SVSMLDLYIFG);
+    200            SVSMHCTL = SVMHE | SVMHFP | (SVSMHRRL0 * level);
+    201            SVSMLCTL = SVMLE | SVMLFP | (SVSMLRRL0 * level);
+    202            SVSMLCTL |= SVSLMD;                                  // also set SVSLMD bit when Full Performance mode is enabled
+    203            // Wait until SVM high side and SVM low side is settled
+    204            while ((PMMIFG & SVSMHDLYIFG) == 0 || (PMMIFG & SVSMLDLYIFG) == 0);
+    205          
+    206            // Set VCore to new level
+    207            PMMCTL0_L = PMMCOREV0 * level;
+    208          
+    209            // Set also SVS highside and SVS low side to new level
+    210            PMMIFG &= ~(SVSHIFG | SVSMHDLYIFG | SVSLIFG | SVSMLDLYIFG);
+    211            SVSMHCTL |= SVSHE | SVSHFP | (SVSHRVL0 * level);
+    212            SVSMLCTL |= SVSLE | SVSLFP | (SVSLRVL0 * level);
+    213            // Wait until SVS high side and SVS low side is settled
+    214            while ((PMMIFG & SVSMHDLYIFG) == 0 || (PMMIFG & SVSMLDLYIFG) == 0);
+    215            // Disable full-performance mode to save energy
+    216            SVSMHCTL &= ~_HAL_PMM_SVSFP;
+    217          // Disable SVS/SVM Low
+    218          // Disable full-performance mode to save energy
+    219            SVSMLCTL &= ~(_HAL_PMM_DISABLE_SVSL_+_HAL_PMM_DISABLE_SVML_+_HAL_PMM_SVSFP );
+    220          	
+    221            // Clear all Flags
+    222            PMMIFG &= ~(SVMHVLRIFG | SVMHIFG | SVSMHDLYIFG | SVMLVLRIFG | SVMLIFG | SVSMLDLYIFG);
+    223            // backup PMM-Interrupt-Register
+    224            PMMRIE = PMMRIE_backup;
+    225            // Lock PMM registers for write access
+    226            PMMCTL0_H = 0x00;
+    227          
+    228            if ((PMMIFG & SVMHIFG) == SVMHIFG)
+    229              return PMM_STATUS_ERROR;					 	// Highside is still to low for the adjusted VCore Level
+    230            else return PMM_STATUS_OK;						// Return: OK
+    231          }
+    232          
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      8   SetVCore
+        8   -> SetVCoreDown
+        8   -> SetVCoreUp
+      4   SetVCoreDown
+      6   SetVCoreUp
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      62  SetVCore
+     144  SetVCoreDown
+     192  SetVCoreUp
+       2  _A_PMMCTL0_L
+       2  _A_PMMIFG_L
+       2  _A_PMMRIE_L
+       2  _A_SVSMHCTL_L
+       2  _A_SVSMLCTL_L
+
+ 
+ 398 bytes in segment CODE
+  10 bytes in segment DATA16_AN
+ 
+ 398 bytes of CODE memory
+   0 bytes of DATA memory (+ 10 bytes shared)
+
+Errors: none
+Warnings: none

@@ -1,0 +1,470 @@
+//--------------------------------------------------------------------------
+//
+//  Software for MSP430 based e-meters.
+//
+//  THIS PROGRAM IS PROVIDED "AS IS". TI MAKES NO WARRANTIES OR
+//  REPRESENTATIONS, EITHER EXPRESS, IMPLIED OR STATUTORY,
+//  INCLUDING ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS
+//  FOR A PARTICULAR PURPOSE, LACK OF VIRUSES, ACCURACY OR
+//  COMPLETENESS OF RESPONSES, RESULTS AND LACK OF NEGLIGENCE.
+//  TI DISCLAIMS ANY WARRANTY OF TITLE, QUIET ENJOYMENT, QUIET
+//  POSSESSION, AND NON-INFRINGEMENT OF ANY THIRD PARTY
+//  INTELLECTUAL PROPERTY RIGHTS WITH REGARD TO THE PROGRAM OR
+//  YOUR USE OF THE PROGRAM.
+//
+//  IN NO EVENT SHALL TI BE LIABLE FOR ANY SPECIAL, INCIDENTAL,
+//  CONSEQUENTIAL OR INDIRECT DAMAGES, HOWEVER CAUSED, ON ANY
+//  THEORY OF LIABILITY AND WHETHER OR NOT TI HAS BEEN ADVISED
+//  OF THE POSSIBILITY OF SUCH DAMAGES, ARISING IN ANY WAY OUT
+//  OF THIS AGREEMENT, THE PROGRAM, OR YOUR USE OF THE PROGRAM.
+//  EXCLUDED DAMAGES INCLUDE, BUT ARE NOT LIMITED TO, COST OF
+//  REMOVAL OR REINSTALLATION, COMPUTER TIME, LABOR COSTS, LOSS
+//  OF GOODWILL, LOSS OF PROFITS, LOSS OF SAVINGS, OR LOSS OF
+//  USE OR INTERRUPTION OF BUSINESS. IN NO EVENT WILL TI'S
+//  AGGREGATE LIABILITY UNDER THIS AGREEMENT OR ARISING OUT OF
+//  YOUR USE OF THE PROGRAM EXCEED FIVE HUNDRED DOLLARS
+//  (U.S.$500).
+//
+//  Unless otherwise stated, the Program written and copyrighted
+//  by Texas Instruments is distributed as "freeware".  You may,
+//  only under TI's copyright in the Program, use and modify the
+//  Program without any charge or restriction.  You may
+//  distribute to third parties, provided that you transfer a
+//  copy of this license to the third party and the third party
+//  agrees to these terms by its first use of the Program. You
+//  must reproduce the copyright notice and any other legend of
+//  ownership on each copy or partial copy, of the Program.
+//
+//  You acknowledge and agree that the Program contains
+//  copyrighted material, trade secrets and other TI proprietary
+//  information and is protected by copyright laws,
+//  international copyright treaties, and trade secret laws, as
+//  well as other intellectual property laws.  To protect TI's
+//  rights in the Program, you agree not to decompile, reverse
+//  engineer, disassemble or otherwise translate any object code
+//  versions of the Program to a human-readable form.  You agree
+//  that in no event will you alter, remove or destroy any
+//  copyright notice included in the Program.  TI reserves all
+//  rights not specifically granted under this license. Except
+//  as specifically provided herein, nothing in this agreement
+//  shall be construed as conferring by implication, estoppel,
+//  or otherwise, upon you, any license or other right under any
+//  TI patents, copyrights or trade secrets.
+//
+//  You may not use the Program in non-TI devices.
+//
+//  File: emeter-rtc.c
+//
+//  Steve Underwood <steve-underwood@ti.com>
+//  Texas Instruments Hong Kong Ltd.
+//
+//  $Id: emeter-rtc.c,v 1.5 2009/04/23 07:32:08 a0754793 Exp $
+//
+/*! \file emeter-structs.h */
+//
+//--------------------------------------------------------------------------
+#include <stdint.h>
+#include <stdlib.h>
+#if !defined(__MSP430__)
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#endif
+#if defined(__GNUC__)
+#include <signal.h>
+#endif
+#if defined(__MSP430__)
+#include <io.h>
+#endif
+#include <emeter-toolkit.h>
+
+#include "emeter-structs.h"
+
+#if !defined(NULL)
+#define NULL    (void *) 0
+#endif
+
+#if defined(CORRECTED_RTC_SUPPORT)
+int32_t rtc_correction;
+#endif
+
+/* We need a small seconds counter, so we can do things like a display update every 2 seconds. */
+uint8_t seconds;
+
+#if defined(RTC_SUPPORT)
+void rtc_bumper(void)
+{
+    int i;
+
+    i = bump_rtc();
+    /* And now, a series of optional routines to get actions to take
+       place at various intervals. Remember, we are in an interrupt
+       routine. Do not do anything very complex here. If a complex action
+       is needed set a flag in a simple routine and do the main work in
+       the non-interrupt code's main loop. */
+    #if defined(PER_YEAR_ACTIVITY_SUPPORT)
+    if (i >= RTC_CHANGED_YEAR)
+        per_year_activity();
+    #endif
+    #if defined(PER_MONTH_ACTIVITY_SUPPORT)
+    if (i >= RTC_CHANGED_MONTH)
+        per_month_activity();
+    #endif
+    #if defined(PER_DAY_ACTIVITY_SUPPORT)  ||  defined(MULTI_RATE_SUPPORT)
+    if (i >= RTC_CHANGED_DAY)
+    {
+        #if defined(PER_MINUTE_ACTIVITY_SUPPORT)
+        per_day_activity();
+        #endif
+        #if defined(MULTI_RATE_SUPPORT)
+        tariff_flags |= TARIFF_NEW_DAY;
+        #endif
+    }
+    #endif
+    #if defined(PER_HOUR_ACTIVITY_SUPPORT)
+    if (i >= RTC_CHANGED_HOUR)
+        per_hour_activity();
+    #endif
+    #if defined(PER_MINUTE_ACTIVITY_SUPPORT)  ||  defined(MULTI_RATE_SUPPORT)  ||  defined(BATTERY_MONITOR_SUPPORT)
+    if (i >= RTC_CHANGED_MINUTE)
+    {
+        #if defined(PER_MINUTE_ACTIVITY_SUPPORT)
+        per_minute_activity();
+        #endif
+        #if defined(MULTI_RATE_SUPPORT)
+        tariff_flags |= TARIFF_NEW_MINUTE;
+        #endif
+        #if defined(BATTERY_MONITOR_SUPPORT)
+        test_battery();
+        #endif
+    }
+    #endif
+    #if defined(PER_SECOND_ACTIVITY_SUPPORT)
+    if (i >= RTC_CHANGED_SECOND)
+        per_second_activity();
+    #endif
+    //adc_interrupts = 0;
+}
+#endif
+
+#if (defined(RTC_SUPPORT)  ||  defined(CUSTOM_RTC_SUPPORT))  &&  defined(CORRECTED_RTC_SUPPORT)
+void correct_rtc(void)
+{
+    int32_t temp;
+
+    /* Correct the RTC to allow for basic error in the crystal, and
+       temperature dependant changes. This is called every two seconds,
+       so it must accumulate two seconds worth of error at the current
+       temperature. */
+    if (nv_parms.seg_a.s.temperature_offset)
+    {
+        temp = temperature - nv_parms.seg_a.s.temperature_offset;
+        temp *= nv_parms.seg_a.s.temperature_scaling;
+        temp >>= 16;
+
+        /* The temperature is now in degrees C. */
+        /* Subtract the centre point of the crystal curve. */
+        temp -= 25;
+        /* Do the parabolic curve calculation, to find the current ppm of
+           error due to temperature, and then the scaled RTC correction
+           value for 2 seconds at this temperature. */
+        temp = temp*temp*(2589L*4295L >> 5);
+        temp >>= 11;
+        temp = -temp;
+    }
+    else
+    {
+        temp = 0;
+    }
+    /* Allow for the basic manufacturing tolerance error of the crystal, found
+       at calibration time. */
+    temp += nv_parms.seg_a.s.crystal_base_correction;
+    if (rtc_correction >= 0)
+    {
+        rtc_correction += temp;
+        if (rtc_correction < 0)
+        {
+            rtc_correction -= 0x80000000;
+            /* We need to add an extra second to the RTC */
+    #if defined(CUSTOM_RTC_SUPPORT)
+            custom_rtc();
+    #else
+            rtc_bumper();
+    #endif
+        }
+    }
+    else
+    {
+        rtc_correction += temp;
+        if (rtc_correction >= 0)
+        {
+            rtc_correction += 0x80000000;
+            /* We need to drop a second from the RTC */
+            meter_status |= SKIP_A_SECOND;
+        }
+    }
+}
+#endif
+
+#if defined(__MSP430__)
+    #if defined(__MSP430_HAS_RTC_C__)
+ISR(RTC, one_second_ticker)
+    #else
+    #if defined(__MSP430_HAS_BT__)  ||  defined(__MSP430_HAS_BT_RTC__)
+ISR(BASICTIMER, one_second_ticker)
+    #else
+ISR(WDT, one_second_ticker)
+    #endif
+    #endif
+{
+    #if defined(__MSP430_HAS_RTC_C__)
+   P1DIR |= 1;
+   P1OUT ^= 1;
+   RTCPS1CTL &= ~RT1PSIFG;                  //  clear the flag
+    #endif
+    #if defined(POWER_DOWN_SUPPORT)  &&  defined(POWER_UP_BY_SUPPLY_SENSING)
+        #if defined(__MSP430_HAS_COMPA__)  ||  (defined(POWER_GOOD_SENSE)  &&  defined(POWER_GOOD_THRESHOLD_HIGH))
+    int i;
+    int j;
+        #endif
+    #endif
+
+    kick_watchdog();
+    #if defined(RTC_SUPPORT)
+        #if defined(CORRECTED_RTC_SUPPORT)
+    /* Allow for RTC correction. */
+    if ((meter_status & SKIP_A_SECOND))
+        meter_status &= ~SKIP_A_SECOND;
+    else
+        rtc_bumper();
+        #else
+    rtc_bumper();
+        #endif
+    #endif
+    #if defined(CUSTOM_RTC_SUPPORT)
+    if ((meter_status & SKIP_A_SECOND))
+        meter_status &= ~SKIP_A_SECOND;
+    else
+        custom_rtc();
+    #endif
+    if (++seconds & 1)
+        meter_status |= TICKER;  /* Kick every 2 seconds */
+    #if defined(RF_LINK_SUPPORT)
+    if (operating_mode == OPERATING_MODE_POWERFAIL  &&  rf_timeout >= 0)
+    {
+        if (++rf_timeout == 5)
+        {
+            rf_timeout = 0;
+            /* Enable the USART */
+            U0ME |= (UTXE0 | URXE0);
+        #if defined(__MSP430_HAS_FLLPLUS__)  ||  defined(__MSP430_HAS_FLLPLUS_SMALL__)
+            /* Speed up the clock to 8.388608MHz */
+            SCFI0 = SCFI0_HIGH;
+            SCFQCTL = SCFQCTL_HIGH;
+        #endif
+        #if defined(custom_rf_sniffer)
+            if (rf_timeout = custom_rf_sniffer())
+            {
+                /* We need to set up timer A to call back when the message exchange time
+                   comes round */
+                /* Use timer A to time the period until the real messages are exchanged. */
+                TAR = 0;
+                TACCR0 = 55*rf_timeout;
+                TACCTL0 = 0;
+                TACTL = TACLR | MC_1 | ID_2 | TASSEL_1;
+                /* Stop the 5 second scans until the timed response is complete */
+                rf_timeout = -1;
+            }
+        #endif
+            /* Disable the USART */
+            U0ME &= ~(UTXE0 | URXE0);
+        #if defined(__MSP430_HAS_FLLPLUS__)  ||  defined(__MSP430_HAS_FLLPLUS_SMALL__)
+            /* Slow the clock to 1MHz as quickly as possible. The FLL will not be active
+               in LPM3, so switch it off now, and force the FLL's RC oscillator to
+               about 1MHz. The exact frequency is not critical. */
+            _BIS_SR(SCG0);                  /* switch off FLL locking */
+            SCFI0 = SCFI0_LOW;
+            SCFQCTL = SCFQCTL_LOW | SCFQ_M;
+            SCFI0 = 0x0;
+            SCFI1 = 0x37;
+        #endif
+        }
+    }
+    #endif
+
+    #if defined(POWER_DOWN_SUPPORT)
+        #if defined(POWER_UP_BY_VOLTAGE_PULSES)
+    /* One method to detect power being restored is to look
+       for pulses on an input pin, caused by the voltage signal. */
+    if (meter_status & POWER_DOWN)
+    {
+        pd_pin_debounce <<= 1;
+        if (power_up_voltage_pulse())
+            pd_pin_debounce |= 1;
+            #if defined(__MSP430__)
+        if ((pd_pin_debounce & 0xF) == 0xF)
+            _BIC_SR_IRQ(LPM3_bits);
+            #endif
+    }
+    else
+    {
+            #if defined(__MSP430__)
+        _BIC_SR_IRQ(LPM0_bits);
+            #endif
+    }
+        #endif
+        #if defined(POWER_UP_BY_SUPPLY_SENSING)
+    /* If the meter has a limp mode, where it can be powered from the live
+       or neutral only, getting wakeup voltage pulses is not so easy. Current
+       pulses are not much easier. Here we look for the pre-regulator power
+       supply voltage being of an adequate level. We use comparator A as the
+       sensor, and only switch it on for the minimum possible time. */
+            #if defined(__MSP430_HAS_COMPA__)
+                #if defined(__MSP430__)
+    if (operating_mode == OPERATING_MODE_POWERFAIL)
+    {
+        /* Select the lower comparator threshold for going to the LCD on, but other
+           functions off, condition. Current consumption should be low enough to not
+           be too significant for reasonable periods. */
+        CACTL1 = CAREF_1 | CAON;
+        /* We are required to start quickly, so we cannot do much
+           debouncing here */
+        power_down_debounce = POWER_RESTORE_DEBOUNCE;
+        i = CACTL2 & CAOUT;
+        while (--power_down_debounce >= 0)
+        {
+            j = CACTL2 & CAOUT;
+            if (i != j)
+            {
+                i = j;
+                power_down_debounce = POWER_RESTORE_DEBOUNCE;
+            }
+        }
+        if (!j)
+        {
+            /* This appears to be a real power-up. We have reached 4.2V. This
+               should be OK for running the internal LCD controller, as it only
+               takes a few uA. For a small LCD, as little as 2uA. */
+            operating_mode = OPERATING_MODE_LCD_ONLY;
+                    #if defined(BASIC_LCD_SUPPORT)
+            display_power_4v2_message();
+                    #endif
+            custom_lcd_wakeup_handler();
+        }
+        power_down_debounce = 0;
+        CACTL1 &= ~(CAON);
+    }
+    else if (operating_mode == OPERATING_MODE_LCD_ONLY)
+    {
+        /* Select the higher comparator threshold for power restored. That should
+           mean that if the MCU is woken up, it can definitely run for a while at
+           full speed, just from the charge on the main capacitor. */
+        CACTL1 = CAREF_2 | CAON;
+        /* We are required to start quickly, so we cannot do much
+           debouncing here. */
+        power_down_debounce = POWER_RESTORE_DEBOUNCE;
+        i = CACTL2 & CAOUT;
+        while (--power_down_debounce >= 0)
+        {
+            j = CACTL2 & CAOUT;
+            if (i != j)
+            {
+                i = j;
+                power_down_debounce = POWER_RESTORE_DEBOUNCE;
+            }
+        }
+        if (!j)
+        {
+            /* This appears to be a real power-up. */
+                    #if defined(BASIC_LCD_SUPPORT)
+            display_power_normal_message();
+                    #endif
+            _BIC_SR_IRQ(LPM3_bits);
+        }
+        else
+        {
+            /* The power hasn't reached the high water mark. See if it has
+               dropped back below the low water mark. */
+            CACTL1 = CAREF_1 | CAON;
+            /* We are required to start quickly, so we cannot do much
+               debouncing here. */
+            power_down_debounce = POWER_RESTORE_DEBOUNCE;
+            i = CACTL2 & CAOUT;
+            while (--power_down_debounce >= 0)
+            {
+                j = CACTL2 & CAOUT;
+                if (i != j)
+                {
+                    i = j;
+                    power_down_debounce = POWER_RESTORE_DEBOUNCE;
+                }
+            }
+            if (j)
+            {
+                /* This appears to be a real power drop. */
+                operating_mode = OPERATING_MODE_POWERFAIL;
+                custom_lcd_sleep_handler();
+            }
+        }
+        power_down_debounce = 0;
+        CACTL1 &= ~(CAON);
+    }
+                #endif
+            #else
+    /* Use an I/O pin to sense the power falling */
+                #if defined(__MSP430__)
+    if (operating_mode == OPERATING_MODE_POWERFAIL)
+    {
+        /* Select the higher comparator threshold for starting up. This ensures we should have
+           enough energy in the capacitors to keep the meter running until it works out what to
+           do next. */
+        POWER_GOOD_THRESHOLD_HIGH;
+        /* We are required to start quickly, so we cannot do much
+           debouncing here */
+        power_down_debounce = POWER_RESTORE_DEBOUNCE;
+        i = POWER_GOOD_SENSE;
+        while (--power_down_debounce >= 0)
+        {
+            j = POWER_GOOD_SENSE;
+            if (i != j)
+            {
+                i = j;
+                power_down_debounce = POWER_RESTORE_DEBOUNCE;
+            }
+        }
+        if (j)
+        {
+            /* This appears to be a real power-up. */
+                    #if defined(BASIC_LCD_SUPPORT)
+            display_power_normal_message();
+                    #endif
+            custom_lcd_wakeup_handler();
+            _BIC_SR_IRQ(LPM3_bits);
+        }
+        power_down_debounce = 0;
+    }
+                #endif
+            #endif
+        #endif
+        #if defined(LIMP_MODE_SUPPORT)
+    if (operating_mode == OPERATING_MODE_LIMP)
+    {
+        /* We need to kick things, to give the foreground activities a chance
+           to do their work. */
+        _BIC_SR_IRQ(LPM0_bits);
+    }
+        #endif
+    #endif
+
+    #if defined(__MSP430__)  &&  defined(__MSP430_HAS_ADC10_A__) && defined(TEMPERATURE_SUPPORT)
+    if (operating_mode == OPERATING_MODE_NORMAL)
+    {
+      ADC10CTL1 = ADC10DIV_3 + ADC10SHS_0 + ADC10CONSEQ_2+ADC10SHP;       // SC trig., rpt, A10
+      ADC10MCTL0 = ADC10INCH_10 + ADC10SREF_1;
+      ADC10IE = ADC10IE0;
+      ADC10CTL0 = ADC10SHT_3 + ADC10ON + ADC10ENC + ADC10SC;
+    }
+    #endif
+    kick_watchdog();
+}
+#endif

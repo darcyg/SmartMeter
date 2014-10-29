@@ -1,0 +1,212 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V6.10.2.50871/W32 for MSP430         28/Oct/2014  22:48:18
+# Copyright 1996-2014 IAR Systems AB.
+# Evaluation license - IAR Embedded Workbench for Texas Instruments MSP430, Evaluation Version 6.10
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\emeter-iiceeprom.c
+#    Command line  =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\emeter-iiceeprom.c -D
+#        "CUSTOM_EMETER_H=\"emeter-1ph-neutral-6733_shunt.h\"" -D X_ZEBU_ -lcN
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\List\ -o
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\Obj\ --debug
+#        -D__MSP430F6736__ -e --double=32 --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.0\430\lib\dlib\dl430xlsfn.h" -I
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng/../emeter-toolkit\
+#        --core=430X --data_model=small -Ohs --multiplier=32
+#        --multiplier_location=4C0 --hw_workaround=CPU40 --hw_workaround=CPU39
+#        --code_model=large
+#    List file     =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\List\emeter-iiceeprom.lst
+#    Object file   =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\Obj\emeter-iiceeprom.r43
+#
+###############################################################################
+
+D:\Documents\GitHub\SmartMeter\Source\emeter-ng\emeter-iiceeprom.c
+      1          //--------------------------------------------------------------------------
+      2          //
+      3          //  Software for MSP430 based e-meters.
+      4          //
+      5          //  THIS PROGRAM IS PROVIDED "AS IS". TI MAKES NO WARRANTIES OR
+      6          //  REPRESENTATIONS, EITHER EXPRESS, IMPLIED OR STATUTORY,
+      7          //  INCLUDING ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS
+      8          //  FOR A PARTICULAR PURPOSE, LACK OF VIRUSES, ACCURACY OR
+      9          //  COMPLETENESS OF RESPONSES, RESULTS AND LACK OF NEGLIGENCE.
+     10          //  TI DISCLAIMS ANY WARRANTY OF TITLE, QUIET ENJOYMENT, QUIET
+     11          //  POSSESSION, AND NON-INFRINGEMENT OF ANY THIRD PARTY
+     12          //  INTELLECTUAL PROPERTY RIGHTS WITH REGARD TO THE PROGRAM OR
+     13          //  YOUR USE OF THE PROGRAM.
+     14          //
+     15          //  IN NO EVENT SHALL TI BE LIABLE FOR ANY SPECIAL, INCIDENTAL,
+     16          //  CONSEQUENTIAL OR INDIRECT DAMAGES, HOWEVER CAUSED, ON ANY
+     17          //  THEORY OF LIABILITY AND WHETHER OR NOT TI HAS BEEN ADVISED
+     18          //  OF THE POSSIBILITY OF SUCH DAMAGES, ARISING IN ANY WAY OUT
+     19          //  OF THIS AGREEMENT, THE PROGRAM, OR YOUR USE OF THE PROGRAM.
+     20          //  EXCLUDED DAMAGES INCLUDE, BUT ARE NOT LIMITED TO, COST OF
+     21          //  REMOVAL OR REINSTALLATION, COMPUTER TIME, LABOR COSTS, LOSS
+     22          //  OF GOODWILL, LOSS OF PROFITS, LOSS OF SAVINGS, OR LOSS OF
+     23          //  USE OR INTERRUPTION OF BUSINESS. IN NO EVENT WILL TI'S
+     24          //  AGGREGATE LIABILITY UNDER THIS AGREEMENT OR ARISING OUT OF
+     25          //  YOUR USE OF THE PROGRAM EXCEED FIVE HUNDRED DOLLARS
+     26          //  (U.S.$500).
+     27          //
+     28          //  Unless otherwise stated, the Program written and copyrighted
+     29          //  by Texas Instruments is distributed as "freeware".  You may,
+     30          //  only under TI's copyright in the Program, use and modify the
+     31          //  Program without any charge or restriction.  You may
+     32          //  distribute to third parties, provided that you transfer a
+     33          //  copy of this license to the third party and the third party
+     34          //  agrees to these terms by its first use of the Program. You
+     35          //  must reproduce the copyright notice and any other legend of
+     36          //  ownership on each copy or partial copy, of the Program.
+     37          //
+     38          //  You acknowledge and agree that the Program contains
+     39          //  copyrighted material, trade secrets and other TI proprietary
+     40          //  information and is protected by copyright laws,
+     41          //  international copyright treaties, and trade secret laws, as
+     42          //  well as other intellectual property laws.  To protect TI's
+     43          //  rights in the Program, you agree not to decompile, reverse
+     44          //  engineer, disassemble or otherwise translate any object code
+     45          //  versions of the Program to a human-readable form.  You agree
+     46          //  that in no event will you alter, remove or destroy any
+     47          //  copyright notice included in the Program.  TI reserves all
+     48          //  rights not specifically granted under this license. Except
+     49          //  as specifically provided herein, nothing in this agreement
+     50          //  shall be construed as conferring by implication, estoppel,
+     51          //  or otherwise, upon you, any license or other right under any
+     52          //  TI patents, copyrights or trade secrets.
+     53          //
+     54          //  You may not use the Program in non-TI devices.
+     55          //
+     56          //  File: iiceeprom.c
+     57          //
+     58          //  Steve Underwood <steve-underwood@ti.com>
+     59          //  Texas Instruments Hong Kong Ltd.
+     60          //
+     61          //  $Id: emeter-iiceeprom.c,v 1.4 2009/01/08 08:30:37 a0754793 Exp $
+     62          //
+     63          //--------------------------------------------------------------------------
+     64          #include <stdint.h>
+     65          #include <stdlib.h>
+     66          #include <string.h>
+     67          #if !defined(__MSP430__)
+     68          #include <stdio.h>
+     69          #endif
+     70          #if defined(__GNUC__)
+     71          #include <signal.h>
+     72          #endif
+     73          #include <io.h>
+     74          #include <emeter-toolkit.h>
+     75          
+     76          #include "emeter-structs.h"
+     77          
+     78          #if defined(EXTERNAL_EEPROM_SUPPORT)
+     79          
+     80          static int external_eeprom_startup(void)
+     81          {
+     82          #if defined(SELF_TEST_SUPPORT)
+     83              int error;
+     84              int i;
+     85          #endif
+     86          #if 0
+     87              int j;
+     88              int k;
+     89              uint16_t buf[64];
+     90          #endif
+     91          
+     92          #if 0
+     93              while ((CACTL2 & CAOUT))
+     94                  kick_watchdog();
+     95          #endif
+     96          
+     97          #if 0
+     98              /* EEPROM interface test */
+     99              /* Go to 8MHz */
+    100              SCFI0 = FN_3 | FLLD_4;
+    101              SCFQCTL = 64 - 1;
+    102          
+    103              WDTCTL = (WDTCTL & 0xFF) | WDTPW | WDTHOLD;
+    104              for (k = 0;  k < 32767;  k++)
+    105              {
+    106                  LCDdec16(k, FIRST_POSITION + 1, NUMBER_WIDTH - 2, 0);
+    107                  for (j = 0;  j < 8192;  j += 128)
+    108                  {
+    109                      for (i = 0;  i < 64;  i++)
+    110                          buf[i] = j + (i << 1);
+    111                      if (!iicEEPROM_write(j, buf, 128))
+    112                      {
+    113                          LCDdec16(9991, FIRST_POSITION + 1, NUMBER_WIDTH - 2, 0);
+    114                          for (;;);
+    115                      }
+    116                  }
+    117                  for (j = 0;  j < 8192;  j += 128)
+    118                  {
+    119                      if (!iicEEPROM_read(j, buf, 128))
+    120                      {
+    121                          LCDdec16(9992, FIRST_POSITION + 1, NUMBER_WIDTH - 2, 0);
+    122                          for (;;);
+    123                      }
+    124                      for (i = 0;  i < 64;  i++)
+    125                      {
+    126                          if (buf[i] != j + (i << 1))
+    127                          {
+    128                              LCDdec16(9993, FIRST_POSITION + 1, NUMBER_WIDTH - 2, 0);
+    129                              for (;;);
+    130                          }
+    131                      }
+    132                  }
+    133              }
+    134          #endif
+    135          
+    136          #if defined(SELF_TEST_SUPPORT)
+    137              error = 0;
+    138              /* Allow several retries of reading the EEPROM */
+    139              for (i = 0;  i < 5;  i++)
+    140              {
+    141              }
+    142              if (error)
+    143              {
+    144                  record_meter_failure(METER_FAILURE_EEPROM_COMMUNICATION);
+    145                  return TRUE;
+    146              }
+    147              if (error)
+    148                  record_meter_failure(METER_FAILURE_EEPROM_CONTENTS);
+    149          #endif
+    150              return TRUE;
+    151          }
+    152          
+    153          void external_eeprom_init(void)
+    154          {
+    155          #if 0
+    156              CACTL1 = CAREF_2 | CAEX | CAON;
+    157              CACTL2 = P2CA1 | CAF;
+    158              P1SEL |= BIT7;
+    159              CAPD |= BIT7;
+    160          
+    161              while ((CACTL2 & CAOUT))
+    162                  kick_watchdog();
+    163          #endif
+    164          
+    165              iicEEPROM_init();
+    166              external_eeprom_startup();
+    167          }
+    168          #endif
+
+
+ 
+
+ 
+
+
+Errors: none
+Warnings: none

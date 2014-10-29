@@ -1,0 +1,1330 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V6.10.2.50871/W32 for MSP430         28/Oct/2014  22:48:16
+# Copyright 1996-2014 IAR Systems AB.
+# Evaluation license - IAR Embedded Workbench for Texas Instruments MSP430, Evaluation Version 6.10
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\emeter-basic-display.c
+#    Command line  =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\emeter-basic-display.c
+#        -D "CUSTOM_EMETER_H=\"emeter-1ph-neutral-6733_shunt.h\"" -D X_ZEBU_
+#        -lcN D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\List\ -o
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\Obj\ --debug
+#        -D__MSP430F6736__ -e --double=32 --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.0\430\lib\dlib\dl430xlsfn.h" -I
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng/../emeter-toolkit\
+#        --core=430X --data_model=small -Ohs --multiplier=32
+#        --multiplier_location=4C0 --hw_workaround=CPU40 --hw_workaround=CPU39
+#        --code_model=large
+#    List file     =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\List\emeter-basic-display.lst
+#    Object file   =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\Obj\emeter-basic-display.r43
+#
+###############################################################################
+
+D:\Documents\GitHub\SmartMeter\Source\emeter-ng\emeter-basic-display.c
+      1          //--------------------------------------------------------------------------
+      2          //
+      3          //  Software for MSP430 based e-meters.
+      4          //
+      5          //  THIS PROGRAM IS PROVIDED "AS IS". TI MAKES NO WARRANTIES OR
+      6          //  REPRESENTATIONS, EITHER EXPRESS, IMPLIED OR STATUTORY, 
+      7          //  INCLUDING ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS 
+      8          //  FOR A PARTICULAR PURPOSE, LACK OF VIRUSES, ACCURACY OR 
+      9          //  COMPLETENESS OF RESPONSES, RESULTS AND LACK OF NEGLIGENCE. 
+     10          //  TI DISCLAIMS ANY WARRANTY OF TITLE, QUIET ENJOYMENT, QUIET 
+     11          //  POSSESSION, AND NON-INFRINGEMENT OF ANY THIRD PARTY 
+     12          //  INTELLECTUAL PROPERTY RIGHTS WITH REGARD TO THE PROGRAM OR 
+     13          //  YOUR USE OF THE PROGRAM.
+     14          //
+     15          //  IN NO EVENT SHALL TI BE LIABLE FOR ANY SPECIAL, INCIDENTAL, 
+     16          //  CONSEQUENTIAL OR INDIRECT DAMAGES, HOWEVER CAUSED, ON ANY 
+     17          //  THEORY OF LIABILITY AND WHETHER OR NOT TI HAS BEEN ADVISED 
+     18          //  OF THE POSSIBILITY OF SUCH DAMAGES, ARISING IN ANY WAY OUT 
+     19          //  OF THIS AGREEMENT, THE PROGRAM, OR YOUR USE OF THE PROGRAM. 
+     20          //  EXCLUDED DAMAGES INCLUDE, BUT ARE NOT LIMITED TO, COST OF 
+     21          //  REMOVAL OR REINSTALLATION, COMPUTER TIME, LABOR COSTS, LOSS 
+     22          //  OF GOODWILL, LOSS OF PROFITS, LOSS OF SAVINGS, OR LOSS OF 
+     23          //  USE OR INTERRUPTION OF BUSINESS. IN NO EVENT WILL TI'S 
+     24          //  AGGREGATE LIABILITY UNDER THIS AGREEMENT OR ARISING OUT OF 
+     25          //  YOUR USE OF THE PROGRAM EXCEED FIVE HUNDRED DOLLARS 
+     26          //  (U.S.$500).
+     27          //
+     28          //  Unless otherwise stated, the Program written and copyrighted 
+     29          //  by Texas Instruments is distributed as "freeware".  You may, 
+     30          //  only under TI's copyright in the Program, use and modify the 
+     31          //  Program without any charge or restriction.  You may 
+     32          //  distribute to third parties, provided that you transfer a 
+     33          //  copy of this license to the third party and the third party 
+     34          //  agrees to these terms by its first use of the Program. You 
+     35          //  must reproduce the copyright notice and any other legend of 
+     36          //  ownership on each copy or partial copy, of the Program.
+     37          //
+     38          //  You acknowledge and agree that the Program contains 
+     39          //  copyrighted material, trade secrets and other TI proprietary 
+     40          //  information and is protected by copyright laws, 
+     41          //  international copyright treaties, and trade secret laws, as 
+     42          //  well as other intellectual property laws.  To protect TI's 
+     43          //  rights in the Program, you agree not to decompile, reverse 
+     44          //  engineer, disassemble or otherwise translate any object code 
+     45          //  versions of the Program to a human-readable form.  You agree 
+     46          //  that in no event will you alter, remove or destroy any 
+     47          //  copyright notice included in the Program.  TI reserves all 
+     48          //  rights not specifically granted under this license. Except 
+     49          //  as specifically provided herein, nothing in this agreement 
+     50          //  shall be construed as conferring by implication, estoppel, 
+     51          //  or otherwise, upon you, any license or other right under any 
+     52          //  TI patents, copyrights or trade secrets.
+     53          //
+     54          //  You may not use the Program in non-TI devices.
+     55          //
+     56          //  File: basic_display.c
+     57          //
+     58          //  Steve Underwood <steve-underwood@ti.com>
+     59          //  Texas Instruments Hong Kong Ltd.
+     60          //
+     61          //  $Id: emeter-basic-display.c,v 1.28 2009/04/27 06:21:22 a0754793 Exp $
+     62          //
+     63          /*! \file emeter-structs.h */
+     64          //
+     65          //--------------------------------------------------------------------------
+     66          //
+     67          //  MSP430 simple LCD display routines for e-meters
+     68          //
+     69          #include <stdint.h>
+     70          #include <stdlib.h>
+     71          #include <io.h>
+     72          #include <emeter-toolkit.h>
+     73          
+     74          #include "emeter-structs.h"
+     75          
+     76          #if defined(MULTI_RATE_SUPPORT)
+     77          #include "emeter-multirate.h"
+     78          #endif
+     79          
+     80          #if defined(__MSP430__)  &&  defined(CUSTOM_LCD_SUPPORT)
+     81          #include <lcd-segments.h>
+     82          /* Define hex digits and the minus sign to match the allocation of segments we are using. */
+     83          const lcd_cell_t lcd_digit_table[] =
+     84          {
+     85              CHAR_0,
+     86              CHAR_1,
+     87              CHAR_2,
+     88              CHAR_3,
+     89              CHAR_4,
+     90              CHAR_5,
+     91              CHAR_6,
+     92              CHAR_7,
+     93              CHAR_8,
+     94              CHAR_9,
+     95              CHAR_A,
+     96              CHAR_B,
+     97              CHAR_C,
+     98              CHAR_D,
+     99              CHAR_E,
+    100              CHAR_F
+    101          };
+    102          
+    103          const lcd_cell_t char_minus = CHAR_MINUS;
+    104          
+    105          const int lcd_cells = LCD_CELLS;
+    106          const int lcd_pos_base = LCD_POS_BASE;
+    107          const int lcd_pos_step = LCD_POS_STEP;
+    108          #endif
+    109          
+    110          #if defined(MULTI_RATE_SUPPORT)
+    111          uint8_t info_step;
+    112          uint8_t info_substep;
+    113          #endif
+    114          
+    115          #if defined(__MSP430__)  &&  defined(BASIC_LCD_SUPPORT)
+    116          #include <lcd-segments.h>
+    117          /* Define hex digits and the minus sign to match the allocation of segments we are using. */
+    118          const lcd_cell_t lcd_digit_table[] =
+    119          {
+    120              CHAR_0,
+    121              CHAR_1,
+    122              CHAR_2,
+    123              CHAR_3,
+    124              CHAR_4,
+    125              CHAR_5,
+    126              CHAR_6,
+    127              CHAR_7,
+    128              CHAR_8,
+    129              CHAR_9,
+    130              CHAR_A,
+    131              CHAR_B,
+    132              CHAR_C,
+    133              CHAR_D,
+    134              CHAR_E,
+    135              CHAR_F
+    136          };
+    137          
+    138              #if defined(USE_STARBURST)
+    139          const lcd_cell_t lcd_alpha_table[] =
+    140          {
+    141              CHAR_A,
+    142              CHAR_B,
+    143              CHAR_C,
+    144              CHAR_D,
+    145              CHAR_E,
+    146              CHAR_F,
+    147              CHAR_G,
+    148              CHAR_H,
+    149              CHAR_I,
+    150              CHAR_J,
+    151              CHAR_K,
+    152              CHAR_L,
+    153              CHAR_M,
+    154              CHAR_N,
+    155              CHAR_O,
+    156              CHAR_P,
+    157              CHAR_Q,
+    158              CHAR_R,
+    159              CHAR_S,
+    160              CHAR_T,
+    161              CHAR_U,
+    162              CHAR_V,
+    163              CHAR_W,
+    164              CHAR_X,
+    165              CHAR_Y,
+    166              CHAR_Z
+    167          };
+    168              #endif
+    169          
+    170              #if defined(ASCII_LCD)
+    171          static const lcd_cell_t lcd_ascii_table[] =
+    172          {
+    173              CHAR_SPACE,
+    174              CHAR_SPACE,         //exclamation
+    175              CHAR_DOUBLEQUOTE,
+    176              CHAR_SPACE,         //hash
+    177              CHAR_DOLLAR,
+    178              CHAR_SPACE,         //percent
+    179              CHAR_SPACE,         //ampersand
+    180              CHAR_QUOTE,
+    181              CHAR_LEFTBRACKET,
+    182              CHAR_RIGHTBRACKET,
+    183              CHAR_ASTERISK,
+    184              CHAR_PLUS,
+    185              CHAR_SPACE,         //comma
+    186              CHAR_MINUS,
+    187              CHAR_SPACE,         //full stop
+    188              CHAR_SLASH,
+    189              CHAR_0,
+    190              CHAR_1,
+    191              CHAR_2,
+    192              CHAR_3,
+    193              CHAR_4,
+    194              CHAR_5,
+    195              CHAR_6,
+    196              CHAR_7,
+    197              CHAR_8,
+    198              CHAR_9,
+    199              CHAR_SPACE,         //colon
+    200              CHAR_SPACE,         //semi-colon
+    201              CHAR_LT,
+    202              CHAR_EQUALS,
+    203              CHAR_GT,
+    204              CHAR_QUESTION,
+    205              CHAR_SPACE,         //at sign
+    206              CHAR_A,
+    207              CHAR_B,
+    208              CHAR_C,
+    209              CHAR_D,
+    210              CHAR_E,
+    211              CHAR_F,
+    212              CHAR_G,
+    213              CHAR_H,
+    214              CHAR_I,
+    215              CHAR_J,
+    216              CHAR_K,
+    217              CHAR_L,
+    218              CHAR_M,
+    219              CHAR_N,
+    220              CHAR_O,
+    221              CHAR_P,
+    222              CHAR_Q,
+    223              CHAR_R,
+    224              CHAR_S,
+    225              CHAR_T,
+    226              CHAR_U,
+    227              CHAR_V,
+    228              CHAR_W,
+    229              CHAR_X,
+    230              CHAR_Y,
+    231              CHAR_Z,
+    232              CHAR_LEFTBRACKET,
+    233              CHAR_BACKSLASH,
+    234              CHAR_RIGHTBRACKET,
+    235              CHAR_CARET,
+    236              CHAR_UNDERSCORE,
+    237              CHAR_BACKQUOTE,
+    238              CHAR_a,
+    239              CHAR_b,
+    240              CHAR_C,
+    241              CHAR_d,
+    242              CHAR_e,
+    243              CHAR_f,
+    244              CHAR_g,
+    245              CHAR_h,
+    246              CHAR_i,
+    247              CHAR_j,
+    248              CHAR_k,
+    249              CHAR_l,
+    250              CHAR_m,
+    251              CHAR_n,
+    252              CHAR_o,
+    253              CHAR_p,
+    254              CHAR_q,
+    255              CHAR_r,
+    256              CHAR_s,
+    257              CHAR_t,
+    258              CHAR_u,
+    259              CHAR_v,
+    260              CHAR_w,
+    261              CHAR_x,
+    262              CHAR_y,
+    263              CHAR_z,
+    264              CHAR_LEFTBRACKET,
+    265              CHAR_VERTICALBAR,
+    266              CHAR_RIGHTBRACKET,
+    267              CHAR_SPACE,         //squiggle
+    268              CHAR_SPACE          //delete
+    269          };
+    270          
+    271          void lcd_text(char *s, int pos)
+    272          {
+    273              int x;
+    274          
+    275              if (lcd_pos_step < 0)
+    276                  pos = -pos;
+    277              if (abs(lcd_pos_step) > 1)
+    278                  pos <<= 1;
+    279              pos = lcd_pos_base + pos;
+    280              while (*s)
+    281              {
+    282                  x = lcd_ascii_table[*s++ - 0x20];
+    283                  LCDMEM[pos] = x & 0xFF;
+    284                  pos += (lcd_pos_step >> 1);
+    285                  LCDMEM[pos] = x >> 8;
+    286                  pos += (lcd_pos_step >> 1);
+    287              }
+    288          }
+    289              #endif
+    290          
+    291          const lcd_cell_t char_minus = CHAR_MINUS;
+    292          
+    293          const int lcd_cells = LCD_CELLS;
+    294          const int lcd_pos_base = LCD_POS_BASE;
+    295          const int lcd_pos_step = LCD_POS_STEP;
+    296          
+    297          static const lcd_cell_t lcd_high[TEXT_MESSAGE_LENGTH] =
+    298          {
+    299              CHAR_H,
+    300              CHAR_i,
+    301              CHAR_g,
+    302              CHAR_h,
+    303              CHAR_SPACE,
+    304              CHAR_SPACE,
+    305              #if TEXT_MESSAGE_LENGTH == 7
+    306              CHAR_SPACE
+    307              #endif
+    308          };
+    309          
+    310          static const lcd_cell_t lcd_startup[TEXT_MESSAGE_LENGTH] =
+    311          {
+    312              #if defined(USE_STARBURST)
+    313              CHAR_S,
+    314              CHAR_T,
+    315              CHAR_A,
+    316              CHAR_R,
+    317              CHAR_T,
+    318              CHAR_SPACE,
+    319              #else
+    320              CHAR_S,
+    321              CHAR_t,
+    322              CHAR_a,
+    323              CHAR_r,
+    324              CHAR_t,
+    325              CHAR_SPACE,
+    326                  #if TEXT_MESSAGE_LENGTH == 7
+    327              CHAR_SPACE
+    328                  #endif
+    329              #endif
+    330          };
+    331          
+    332          static const lcd_cell_t lcd_no_power[TEXT_MESSAGE_LENGTH] =
+    333          {
+    334              CHAR_b,
+    335              CHAR_l,
+    336              CHAR_SPACE,
+    337              CHAR_o,
+    338              CHAR_u,
+    339              CHAR_t,
+    340              #if TEXT_MESSAGE_LENGTH == 7
+    341              CHAR_SPACE
+    342              #endif
+    343          };
+    344          
+    345          static const lcd_cell_t lcd_4v2_power[TEXT_MESSAGE_LENGTH] =
+    346          {
+    347              CHAR_SPACE,
+    348              CHAR_SPACE,
+    349              CHAR_SPACE,
+    350              CHAR_4,
+    351              #if defined(USE_STARBURST)
+    352              CHAR_V,
+    353              #else
+    354              CHAR_U,
+    355              #endif
+    356              CHAR_2,
+    357              #if TEXT_MESSAGE_LENGTH == 7
+    358              CHAR_SPACE
+    359              #endif
+    360          };
+    361          
+    362          static const lcd_cell_t lcd_normal_power[TEXT_MESSAGE_LENGTH] =
+    363          {
+    364              CHAR_SPACE,
+    365              CHAR_SPACE,
+    366              CHAR_SPACE,
+    367              CHAR_8,
+    368              #if defined(USE_STARBURST)
+    369              CHAR_V,
+    370              #else
+    371              CHAR_U,
+    372              #endif
+    373              CHAR_4,
+    374              #if TEXT_MESSAGE_LENGTH == 7
+    375              CHAR_SPACE
+    376              #endif
+    377          };
+    378          
+    379              #if defined(__MSP430__)
+    380          enum
+    381          {
+    382              DISPLAY_ITEM_SELECT_RESTART = -6,
+    383              DISPLAY_ITEM_SELECT_TOTAL = -5,
+    384              DISPLAY_ITEM_SELECT_NEUTRAL = -4,
+    385              DISPLAY_ITEM_SELECT_PHASE_3 = -3,
+    386              DISPLAY_ITEM_SELECT_PHASE_2 = -2,
+    387              DISPLAY_ITEM_SELECT_PHASE_1 = -1,
+    388              DISPLAY_ITEM_ACTIVE_ENERGY,
+    389              DISPLAY_ITEM_ACTIVE_POWER,
+    390              #if defined(MAINS_FREQUENCY_SUPPORT)
+    391              DISPLAY_ITEM_MAINS_FREQUENCY,
+    392              #endif
+    393              #if defined(IRMS_SUPPORT)
+    394              DISPLAY_ITEM_CURRENT,
+    395              #endif
+    396              #if defined(VRMS_SUPPORT)
+    397              DISPLAY_ITEM_VOLTAGE,
+    398              #endif
+    399              #if defined(POWER_FACTOR_SUPPORT)
+    400              DISPLAY_ITEM_POWER_FACTOR,
+    401              #endif
+    402              #if defined(REACTIVE_POWER_SUPPORT)
+    403              DISPLAY_ITEM_REACTIVE_POWER,
+    404              DISPLAY_ITEM_REACTIVE_ENERGY,
+    405              #endif
+    406              #if defined(APPARENT_POWER_SUPPORT)
+    407              DISPLAY_ITEM_VA,
+    408              #endif
+    409              #if defined(RTC_SUPPORT)
+    410              DISPLAY_ITEM_DATE,
+    411              DISPLAY_ITEM_TIME,
+    412              #endif
+    413              #if defined(TEMPERATURE_SUPPORT)
+    414              DISPLAY_ITEM_TEMPERATURE,
+    415              #endif
+    416              #if defined(MULTI_RATE_SUPPORT)
+    417              DISPLAY_ITEM_CURRENT_TARIFF
+    418              #endif
+    419          };
+    420          
+    421          enum
+    422          {
+    423                  #if defined(PER_PHASE_ACTIVE_ENERGY_SUPPORT)
+    424                      #if !defined(TWO_LINE_LCD)
+    425              DISPLAY_STAGE_PHASE_ACTIVE_POWER,
+    426                      #endif
+    427              DISPLAY_STAGE_PHASE_ENERGY,
+    428                  #endif
+    429                  #if defined(REACTIVE_POWER_SUPPORT)
+    430              DISPLAY_STAGE_REACTIVE_POWER,
+    431                  #endif
+    432                  #if defined(APPARENT_POWER_SUPPORT)
+    433              DISPLAY_STAGE_VA,
+    434                  #endif
+    435                  #if defined(POWER_FACTOR_SUPPORT)
+    436              DISPLAY_STAGE_POWER_FACTOR,
+    437                  #endif
+    438                  #if defined(VRMS_SUPPORT)
+    439              DISPLAY_STAGE_VOLTAGE,
+    440                  #endif
+    441                  #if defined(IRMS_SUPPORT)
+    442              DISPLAY_STAGE_CURRENT,
+    443                  #endif
+    444                  #if defined(MAINS_FREQUENCY_SUPPORT)
+    445              DISPLAY_STAGE_MAINS_FREQUENCY,
+    446                  #endif
+    447                  #if !defined(SINGLE_PHASE)
+    448              DISPLAY_STAGE_PHASE_LAST,
+    449                  #endif
+    450                  #if !defined(SINGLE_PHASE)  &&  defined(NEUTRAL_MONITOR_SUPPORT)  &&  defined(IRMS_SUPPORT)
+    451              DISPLAY_STAGE_NEUTRAL_CURRENT,
+    452                  #endif
+    453                  #if defined(TOTAL_ACTIVE_ENERGY_SUPPORT)
+    454              DISPLAY_STAGE_TOTAL_ACTIVE_POWER,
+    455                      #if !defined(TWO_LINE_LCD)
+    456              DISPLAY_STAGE_TOTAL_ACTIVE_ENERGY,
+    457                      #endif
+    458                  #endif
+    459                  #if defined(RTC_SUPPORT)
+    460              DISPLAY_STAGE_DATE,
+    461                      #if !defined(DEDICATED_TIME_FIELD)  &&  !defined(TWO_LINE_LCD)
+    462              DISPLAY_STAGE_TIME,
+    463                      #endif
+    464                  #endif
+    465                  #if defined(TEMPERATURE_SUPPORT)
+    466              DISPLAY_STAGE_TEMPERATURE,
+    467                  #endif
+    468                  #if defined(MULTI_RATE_SUPPORT)
+    469              DISPLAY_STAGE_CURRENT_TARIFF,
+    470                  #endif
+    471              DISPLAY_STAGE_LAST
+    472          };
+    473          
+    474                  #if !defined(USE_STARBURST)
+    475          #define LCDcharsx LCDchars
+    476                  #else
+    477          void LCDcharsx(const lcd_cell_t *s, int pos, int len)
+    478          {
+    479              if (lcd_pos_step < 0)
+    480                  pos = -pos;
+    481              if (abs(lcd_pos_step) > 1)
+    482                  pos <<= 1;
+    483              pos = lcd_pos_base + pos;
+    484              for (  ;  len > 0;  --len)
+    485              {
+    486                  LCDMEM[pos] = *s & 0xFF;
+    487                  pos += (lcd_pos_step >> 1);
+    488                  LCDMEM[pos] = *s >> 8;
+    489                  s++;
+    490                  pos += (lcd_pos_step >> 1);
+    491              }
+    492          }
+    493                  #endif
+    494          
+    495          void display_power_fail_message(void)
+    496          {
+    497              LCDchar(CHAR_SPACE, 1);
+    498              LCDcharsx(lcd_no_power, INFO_POSITION, INFO_CHARS);
+    499          }
+    500          
+    501          void display_startup_message(void)
+    502          {
+    503              LCDchar(CHAR_SPACE, 1);
+    504              LCDcharsx(lcd_startup, INFO_POSITION, INFO_CHARS);
+    505          }
+    506          
+    507          void display_power_4v2_message(void)
+    508          {
+    509              LCDchar(CHAR_SPACE, 1);
+    510              LCDcharsx(lcd_4v2_power, INFO_POSITION, INFO_CHARS);
+    511          }
+    512          
+    513          void display_power_normal_message(void)
+    514          {
+    515              LCDchar(CHAR_SPACE, 1);
+    516              LCDcharsx(lcd_normal_power, INFO_POSITION, INFO_CHARS);
+    517          }
+    518          
+    519          static void LCDicon(int pos, int on)
+    520          {
+    521              LCDmodify_char(1 << (pos >> 5), pos & 0x1F, on);
+    522          }
+    523          
+    524          void display_clear_periphery(void)
+    525          {
+    526              /* Clear all the symbols around the display, which we are not using */
+    527              custom_lcd_clear_periphery();
+    528          }
+    529          
+    530          void display_clear_line_1(void)
+    531          {
+    532              int i;
+    533          
+    534              /* Clear the digits */
+    535              for (i = FIRST_ROW_START;  i < FIRST_ROW_START + FIRST_ROW_CHARS;  i++)
+    536                  LCDchar(CHAR_SPACE, i);
+    537              /* Clear the associated tags */
+    538              custom_lcd_clear_line_1_tags();
+    539              display_clear_periphery();
+    540          }
+    541          
+    542                  #if defined(TWO_LINE_LCD)
+    543          void display_clear_line_2(void)
+    544          {
+    545              int i;
+    546              
+    547              /* Clear the digits */
+    548              for (i = SECOND_ROW_START;  i < SECOND_ROW_START + SECOND_ROW_CHARS;  i++)
+    549                  LCDchar(CHAR_SPACE, i);
+    550              /* Clear the associated tags */
+    551              custom_lcd_clear_line_2_tags();
+    552              display_clear_periphery();
+    553          }
+    554                  #else
+    555          #define display_clear_line_2() /**/
+    556                  #endif
+    557          
+    558                  #if !defined(SINGLE_PHASE)  &&  defined(ICON_PHASE_A)  &&  defined(ICON_PHASE_B)  &&  defined(ICON_PHASE_C)
+    559          void display_phase_icon(int ph)
+    560          {
+    561              int i;
+    562              static const uint8_t phase_icons[NUM_PHASES] =
+    563              {
+    564                  ICON_PHASE_A,
+    565                  ICON_PHASE_B,
+    566                  ICON_PHASE_C
+    567              };
+    568          
+    569              for (i = 0;  i < 3;  i++)
+    570                  LCDicon(phase_icons[i], i == ph);
+    571          }
+    572                  #else
+    573          #define display_phase_icon(x) /**/
+    574                  #endif
+    575          
+    576          static void LCDoverrange(void)
+    577          {
+    578              LCDcharsx(lcd_high, INFO_POSITION, INFO_CHARS);
+    579          }
+    580          
+    581                  #if defined(MAINS_FREQUENCY_SUPPORT)
+    582          static __inline__ void display_mains_frequency(int ph)
+    583          {
+    584              int32_t x;
+    585          
+    586              /* Display mains frequency in 0.1Hz or 0.01Hz increments */
+    587              x = current_mains_frequency(ph);
+    588              LCDdecu32(x, FIRST_FREQUENCY_POSITION, FREQUENCY_DIGITS, FREQUENCY_RESOLUTION);
+    589                      #if defined(ICON_FREQUENCY_DECIMAL_POINT)
+    590              LCDicon(ICON_FREQUENCY_DECIMAL_POINT, TRUE);
+    591                      #endif
+    592                      #if defined(ICON_HERTZ)
+    593              LCDicon(ICON_HERTZ, TRUE);
+    594                      #endif
+    595                      #if defined(ICON_FREQUENCY)
+    596              LCDicon(ICON_FREQUENCY, TRUE);
+    597                      #elif defined(DISPLAY_TYPE_POSITION)
+    598              LCDchar(CHAR_F, DISPLAY_TYPE_POSITION);
+    599                      #endif
+    600          }
+    601                  #endif
+    602          
+    603                  #if defined(VRMS_SUPPORT)
+    604          static void display_vrms(int ph)
+    605          {
+    606              int32_t x;
+    607          
+    608              /* Display RMS voltage in 0.1V or 0.01V increments */
+    609              x = current_rms_voltage(ph);
+    610              if (x < 0)
+    611              {
+    612                  LCDoverrange();
+    613              }
+    614              else
+    615              {
+    616                      #if defined(VOLTAGE_DISPLAY_DIVISOR)
+    617                  x /= VOLTAGE_DISPLAY_DIVISOR;
+    618                      #endif
+    619                  LCDdecu32(x, FIRST_VOLTAGE_POSITION, VOLTAGE_DIGITS, VOLTAGE_RESOLUTION);
+    620                      #if defined(ICON_VOLTAGE_DECIMAL_POINT)
+    621                  LCDicon(ICON_VOLTAGE_DECIMAL_POINT, TRUE);
+    622                      #endif
+    623                      #if defined(ICON_V)
+    624              LCDicon(ICON_V, TRUE);
+    625                      #endif
+    626              }
+    627                      #if defined(ICON_VOLTAGE)
+    628              LCDicon(ICON_VOLTAGE, TRUE);
+    629                      #elif defined(DISPLAY_TYPE_POSITION)
+    630                          #if defined(USE_STARBURST)
+    631              LCDchar(CHAR_V, DISPLAY_TYPE_POSITION);
+    632                          #else
+    633              LCDchar(CHAR_U, DISPLAY_TYPE_POSITION);
+    634                          #endif
+    635                      #endif
+    636          }
+    637                  #endif
+    638          
+    639                  #if defined(IRMS_SUPPORT)
+    640          static __inline__ void display_irms(int ph)
+    641          {
+    642              int32_t x;
+    643          
+    644              /* Display RMS current in 1mA increments */
+    645              x = current_rms_current(ph);
+    646              if (x < 0)
+    647              {
+    648                  LCDoverrange();
+    649              }
+    650              else
+    651              {
+    652                      #if defined(CURRENT_DISPLAY_DIVISOR)
+    653                  x /= CURRENT_DISPLAY_DIVISOR;
+    654                      #endif
+    655                  LCDdecu32(x, FIRST_CURRENT_POSITION, CURRENT_DIGITS, CURRENT_RESOLUTION);
+    656                      #if defined(ICON_CURRENT_DECIMAL_POINT)
+    657                  LCDicon(ICON_CURRENT_DECIMAL_POINT, TRUE);
+    658                      #endif
+    659                      #if defined(ICON_A)
+    660              LCDicon(ICON_A, TRUE);
+    661                      #endif
+    662              }
+    663                      #if defined(ICON_CURRENT)
+    664              LCDicon(ICON_CURRENT, TRUE);
+    665                      #elif defined(DISPLAY_TYPE_POSITION)
+    666              LCDchar(CHAR_C, DISPLAY_TYPE_POSITION);
+    667                      #endif
+    668          }
+    669                  #endif
+    670          
+    671                  #if defined(PER_PHASE_ACTIVE_ENERGY_SUPPORT)  ||  defined(TOTAL_ACTIVE_ENERGY_SUPPORT)
+    672          static __inline__ void display_consumed_active_energy(int ph)
+    673          {
+    674              int32_t x;
+    675          
+    676              //Display per phase or total consumed energy in 0.1kWh increments
+    677              x = current_consumed_active_energy(ph);
+    678                      #if ACTIVE_ENERGY_RESOLUTION == 1
+    679              x /= 10;
+    680                      #else
+    681              x /= 100;
+    682                      #endif
+    683              LCDdecu32(x, FIRST_ACTIVE_ENERGY_POSITION, ACTIVE_ENERGY_DIGITS, ACTIVE_ENERGY_RESOLUTION);
+    684                      #if defined(ICON_ACTIVE_ENERGY_DECIMAL_POINT)
+    685              LCDicon(ICON_ACTIVE_ENERGY_DECIMAL_POINT, TRUE);
+    686                      #endif
+    687                      #if defined(ICON_kWH)
+    688              LCDicon(ICON_kWH, TRUE);
+    689                      #elif defined(ICON_kW)  &&  defined(ICON_H_FOR_kW)
+    690              LCDicon(ICON_kW, TRUE);
+    691              LCDicon(ICON_H_FOR_kW, TRUE);
+    692                      #endif
+    693                      #if defined(ICON_ACTIVE_ENERGY)
+    694              LCDicon(ICON_ACTIVE_ENERGY, TRUE);
+    695                      #elif defined(DISPLAY_TYPE_POSITION)
+    696              LCDchar(CHAR_E, DISPLAY_TYPE_POSITION);
+    697                      #endif
+    698          }
+    699                  #endif
+    700          
+    701                  #if defined(REACTIVE_POWER_SUPPORT)
+    702          static __inline__ void display_consumed_reactive_energy(int ph)
+    703          {
+    704              int32_t x;
+    705          
+    706              //Display per phase or total consumed energy in 0.1kWh increments
+    707              x = current_consumed_reactive_energy(ph);
+    708                      #if REACTIVE_ENERGY_RESOLUTION == 1
+    709              x /= 10;
+    710                      #else
+    711              x /= 100;
+    712                      #endif
+    713              LCDdecu32(x, FIRST_REACTIVE_ENERGY_POSITION, REACTIVE_ENERGY_DIGITS, REACTIVE_ENERGY_RESOLUTION);
+    714                      #if defined(ICON_ACTIVE_ENERGY_DECIMAL_POINT)
+    715              LCDicon(ICON_REACTIVE_ENERGY_DECIMAL_POINT, TRUE);
+    716                      #endif
+    717                      #if defined(ICON_kvarH)
+    718              LCDicon(ICON_kvarH, TRUE);
+    719                      #elif defined(ICON_kvar)  &&  defined(ICON_H_FOR_kvar)
+    720              LCDicon(ICON_kvar, TRUE);
+    721              LCDicon(ICON_H_FOR_kvar, TRUE);
+    722                      #endif
+    723                      #if defined(ICON_REACTIVE_ENERGY)
+    724              LCDicon(ICON_REACTIVE_ENERGY, TRUE);
+    725                      #elif defined(DISPLAY_TYPE_POSITION)
+    726              LCDchar(CHAR_E, DISPLAY_TYPE_POSITION);
+    727                      #endif
+    728          }
+    729                  #endif
+    730          
+    731                  #if defined(PER_PHASE_ACTIVE_ENERGY_SUPPORT)  ||  defined(TOTAL_ACTIVE_ENERGY_SUPPORT)
+    732          static __inline__ void display_active_power(int ph)
+    733          {
+    734              int32_t x;
+    735          
+    736              //Display per phase or total power in 0.01W increments
+    737              x = current_active_power(ph);
+    738                      #if POWER_RESOLUTION == 1
+    739              /* Needs scaling */
+    740              x /= 10;
+    741                      #endif
+    742              LCDdecu32(x, FIRST_ACTIVE_POWER_POSITION, ACTIVE_POWER_DIGITS, ACTIVE_POWER_RESOLUTION);
+    743                      #endif
+    744                      #if defined(ICON_ACTIVE_POWER_DECIMAL_POINT)
+    745              LCDicon(ICON_ACTIVE_POWER_DECIMAL_POINT, TRUE);
+    746                      #endif
+    747                      #if defined(ICON_ACTIVE_POWER)
+    748              LCDicon(ICON_ACTIVE_POWER, TRUE);
+    749                      #endif
+    750                      #if defined(ICON_kW)
+    751              LCDicon(ICON_kW, TRUE);
+    752                      #elif defined(DISPLAY_TYPE_POSITION)
+    753              LCDchar(CHAR_P, DISPLAY_TYPE_POSITION);
+    754                      #endif
+    755          }
+    756                  #endif
+    757          
+    758                  #if defined(REACTIVE_POWER_SUPPORT)
+    759          static __inline__ void display_reactive_power(int ph)
+    760          {
+    761              int32_t x;
+    762          
+    763              //Display reactive power in 0.01W increments
+    764              x = current_reactive_power(ph);
+    765                      #if POWER_RESOLUTION == 1
+    766              /* Needs scaling */
+    767              x /= 10;
+    768                      #endif
+    769              LCDdecu32(x, FIRST_REACTIVE_POWER_POSITION, REACTIVE_POWER_DIGITS, REACTIVE_POWER_RESOLUTION);
+    770              LCDicon(ICON_REACTIVE_POWER_DECIMAL_POINT, TRUE);
+    771                      #if defined(ICON_kvar)
+    772              LCDicon(ICON_kvar, TRUE);
+    773                      #endif
+    774                      #if defined(ICON_REACTIVE_POWER)
+    775              LCDicon(ICON_REACTIVE_POWER, TRUE);
+    776                      #elif defined(DISPLAY_TYPE_POSITION)
+    777                          #if defined(USE_STARBURST)
+    778              LCDchar(CHAR_R, DISPLAY_TYPE_POSITION);
+    779                          #else
+    780              LCDchar(CHAR_r, DISPLAY_TYPE_POSITION);
+    781                          #endif
+    782                      #endif
+    783          }
+    784                  #endif
+    785          
+    786                  #if defined(APPARENT_POWER_SUPPORT)
+    787          static __inline__ void display_apparent_power(int ph)
+    788          {
+    789              int32_t x;
+    790          
+    791              //Display apparent (VA) power in 0.01W increments
+    792              x = current_apparent_power(ph);
+    793                      #if POWER_RESOLUTION == 1
+    794              /* Needs scaling */
+    795              x /= 10;
+    796                      #endif
+    797              LCDdecu32(x, FIRST_APPARENT_POWER_POSITION, APPARENT_POWER_DIGITS, APPARENT_POWER_RESOLUTION);
+    798              LCDicon(ICON_APPARENT_POWER_DECIMAL_POINT, TRUE);
+    799                      #if defined(ICON_kVA)
+    800              LCDicon(ICON_kVA, TRUE);
+    801                      #endif
+    802                      #if defined(ICON_APPARENT_POWER)
+    803              LCDicon(ICON_APPARENT_POWER, TRUE);
+    804                      #elif defined(DISPLAY_TYPE_POSITION)
+    805                          #if defined(USE_STARBURST)
+    806              LCDchar(CHAR_A, DISPLAY_TYPE_POSITION);
+    807                          #else
+    808              LCDchar(CHAR_n, DISPLAY_TYPE_POSITION);
+    809                          #endif
+    810                      #endif
+    811          }
+    812                  #endif
+    813          
+    814                  #if defined(IRMS_SUPPORT)  &&  defined(VRMS_SUPPORT)  &&  defined(POWER_FACTOR_SUPPORT)
+    815          static __inline__ void display_power_factor(int ph)
+    816          {
+    817              int32_t x;
+    818          
+    819              x = current_power_factor(ph);
+    820              if (x < 0)
+    821              {
+    822                  LCDchar(CHAR_L, FIRST_POWER_FACTOR_POSITION);
+    823                  x = -x;
+    824              }
+    825              else
+    826              {
+    827                  LCDchar(CHAR_C, FIRST_POWER_FACTOR_POSITION);
+    828              }
+    829              LCDdec16(x/10, FIRST_POWER_FACTOR_POSITION + 1, POWER_FACTOR_DIGITS - 2, POWER_FACTOR_RESOLUTION);
+    830                      #if defined(ICON_POWER_FACTOR_DECIMAL_POINT)
+    831              LCDicon(ICON_POWER_FACTOR_DECIMAL_POINT, FALSE);
+    832                      #endif
+    833                      #if defined(ICON_COS_PHI)
+    834              LCDicon(ICON_COS_PHI, TRUE);
+    835                      #elif  defined(DISPLAY_TYPE_POSITION)
+    836              LCDchar(CHAR_F, DISPLAY_TYPE_POSITION);
+    837                      #endif
+    838          }
+    839                  #endif
+    840          
+    841                  #if defined(RTC_SUPPORT)
+    842          static /*__inline__*/ void display_date(int year, int month, int day)
+    843          {
+    844              LCDdecu16(year, YEAR_POSITION, 2, 1);
+    845              LCDdecu16(month, MONTH_POSITION, 2, 1);
+    846              LCDdecu16(day, DAY_POSITION, 2, 1);
+    847              #if defined(ICON_DATE_COLON_1)
+    848              LCDicon(ICON_DATE_COLON_1, TRUE);
+    849              #endif
+    850              #if defined(ICON_DATE_COLON_1A)
+    851              LCDicon(ICON_DATE_COLON_1A, TRUE);
+    852              #endif
+    853              #if defined(ICON_DATE_COLON_2)
+    854              LCDicon(ICON_DATE_COLON_2, TRUE);
+    855              #endif
+    856              #if defined(ICON_DATE_COLON_2A)
+    857              LCDicon(ICON_DATE_COLON_2A, TRUE);
+    858              #endif
+    859          }
+    860          
+    861          static /*__inline__*/ void display_time(int hour, int minute, int second)
+    862          {
+    863              LCDdecu16(hour, HOUR_POSITION, 2, 1);
+    864              LCDdecu16(minute, MINUTE_POSITION, 2, 1);
+    865                          #if defined(SECONDS_POSITION)
+    866              LCDdecu16(second, SECONDS_POSITION, 2, 1);
+    867                          #endif
+    868                          #if defined(ICON_TIME_COLON_1)
+    869              LCDicon(ICON_TIME_COLON_1, TRUE);
+    870                          #endif
+    871                          #if defined(ICON_TIME_COLON_1A)
+    872              LCDicon(ICON_TIME_COLON_1A, TRUE);
+    873                          #endif
+    874                          #if defined(ICON_TIME_COLON_2)
+    875              LCDicon(ICON_TIME_COLON_2, TRUE);
+    876                          #endif
+    877                          #if defined(ICON_TIME_COLON_2A)
+    878              LCDicon(ICON_TIME_COLON_2A, TRUE);
+    879                          #endif
+    880          }
+    881          
+    882          static /*__inline__*/ void display_current_date(void)
+    883          {
+    884                      #if !defined(ICON_DATE)  &&  defined(DISPLAY_TYPE_POSITION)
+    885                          #if defined(USE_STARBURST)
+    886              LCDchar(CHAR_D, DISPLAY_TYPE_POSITION);
+    887                          #else
+    888              LCDchar(CHAR_d, DISPLAY_TYPE_POSITION);
+    889                          #endif
+    890                          #if FIRST_POSITION > 2
+    891              LCDchar(CHAR_t, DISPLAY_TYPE_POSITION + 1);
+    892                          #endif
+    893                      #endif
+    894                      #if defined(ZAP_COLON_CELL)
+    895              LCDchar(CHAR_SPACE, ZAP_COLON_CELL);
+    896                      #endif
+    897              display_date(rtc.year, rtc.month, rtc.day);
+    898                      #if defined(ICON_DATE)
+    899              LCDicon(ICON_DATE, TRUE);
+    900                      #endif
+    901          }
+    902          
+    903          static __inline__ void display_current_time(void)
+    904          {
+    905                      #if defined(DEDICATED_TIME_FIELD)
+    906              uint8_t x;
+    907          
+    908              /*TODO: This is fudged, as the time field has digits in
+    909                      reverse order from the main field. */
+    910              LCDdecu16(rtc.hour, DEDICATED_TIME_FIELD + 2, 2, 1);
+    911              LCDdecu16(rtc.minute, DEDICATED_TIME_FIELD, 2, 1);
+    912              x = LCDMEM[12];
+    913              LCDMEM[12] = LCDMEM[11];
+    914              LCDMEM[11] = x;
+    915              x = LCDMEM[14];
+    916              LCDMEM[14] = LCDMEM[13];
+    917              LCDMEM[13] = x;
+    918                          #if defined(ICON_TIME_FIELD_TIME)
+    919              LCDicon(ICON_TIME_FIELD_TIME, TRUE);
+    920                          #endif
+    921                          #if defined(ICON_TIME_FIELD_COLON)
+    922              LCDicon(ICON_TIME_FIELD_COLON, TRUE);
+    923                          #endif
+    924                      #elif defined(TWO_LINE_LCD)
+    925                          #if defined(ZAP_COLON_CELL)
+    926              LCDchar(CHAR_SPACE, ZAP_COLON_CELL);
+    927                          #endif
+    928              display_time(rtc.hour, rtc.minute, rtc.second);
+    929                          #if defined(ICON_TIME)
+    930              LCDicon(ICON_TIME, TRUE);
+    931                          #endif
+    932                      #else
+    933                          #if !defined(ICON_TIME)  &&  defined(DISPLAY_TYPE_POSITION)
+    934                              #if defined(USE_STARBURST)
+    935              LCDchar(CHAR_T, DISPLAY_TYPE_POSITION);
+    936                              #else
+    937              LCDchar(CHAR_t, DISPLAY_TYPE_POSITION);
+    938                              #endif
+    939                              #if FIRST_POSITION > 2
+    940              LCDchar(CHAR_i, DISPLAY_TYPE_POSITION + 1);
+    941                              #endif
+    942                          #endif
+    943                          #if defined(ZAP_COLON_CELL)
+    944              LCDchar(CHAR_SPACE, ZAP_COLON_CELL);
+    945                          #endif
+    946              display_time(rtc.hour, rtc.minute, rtc.second);
+    947                          #if defined(ICON_TIME)
+    948              LCDicon(ICON_TIME, TRUE);
+    949                          #endif
+    950                      #endif
+    951          }
+    952                  #endif
+    953          
+    954                  #if defined(TEMPERATURE_SUPPORT)
+    955          static __inline__ void display_temperature(void)
+    956          {
+    957              int32_t temp;
+    958          
+    959              /* Convert the temperature reading to degrees C */
+    960              /* DegC = ((((int32_t) ADC_result - 1615)*704)/4095); */
+    961              /* We filtered in a way that multiplied the temperature reading by 8 */
+    962              /* Therefore, to get a result in 0.1 degree C steps we do this... */
+    963              temp = temperature - nv_parms.seg_a.s.temperature_offset;
+    964              temp *= nv_parms.seg_a.s.temperature_scaling;
+    965              temp >>= 16;
+    966              LCDdec32(temp, FIRST_TEMPERATURE_POSITION, TEMPERATURE_DIGITS, TEMPERATURE_RESOLUTION);
+    967                      #if !defined(ICON_TEMPERATURE)  &&  defined(DISPLAY_TYPE_POSITION)
+    968              LCDchar(CHAR_C, DISPLAY_TYPE_POSITION);
+    969                      #endif
+    970          }
+    971                  #endif
+    972          
+    973                  #if defined(MULTI_RATE_SUPPORT)
+    974          void display_current_tariff(void)
+    975          {
+    976                      #if !defined(ICON_DATE)  &&  defined(DISPLAY_TYPE_POSITION)
+    977                          #if defined(USE_STARBURST)
+    978              LCDchar(CHAR_T, DISPLAY_TYPE_POSITION);
+    979                          #else
+    980              LCDchar(CHAR_t, DISPLAY_TYPE_POSITION);
+    981                          #endif
+    982              LCDchar(CHAR_a, DISPLAY_TYPE_POSITION + 1);
+    983              LCDchar(CHAR_r, DISPLAY_TYPE_POSITION + 2);
+    984              LCDchar(CHAR_r, DISPLAY_TYPE_POSITION + 3);
+    985              LCDchar(CHAR_SPACE, DISPLAY_TYPE_POSITION + 4);
+    986                      #endif
+    987              LCDdecu16(current_tariff + 1, DISPLAY_TYPE_POSITION + 5, 2, 0);
+    988          }
+    989          
+    990          void display_tariff_holiday(void)
+    991          {
+    992              int i;
+    993              eeprom_holiday_t holiday;
+    994          
+    995              info_step = 0;
+    996              for (i = info_step;  i < MULTIRATE_MAX_HOLIDAYS;  i++)
+    997              {
+    998                  iicEEPROM_read(EEPROM_START_HOLIDAYS + i*sizeof(eeprom_holiday_t), (void *) &holiday, sizeof(holiday));
+    999                  if (holiday.year)
+   1000                  {
+   1001                      info_step = i;
+   1002                      #if !defined(ICON_DATE)  &&  defined(DISPLAY_TYPE_POSITION)
+   1003                          #if defined(USE_STARBURST)
+   1004                      LCDchar(CHAR_D, DISPLAY_TYPE_POSITION);
+   1005                          #else
+   1006                      LCDchar(CHAR_d, DISPLAY_TYPE_POSITION);
+   1007                          #endif
+   1008                          #if FIRST_POSITION > 2
+   1009                      LCDchar(CHAR_t, DISPLAY_TYPE_POSITION + 1);
+   1010                          #endif
+   1011                      #endif
+   1012                      #if defined(ZAP_COLON_CELL)
+   1013                      LCDchar(CHAR_SPACE, ZAP_COLON_CELL);
+   1014                      #endif
+   1015                      display_date(holiday.year, holiday.month, holiday.day);
+   1016                      #if defined(ICON_DATE)
+   1017                      LCDicon(ICON_DATE, TRUE);
+   1018                      #endif
+   1019                      return;
+   1020                  }
+   1021              }
+   1022          }
+   1023                  #endif
+   1024          
+   1025          void display_item(int item, int ph)
+   1026          {
+   1027              switch (item)
+   1028              {
+   1029              case DISPLAY_ITEM_ACTIVE_ENERGY:
+   1030                  display_consumed_active_energy(ph);
+   1031                  break;
+   1032              case DISPLAY_ITEM_ACTIVE_POWER:
+   1033                  display_active_power(ph);
+   1034                  break;
+   1035              #if defined(REACTIVE_POWER_SUPPORT)
+   1036              case DISPLAY_ITEM_REACTIVE_POWER:
+   1037                  display_reactive_power(ph);
+   1038                  break;
+   1039              case DISPLAY_ITEM_REACTIVE_ENERGY:
+   1040                  display_consumed_reactive_energy(ph);
+   1041                  break;
+   1042              #endif
+   1043              #if defined(MAINS_FREQUENCY_SUPPORT)
+   1044              case DISPLAY_ITEM_MAINS_FREQUENCY:
+   1045                  display_mains_frequency(ph);
+   1046                  break;
+   1047              #endif
+   1048              #if defined(IRMS_SUPPORT)
+   1049              case DISPLAY_ITEM_CURRENT:
+   1050                  display_irms(ph);
+   1051                  break;
+   1052              #endif
+   1053              #if defined(VRMS_SUPPORT)
+   1054              case DISPLAY_ITEM_VOLTAGE:
+   1055                  display_vrms(ph);
+   1056                  break;
+   1057              #endif
+   1058              #if defined(POWER_FACTOR_SUPPORT)
+   1059              case DISPLAY_ITEM_POWER_FACTOR:
+   1060                  display_power_factor(ph);
+   1061                  break;
+   1062              #endif
+   1063              #if defined(APPARENT_POWER_SUPPORT)
+   1064              case DISPLAY_ITEM_VA:
+   1065                  display_apparent_power(ph);
+   1066                  break;
+   1067              #endif
+   1068              #if defined(RTC_SUPPORT)
+   1069              case DISPLAY_ITEM_DATE:
+   1070                  display_current_date();
+   1071                  break;
+   1072              case DISPLAY_ITEM_TIME:
+   1073                  display_current_time();
+   1074                  break;
+   1075              #endif
+   1076              #if defined(TEMPERATURE_SUPPORT)
+   1077              case DISPLAY_ITEM_TEMPERATURE:
+   1078                  display_temperature();
+   1079                  break;
+   1080              #endif
+   1081              #if defined(MULTI_RATE_SUPPORT)
+   1082              case DISPLAY_ITEM_CURRENT_TARIFF:
+   1083                  display_current_tariff();
+   1084                  break;
+   1085              #endif
+   1086              }
+   1087          }
+   1088          
+   1089          int display_step = 0;
+   1090          int display_select = 0;
+   1091          
+   1092          void update_display(void)
+   1093          {
+   1094              static const int8_t display_steps[] =
+   1095              {
+   1096                  /* The following display sequence table should be defined in the hardware specific
+   1097                     header file. */
+   1098                  DISPLAY_STEP_SEQUENCE
+   1099              };
+   1100          
+   1101              /* Deal with the next stage of the sequenced display */
+   1102              display_clear_line_1();
+   1103              display_clear_line_2();
+   1104              for (;;)
+   1105              {
+   1106                  if (display_steps[display_step] < 0)
+   1107                  {
+   1108                      if (display_steps[display_step] == DISPLAY_ITEM_SELECT_RESTART)
+   1109                      {
+   1110                          display_step = 0;
+   1111                          continue;
+   1112                      }
+   1113                      display_select = -1 - display_steps[display_step++];
+   1114                      break;
+   1115                  }
+   1116                  display_phase_icon(display_select);
+   1117                  display_item(display_steps[display_step++], display_select);
+   1118              }
+   1119              /* Now deal with things which are constantly displayed */
+   1120              #if defined(DEDICATED_TIME_FIELD)
+   1121              display_current_time();
+   1122              #endif
+   1123              #if defined(BATTERY_MONITOR_SUPPORT)  &&  defined(ICON_BATTERY)
+   1124              LCDicon(ICON_BATTERY, (meter_status & STATUS_BATTERY_OK));
+   1125              #endif
+   1126              #if defined(LIMP_MODE_SUPPORT)
+   1127              if (operating_mode == OPERATING_MODE_LIMP)
+   1128                  LCDchar(CHAR_L, DISPLAY_TYPE_POSITION);
+   1129              #endif
+   1130          }
+   1131          
+   1132              #if !defined(__GNUC__)
+   1133          int16_t ram_exclusion_zone_start_;
+   1134          int16_t ram_exclusion_zone_middle_;
+   1135          int16_t ram_exclusion_zone_end_;
+   1136              #endif
+   1137          
+   1138          #endif
+   1139          
+   1140          #if defined(__MSP430__)
+   1141              #if defined(BASIC_KEYPAD_SUPPORT)
+   1142          void keypad_handler(void)
+   1143          {
+   1144              if ((key_states & KEY_1_DOWN))
+   1145              {
+   1146                  update_display();
+   1147                  key_states &= ~KEY_1_DOWN;
+   1148              }
+   1149              if ((key_states & KEY_1_REPEAT_DOWN))
+   1150              {
+   1151                  update_display();
+   1152                  key_states &= ~KEY_1_REPEAT_DOWN;
+   1153              }
+   1154          }
+   1155              #endif
+   1156          #endif
+   1157          
+   1158          #if 0
+   1159              switch (info_section)
+   1160              {
+   1161              case 0:
+   1162                  info_substep
+   1163                  if (++info_step >= MULTIRATE_TARIFFS)
+   1164                  {
+   1165                      info_section++;
+   1166                      info_step = 0;
+   1167                  }
+   1168                  break;
+   1169              case 1:
+   1170                  if (++info_step >= MULTIRATE_MAX_HOLIDAYS)
+   1171                  {
+   1172                      info_section++;
+   1173                      info_step = 0;
+   1174                  }
+   1175                  break;
+   1176              case 2:
+   1177                  if (++info_step >= MULTIRATE_MAX_CUTOFF_DATES)
+   1178                  {
+   1179                      info_section++;
+   1180                      info_step = 0;
+   1181                  }
+   1182                  break;
+   1183              case 3:
+   1184                  if (++info_step >= MULTIRATE_HISTORIES)
+   1185                  {
+   1186                      info_section++;
+   1187                      info_step = 0;
+   1188                  }
+   1189                  break;
+   1190              case 4:
+   1191                  if (++info_step >= MULTIRATE_MAX_DAILY_PEAKS)
+   1192                  {
+   1193                      info_section++;
+   1194                      info_step = 0;
+   1195                  }
+   1196                  break;
+   1197              }
+   1198          #endif
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      6   display_clear_line_1
+        6   -> LCDchar
+        6   -> LCDmodify_char
+        6   -> display_clear_periphery
+      6   display_clear_line_2
+        6   -> LCDchar
+        6   -> LCDmodify_char
+        6   -> display_clear_periphery
+     12   display_clear_periphery
+       12   -> LCDmodify_char
+     20   display_item
+       16   -> LCDchar
+       18   -> LCDchar
+       16   -> LCDchars
+       16   -> LCDdec16
+       18   -> LCDdec32
+       16   -> LCDdecu16
+       18   -> LCDdecu32
+       16   -> LCDmodify_char
+       18   -> LCDmodify_char
+       16   -> current_active_power
+       16   -> current_apparent_power
+       16   -> current_consumed_active_energy
+       16   -> current_consumed_reactive_energy
+       16   -> current_mains_frequency
+       16   -> current_power_factor
+       16   -> current_reactive_power
+       16   -> current_rms_current
+       16   -> current_rms_voltage
+      4   display_power_4v2_message
+        4   -> LCDchar
+        4   -> LCDchars
+      4   display_power_fail_message
+        4   -> LCDchar
+        4   -> LCDchars
+      4   display_power_normal_message
+        4   -> LCDchar
+        4   -> LCDchars
+      4   display_startup_message
+        4   -> LCDchar
+        4   -> LCDchars
+      4   keypad_handler
+        4   -> update_display
+      4   update_display
+        4   -> display_clear_line_1
+        4   -> display_clear_line_2
+        4   -> display_item
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      12  ?Subroutine0
+       1  char_minus
+     194  display_clear_line_1
+     206  display_clear_line_2
+     282  display_clear_periphery
+     906  display_item
+      22  display_power_4v2_message
+      22  display_power_fail_message
+      22  display_power_normal_message
+       2  display_select
+      22  display_startup_message
+       2  display_step
+      40  display_steps
+      30  keypad_handler
+       6  lcd_4v2_power
+       2  lcd_cells
+      16  lcd_digit_table
+       6  lcd_high
+       6  lcd_no_power
+       6  lcd_normal_power
+       2  lcd_pos_base
+       2  lcd_pos_step
+       6  lcd_startup
+       2  ram_exclusion_zone_end_
+       2  ram_exclusion_zone_middle_
+       2  ram_exclusion_zone_start_
+      70  update_display
+
+ 
+ 1 788 bytes in segment CODE
+    93 bytes in segment DATA16_C
+    10 bytes in segment DATA16_Z
+ 
+ 1 788 bytes of CODE  memory
+    93 bytes of CONST memory
+    10 bytes of DATA  memory
+
+Errors: none
+Warnings: none

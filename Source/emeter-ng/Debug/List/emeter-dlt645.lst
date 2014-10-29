@@ -1,0 +1,938 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V6.10.2.50871/W32 for MSP430         28/Oct/2014  22:48:17
+# Copyright 1996-2014 IAR Systems AB.
+# Evaluation license - IAR Embedded Workbench for Texas Instruments MSP430, Evaluation Version 6.10
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\emeter-dlt645.c
+#    Command line  =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\emeter-dlt645.c -D
+#        "CUSTOM_EMETER_H=\"emeter-1ph-neutral-6733_shunt.h\"" -D X_ZEBU_ -lcN
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\List\ -o
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\Obj\ --debug
+#        -D__MSP430F6736__ -e --double=32 --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.0\430\lib\dlib\dl430xlsfn.h" -I
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng/../emeter-toolkit\
+#        --core=430X --data_model=small -Ohs --multiplier=32
+#        --multiplier_location=4C0 --hw_workaround=CPU40 --hw_workaround=CPU39
+#        --code_model=large
+#    List file     =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\List\emeter-dlt645.lst
+#    Object file   =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\Obj\emeter-dlt645.r43
+#
+###############################################################################
+
+D:\Documents\GitHub\SmartMeter\Source\emeter-ng\emeter-dlt645.c
+      1          //--------------------------------------------------------------------------
+      2          //
+      3          //  Software for MSP430 based e-meters.
+      4          //
+      5          //  THIS PROGRAM IS PROVIDED "AS IS". TI MAKES NO WARRANTIES OR
+      6          //  REPRESENTATIONS, EITHER EXPRESS, IMPLIED OR STATUTORY,
+      7          //  INCLUDING ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS
+      8          //  FOR A PARTICULAR PURPOSE, LACK OF VIRUSES, ACCURACY OR
+      9          //  COMPLETENESS OF RESPONSES, RESULTS AND LACK OF NEGLIGENCE.
+     10          //  TI DISCLAIMS ANY WARRANTY OF TITLE, QUIET ENJOYMENT, QUIET
+     11          //  POSSESSION, AND NON-INFRINGEMENT OF ANY THIRD PARTY
+     12          //  INTELLECTUAL PROPERTY RIGHTS WITH REGARD TO THE PROGRAM OR
+     13          //  YOUR USE OF THE PROGRAM.
+     14          //
+     15          //  IN NO EVENT SHALL TI BE LIABLE FOR ANY SPECIAL, INCIDENTAL,
+     16          //  CONSEQUENTIAL OR INDIRECT DAMAGES, HOWEVER CAUSED, ON ANY
+     17          //  THEORY OF LIABILITY AND WHETHER OR NOT TI HAS BEEN ADVISED
+     18          //  OF THE POSSIBILITY OF SUCH DAMAGES, ARISING IN ANY WAY OUT
+     19          //  OF THIS AGREEMENT, THE PROGRAM, OR YOUR USE OF THE PROGRAM.
+     20          //  EXCLUDED DAMAGES INCLUDE, BUT ARE NOT LIMITED TO, COST OF
+     21          //  REMOVAL OR REINSTALLATION, COMPUTER TIME, LABOR COSTS, LOSS
+     22          //  OF GOODWILL, LOSS OF PROFITS, LOSS OF SAVINGS, OR LOSS OF
+     23          //  USE OR INTERRUPTION OF BUSINESS. IN NO EVENT WILL TI'S
+     24          //  AGGREGATE LIABILITY UNDER THIS AGREEMENT OR ARISING OUT OF
+     25          //  YOUR USE OF THE PROGRAM EXCEED FIVE HUNDRED DOLLARS
+     26          //  (U.S.$500).
+     27          //
+     28          //  Unless otherwise stated, the Program written and copyrighted
+     29          //  by Texas Instruments is distributed as "freeware".  You may,
+     30          //  only under TI's copyright in the Program, use and modify the
+     31          //  Program without any charge or restriction.  You may
+     32          //  distribute to third parties, provided that you transfer a
+     33          //  copy of this license to the third party and the third party
+     34          //  agrees to these terms by its first use of the Program. You
+     35          //  must reproduce the copyright notice and any other legend of
+     36          //  ownership on each copy or partial copy, of the Program.
+     37          //
+     38          //  You acknowledge and agree that the Program contains
+     39          //  copyrighted material, trade secrets and other TI proprietary
+     40          //  information and is protected by copyright laws,
+     41          //  international copyright treaties, and trade secret laws, as
+     42          //  well as other intellectual property laws.  To protect TI's
+     43          //  rights in the Program, you agree not to decompile, reverse
+     44          //  engineer, disassemble or otherwise translate any object code
+     45          //  versions of the Program to a human-readable form.  You agree
+     46          //  that in no event will you alter, remove or destroy any
+     47          //  copyright notice included in the Program.  TI reserves all
+     48          //  rights not specifically granted under this license. Except
+     49          //  as specifically provided herein, nothing in this agreement
+     50          //  shall be construed as conferring by implication, estoppel,
+     51          //  or otherwise, upon you, any license or other right under any
+     52          //  TI patents, copyrights or trade secrets.
+     53          //
+     54          //  You may not use the Program in non-TI devices.
+     55          //
+     56          //  File: emeter-dlt645.c
+     57          //
+     58          //  Steve Underwood <steve-underwood@ti.com>
+     59          //  Texas Instruments Hong Kong Ltd.
+     60          //
+     61          //  $Id: emeter-dlt645.c,v 1.13 2009/04/27 09:46:31 a0754793 Exp $
+     62          //
+     63          /*! \file emeter-structs.h */
+     64          //
+     65          //--------------------------------------------------------------------------
+     66          //
+     67          #include <stdint.h>
+     68          #if !defined(__MSP430__)
+     69          #include <stdio.h>
+     70          #include <fcntl.h>
+     71          #include <stdlib.h>
+     72          #include <unistd.h>
+     73          #endif
+     74          #if defined(__GNUC__)
+     75          #include <signal.h>
+     76          #endif
+     77          #if defined(__MSP430__)
+     78          #include <io.h>
+     79          #endif
+     80          
+     81          #include <emeter-toolkit.h>
+     82          
+     83          #include "emeter-structs.h"
+     84          
+     85          #if !defined(NULL)
+     86          #define NULL    (void *) 0
+     87          #endif
+     88          
+     89          enum
+     90          {
+     91              MEASURES_ACTIVE_POWER                       = 0x01,
+     92              MEASURES_TRIGONOMETRIC_REACTIVE_POWER       = 0x02,
+     93              MEASURES_APPARENT_POWER                     = 0x04,
+     94              MEASURES_VRMS                               = 0x08,
+     95              MEASURES_IRMS                               = 0x10,
+     96              MEASURES_POWER_FACTOR                       = 0x20,
+     97              MEASURES_MAINS_FREQUENCY                    = 0x40,
+     98              MEASURES_QUADRATURE_REACTIVE_POWER          = 0x80
+     99          };
+    100          
+    101          enum host_commands_e
+    102          {
+    103              HOST_CMD_GET_METER_CONFIGURATION            = 0x56,
+    104              HOST_CMD_SET_METER_CONSUMPTION              = 0x57,
+    105              HOST_CMD_SET_RTC                            = 0x58,
+    106              HOST_CMD_GET_RTC                            = 0x59,
+    107              HOST_CMD_ALIGN_WITH_CALIBRATION_FACTORS     = 0x5A,
+    108              HOST_CMD_SET_PASSWORD                       = 0x60,
+    109              HOST_CMD_GET_READINGS_PHASE_1               = 0x61,
+    110              HOST_CMD_GET_READINGS_PHASE_2               = 0x62,
+    111              HOST_CMD_GET_READINGS_PHASE_3               = 0x63,
+    112              HOST_CMD_GET_READINGS_NEUTRAL               = 0x64,
+    113              HOST_CMD_ERASE_FLASH_SEGMENT                = 0x70,
+    114              HOST_CMD_SET_FLASH_POINTER                  = 0x71,
+    115              HOST_CMD_FLASH_DOWNLOAD                     = 0x72,
+    116              HOST_CMD_FLASH_UPLOAD                       = 0x73,
+    117              HOST_CMD_ZAP_MEMORY_AREA                    = 0x74,
+    118              HOST_CMD_SUMCHECK_MEMORY                    = 0x75,
+    119              HOST_CMD_GET_RAW_ACTIVE_POWER_PHASE_1       = 0x91,
+    120              HOST_CMD_GET_RAW_ACTIVE_POWER_PHASE_2       = 0x92,
+    121              HOST_CMD_GET_RAW_ACTIVE_POWER_PHASE_3       = 0x93,
+    122              HOST_CMD_GET_RAW_REACTIVE_POWER_PHASE_1     = 0x95,
+    123              HOST_CMD_GET_RAW_REACTIVE_POWER_PHASE_2     = 0x96,
+    124              HOST_CMD_GET_RAW_REACTIVE_POWER_PHASE_3     = 0x97,
+    125              HOST_CMD_GET_RAW_ACTIVE_POWER_NEUTRAL       = 0x99,
+    126              HOST_CMD_GET_RAW_REACTIVE_POWER_NEUTRAL     = 0x9D,
+    127              HOST_CMD_CHECK_RTC_ERROR                    = 0xA0,
+    128              HOST_CMD_RTC_CORRECTION                     = 0xA1,
+    129              HOST_CMD_MULTIRATE_SET_PARAMETERS           = 0xC0,
+    130              HOST_CMD_MULTIRATE_GET_PARAMETERS           = 0xC1,
+    131              HOST_CMD_MULTIRATE_CLEAR_USAGE              = 0xC2,
+    132              HOST_CMD_MULTIRATE_GET_USAGE                = 0xC3
+    133          };
+    134          
+    135          static const uint8_t address[6] =
+    136          {
+    137              0x99, 0x99, 0x99, 0x99, 0x99, 0x99
+    138          };
+    139          
+    140          #if defined(__MSP430__)  &&  (defined(DLT645_SUPPORT)  ||  defined(SERIAL_CALIBRATION_SUPPORT))
+    141          
+    142          extern serial_msg_buf_t tx_msg[];
+    143          extern serial_msg_buf_t rx_msg[];
+    144          
+    145          uint16_t *next_flash_loc;
+    146          
+    147          #endif
+    148          
+    149          #if defined(__MSP430__)  &&  (defined(DLT645_SUPPORT)  ||  defined(SERIAL_CALIBRATION_SUPPORT))
+    150          int prepare_tx_message(int port, int len)
+    151          {
+    152              int i;
+    153              uint8_t *s;
+    154          
+    155              s = tx_msg[port].buf.uint8;
+    156              s[0] = 0xFE;
+    157              s[1] = 0xFE;
+    158              s[2] = 0xFE;
+    159              s[3] = 0xFE;
+    160              s[4] = 0x68;
+    161              s[5] = address[0];
+    162              s[6] = address[1];
+    163              s[7] = address[2];
+    164              s[8] = address[3];
+    165              s[9] = address[4];
+    166              s[10] = address[5];
+    167              s[11] = 0x68;
+    168              s[12] = 0x23;
+    169              s[13] = len;
+    170              s[DLT645_MSG_TX_START_BODY + len] = 0;
+    171              s[DLT645_MSG_TX_START_BODY + len + 1] = 0x16;
+    172              for (i = 4;  i < DLT645_MSG_TX_START_BODY + len;  i++)
+    173                  s[DLT645_MSG_TX_START_BODY + len] += s[i];
+    174              len = DLT645_MSG_TX_START_BODY + len + 2;
+    175              if (len > 4 + 12 + MAX_DLT645_MSG_BODY)
+    176                  return FALSE;
+    177              send_message(port, len);
+    178              return  TRUE;
+    179          }
+    180          
+    181          static void dlt645_process_rx_message(int port, serial_msg_t *rx_msg, int rx_len)
+    182          {
+    183              int i;
+    184              int32_t z;
+    185              int32_t z1;
+    186              #if !defined(SINGLE_PHASE)
+    187              struct phase_parms_s *phase;
+    188              #endif
+    189              uint16_t *last_flash_loc;
+    190              serial_msg_buf_t *tx;
+    191              uint8_t *tx8;
+    192              uint16_t *tx16;
+    193          
+    194              tx = &tx_msg[port];
+    195              tx8 = tx->buf.uint8;
+    196              tx16 = tx->buf.uint16;
+    197              uint16_t tx_len = 0;
+    198          
+    199          
+    200              /* Messages with type 0x23 are custom messages we
+    201                use for calibration, password protection, etc.
+    202                All other message types go to a custom message
+    203                handler (if available). */
+    204              if (rx_msg->uint8[8] != 0x23)
+    205              {
+    206          #if defined(CUSTOM_SERIAL_MESSAGE_SUPPORT)
+    207                  custom_serial_message_handler(&rx_msg, rx_msg_len);
+    208          #endif
+    209                  return;
+    210              }
+    211              if ((rx_msg->uint8[DLT645_MSG_RX_START_BODY + 1] & 0x80))
+    212              {
+    213                  /* This looks like one of our own messages, which has echoed back
+    214                     to us */
+    215                  return;
+    216              }
+    217          
+    218              /* Only process messages if the password has been given correctly
+    219                 (except for the password test message, of course). */
+    220              if (!(meter_status & PASSWORD_OK)  &&  rx_msg->uint8[DLT645_MSG_RX_START_BODY] != HOST_CMD_SET_PASSWORD)
+    221                  return;
+    222          
+    223              switch (rx_msg->uint8[DLT645_MSG_RX_START_BODY])
+    224              {
+    225              case HOST_CMD_GET_METER_CONFIGURATION:
+    226                  tx8[DLT645_MSG_TX_START_BODY] = rx_msg->uint8[DLT645_MSG_RX_START_BODY];
+    227                  tx8[DLT645_MSG_TX_START_BODY + 1] = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 1] | 0x80;
+    228                  tx8[DLT645_MSG_TX_START_BODY + 2] = NUM_PHASES;
+    229              #if defined(NEUTRAL_MONITOR_SUPPORT)
+    230                  tx8[DLT645_MSG_TX_START_BODY + 3] = 1;
+    231              #else
+    232                  tx8[DLT645_MSG_TX_START_BODY + 3] = 0;
+    233              #endif
+    234                  tx8[DLT645_MSG_TX_START_BODY + 4] = 0
+    235              #if defined(LIMP_MODE_SUPPORT)
+    236                                                              | 0x01
+    237              #endif
+    238              #if defined(PHASE_CORRECTION_SUPPORT)
+    239                                                              | 0x02
+    240              #endif
+    241              #if defined(DYNAMIC_PHASE_CORRECTION_SUPPORT)
+    242                                                              | 0x04
+    243              #endif
+    244              #if defined(RTC_SUPPORT)
+    245                                                              | 0x08
+    246              #endif
+    247              #if defined(CORRECTED_RTC_SUPPORT)
+    248                                                              | 0x10
+    249              #endif
+    250              #if defined(TEMPERATURE_SUPPORT)
+    251                                                              | 0x20
+    252              #endif
+    253              #if defined(SELF_TEST_SUPPORT)
+    254                                                              | 0x40
+    255              #endif
+    256              #if defined(MULTI_RATE_SUPPORT)
+    257                                                              | 0x80
+    258              #endif
+    259                                                              ;
+    260          
+    261                  tx8[DLT645_MSG_TX_START_BODY + 5] = MEASURES_ACTIVE_POWER
+    262              #if defined(REACTIVE_POWER_SUPPORT)  &&  !defined(REACTIVE_POWER_BY_QUADRATURE_SUPPORT)
+    263                                                              | MEASURES_TRIGONOMETRIC_REACTIVE_POWER
+    264              #endif
+    265              #if defined(APPARENT_POWER_SUPPORT)
+    266                                                              | MEASURES_APPARENT_POWER
+    267              #endif
+    268              #if defined(VRMS_SUPPORT)
+    269                                                              | MEASURES_VRMS
+    270              #endif
+    271              #if defined(IRMS_SUPPORT)
+    272                                                              | MEASURES_IRMS
+    273              #endif
+    274              #if defined(POWER_FACTOR_SUPPORT)
+    275                                                              | MEASURES_POWER_FACTOR
+    276              #endif
+    277              #if defined(MAINS_FREQUENCY_SUPPORT)
+    278                                                              | MEASURES_MAINS_FREQUENCY
+    279              #endif
+    280              #if defined(REACTIVE_POWER_SUPPORT)  &&  defined(REACTIVE_POWER_BY_QUADRATURE_SUPPORT)
+    281                                                              | MEASURES_QUADRATURE_REACTIVE_POWER
+    282              #endif
+    283                                                              ;
+    284                  tx8[DLT645_MSG_TX_START_BODY + 6] = 0x00
+    285              #if GAIN_STAGES > 1
+    286                                                              | 0x01
+    287              #endif
+    288                                                              ;
+    289                  prepare_tx_message(port, 7);
+    290                  break;
+    291              case HOST_CMD_SET_METER_CONSUMPTION:
+    292                  z = rx_msg->uint16[DLT645_MSG_RX_START_BODY_W + 1];
+    293                  z |= (int32_t) rx_msg->uint16[DLT645_MSG_RX_START_BODY_W + 2] << 16;
+    294                  z1 = rx_msg->uint16[DLT645_MSG_RX_START_BODY_W + 3];
+    295                  z1 |= (int32_t) rx_msg->uint16[DLT645_MSG_RX_START_BODY_W + 4] << 16;
+    296                  custom_set_consumption(z, z1);
+    297                  tx8[DLT645_MSG_TX_START_BODY] = rx_msg->uint8[DLT645_MSG_RX_START_BODY];
+    298                  tx8[DLT645_MSG_TX_START_BODY + 1] = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 1] | 0x80;
+    299                  prepare_tx_message(port, 2);
+    300              case HOST_CMD_SET_RTC:
+    301              #if defined(RTC_SUPPORT)
+    302                  rtc.year = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 2];
+    303                  rtc.month = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 3];
+    304                  rtc.day = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 4];
+    305                  rtc.hour = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 5];
+    306                  rtc.minute = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 6];
+    307                  rtc.second = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 7];
+    308                  set_rtc_sumcheck();
+    309          
+    310              #if defined (__MSP430_HAS_RTC_C__)
+    311                  RTCCTL0_H = RTCKEY_H;                  // Unlock RTC
+    312                  BIN2BCD = rtc.second; RTCSEC = BIN2BCD;
+    313                  BIN2BCD = rtc.minute; RTCMIN = BIN2BCD;
+    314                  BIN2BCD = rtc.hour;   RTCHOUR = BIN2BCD;
+    315          //      BIN2BCD  = rtc.DayOfWeek; RTCDOW = BIN2BCD;
+    316                  BIN2BCD = rtc.day;    RTCDAY = BIN2BCD;
+    317                  BIN2BCD = rtc.month;  RTCMON = BIN2BCD;
+    318                  BIN2BCD = rtc.year;   RTCYEAR = BIN2BCD+0x2000;
+    319                  RTCCTL0_H = 0;   // LOCK RTC
+    320              #endif
+    321          
+    322              #endif
+    323              #if defined(CUSTOM_RTC_SUPPORT)
+    324                  custom_rtc_set(rx_msg->uint8);
+    325              #endif
+    326              #if defined(MULTI_RATE_SUPPORT)
+    327                  multirate_align_with_rtc();
+    328              #endif
+    329                  tx8[DLT645_MSG_TX_START_BODY] = rx_msg->uint8[DLT645_MSG_RX_START_BODY];
+    330                  tx8[DLT645_MSG_TX_START_BODY + 1] = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 1] | 0x80;
+    331                  prepare_tx_message(port, 2);
+    332                  break;
+    333              case HOST_CMD_GET_RTC:
+    334                  tx8[DLT645_MSG_TX_START_BODY + tx_len] = rx_msg->uint8[DLT645_MSG_RX_START_BODY]; tx_len+=1;
+    335                  tx8[DLT645_MSG_TX_START_BODY + tx_len] = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 1] | 0x80; tx_len+=1;
+    336              #if defined(RTC_SUPPORT)
+    337                #if defined (__MSP430_HAS_RTC_C__)
+    338                  BCD2BIN = RTCYEAR&0xFF; tx8[DLT645_MSG_TX_START_BODY + tx_len] = BCD2BIN; tx_len+=1;
+    339                  BCD2BIN = RTCMON;       tx8[DLT645_MSG_TX_START_BODY + tx_len] = BCD2BIN; tx_len+=1;
+    340                  BCD2BIN = RTCDAY;       tx8[DLT645_MSG_TX_START_BODY + tx_len] = BCD2BIN; tx_len+=1;
+    341                  BCD2BIN = RTCHOUR;      tx8[DLT645_MSG_TX_START_BODY + tx_len] = BCD2BIN; tx_len+=1;
+    342                  BCD2BIN = RTCMIN;       tx8[DLT645_MSG_TX_START_BODY + tx_len] = BCD2BIN; tx_len+=1;
+    343                  BCD2BIN = RTCSEC;       tx8[DLT645_MSG_TX_START_BODY + tx_len] = BCD2BIN; tx_len+=1;
+    344                #else
+    345                  tx8[DLT645_MSG_TX_START_BODY + tx_len] = rtc.year;   tx_len+=1;
+    346                  tx8[DLT645_MSG_TX_START_BODY + tx_len] = rtc.month;  tx_len+=1;
+    347                  tx8[DLT645_MSG_TX_START_BODY + tx_len] = rtc.day;    tx_len+=1;
+    348                  tx8[DLT645_MSG_TX_START_BODY + tx_len] = rtc.hour;   tx_len+=1;
+    349                  tx8[DLT645_MSG_TX_START_BODY + tx_len] = rtc.minute; tx_len+=1;
+    350                  tx8[DLT645_MSG_TX_START_BODY + tx_len] = rtc.second; tx_len+=1;
+    351                #endif
+    352              #endif
+    353              #if defined(CUSTOM_RTC_SUPPORT)
+    354                  custom_rtc_retrieve(tx8);
+    355              #endif
+    356              #if defined(TEMPERATURE_SUPPORT)
+    357                  tx16[DLT645_MSG_TX_START_BODY_W + tx_len/2] = temperature; tx_len+=2;
+    358              #else
+    359                  tx16[DLT645_MSG_TX_START_BODY_W + tx_len/2] = 0; tx_len+=2;
+    360              #endif
+    361              #if defined(VCC_MEASURE_SUPPORT)
+    362                  tx16[DLT645_MSG_TX_START_BODY_W + tx_len/2] = vcc; tx_len+=2;
+    363              #else
+    364                  tx16[DLT645_MSG_TX_START_BODY_W + tx_len/2] = 0; tx_len+=2;
+    365              #endif
+    366                  tx16[DLT645_MSG_TX_START_BODY_W + tx_len/2] = meter_status; tx_len+=2;
+    367          #if defined(SINGLE_PHASE)
+    368                  tx16[DLT645_MSG_TX_START_BODY_W + tx_len/2] = phase->status; tx_len+=2;
+    369          #else
+    370                  for (i=0; i < NUM_PHASES; i++)
+    371                    tx16[DLT645_MSG_TX_START_BODY_W + tx_len/2] = phase[i].status; tx_len+=2;
+    372              #if defined(NEUTRAL_MONITOR_SUPPORT)
+    373                  tx16[DLT645_MSG_TX_START_BODY_W + tx_len/2] = neutral.status; tx_len+=2;
+    374              #endif
+    375          #endif
+    376                  prepare_tx_message(port, /*18*/ tx_len+=2);
+    377                  break;
+    378              case HOST_CMD_ALIGN_WITH_CALIBRATION_FACTORS:
+    379                  align_hardware_with_calibration_data();
+    380                  tx8[DLT645_MSG_TX_START_BODY] = rx_msg->uint8[DLT645_MSG_RX_START_BODY];
+    381                  tx8[DLT645_MSG_TX_START_BODY + 1] = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 1] | 0x80;
+    382                  prepare_tx_message(port, 2);
+    383                  break;
+    384              case HOST_CMD_SET_PASSWORD:
+    385                  /* Check the calibration password */
+    386                  if (rx_msg->uint16[DLT645_MSG_RX_START_BODY_W + 1] == SERIAL_CALIBRATION_PASSWORD_1
+    387                      &&
+    388                      rx_msg->uint16[DLT645_MSG_RX_START_BODY_W + 2] == SERIAL_CALIBRATION_PASSWORD_2
+    389                      &&
+    390                      rx_msg->uint16[DLT645_MSG_RX_START_BODY_W + 3] == SERIAL_CALIBRATION_PASSWORD_3
+    391                      &&
+    392                      rx_msg->uint16[DLT645_MSG_RX_START_BODY_W + 4] == SERIAL_CALIBRATION_PASSWORD_4)
+    393                  {
+    394                      meter_status |= PASSWORD_OK;
+    395                      tx8[DLT645_MSG_TX_START_BODY] = rx_msg->uint8[DLT645_MSG_RX_START_BODY];
+    396                      tx8[DLT645_MSG_TX_START_BODY + 1] = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 1] | 0x80;
+    397                      prepare_tx_message(port, 2);
+    398                  }
+    399                  else
+    400                  {
+    401                      /* Only respond to a bad password, if the password was good before. That lets
+    402                         us know we have unset the password OK, but doesn't give any information to
+    403                         people trying to attack the meter. */
+    404                      if ((meter_status & PASSWORD_OK))
+    405                      {
+    406                          tx8[DLT645_MSG_TX_START_BODY] = rx_msg->uint8[DLT645_MSG_RX_START_BODY];
+    407                          tx8[DLT645_MSG_TX_START_BODY + 1] = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 1] | 0x80;
+    408                          prepare_tx_message(port, 2);
+    409                      }
+    410                      meter_status &= ~PASSWORD_OK;
+    411                  }
+    412                  break;
+    413              case HOST_CMD_GET_READINGS_PHASE_1:
+    414              #if !defined(SINGLE_PHASE)
+    415              case HOST_CMD_GET_READINGS_PHASE_2:
+    416              case HOST_CMD_GET_READINGS_PHASE_3:
+    417                  /* Exchange voltage, current and power readings (neutral).
+    418                     frequency, power factor and reactive power readings. */
+    419                  phase = &chan[rx_msg->uint8[DLT645_MSG_RX_START_BODY] - HOST_CMD_GET_READINGS_PHASE_1];
+    420              #endif
+    421                  tx8[DLT645_MSG_TX_START_BODY] = rx_msg->uint8[DLT645_MSG_RX_START_BODY];
+    422                  tx8[DLT645_MSG_TX_START_BODY + 1] = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 1] | 0x80;
+    423              #if defined(VRMS_SUPPORT)
+    424                  tx16[DLT645_MSG_TX_START_BODY_W + 1] = phase->readings.V_rms;
+    425              #else
+    426                  tx16[DLT645_MSG_TX_START_BODY_W + 1] = 0;
+    427              #endif
+    428              #if defined(IRMS_SUPPORT)
+    429              #if !defined(ESP_SUPPORT)
+    430                  tx16[DLT645_MSG_TX_START_BODY_W + 2] = phase->metrology.current.I_rms;
+    431              #else
+    432                  tx16[DLT645_MSG_TX_START_BODY_W + 2] = phase->metrology.I_rms;
+    433              #endif
+    434              #else
+    435                  tx16[DLT645_MSG_TX_START_BODY_W + 2] = 0;
+    436              #endif
+    437              #if !defined(ESP_SUPPORT)
+    438                  tx16[DLT645_MSG_TX_START_BODY_W + 3] = phase->metrology.current.active_power;
+    439                  tx16[DLT645_MSG_TX_START_BODY_W + 4] = phase->metrology.current.active_power >> 16;
+    440              #else
+    441                  tx16[DLT645_MSG_TX_START_BODY_W + 3] = phase->metrology.active_power;
+    442                  tx16[DLT645_MSG_TX_START_BODY_W + 4] = phase->metrology.active_power >> 16;
+    443              #endif
+    444              #if defined(REACTIVE_POWER_SUPPORT)
+    445                   #if !defined(ESP_SUPPORT)
+    446                  tx16[DLT645_MSG_TX_START_BODY_W + 5] = phase->readings.reactive_power;
+    447                  tx16[DLT645_MSG_TX_START_BODY_W + 6] = phase->readings.reactive_power >> 16;
+    448                  #else
+    449                  tx16[DLT645_MSG_TX_START_BODY_W + 5] = phase->readings.reactive_power;
+    450                  tx16[DLT645_MSG_TX_START_BODY_W + 6] = phase->readings.reactive_power >> 16;
+    451                  #endif
+    452              #else
+    453                  tx16[DLT645_MSG_TX_START_BODY_W + 5] = 0;
+    454                  tx16[DLT645_MSG_TX_START_BODY_W + 6] = 0;
+    455              #endif
+    456              #if defined(APPARENT_POWER_SUPPORT)
+    457                  tx16[DLT645_MSG_TX_START_BODY_W + 7] = phase->readings.apparent_power;
+    458                  tx16[DLT645_MSG_TX_START_BODY_W + 8] = phase->readings.apparent_power >> 16;
+    459              #else
+    460                  tx16[DLT645_MSG_TX_START_BODY_W + 7] = 0;
+    461                  tx16[DLT645_MSG_TX_START_BODY_W + 8] = 0;
+    462              #endif
+    463          
+    464              #if defined(POWER_FACTOR_SUPPORT)
+    465                  tx16[DLT645_MSG_TX_START_BODY_W + 9] = phase->readings.power_factor;
+    466              #else
+    467                  tx16[DLT645_MSG_TX_START_BODY_W + 9] = 0;
+    468              #endif
+    469              #if defined(MAINS_FREQUENCY_SUPPORT)
+    470                  tx16[DLT645_MSG_TX_START_BODY_W + 10] = phase->readings.frequency;
+    471              #else
+    472                  tx16[DLT645_MSG_TX_START_BODY_W + 10] = 0;
+    473              #endif
+    474              #if !defined(ESP_SUPPORT)
+    475                  #if defined(LIMP_MODE_SUPPORT)
+    476                  tx16[DLT645_MSG_TX_START_BODY_W + 11] = phase->metrology.V_dc_estimate[0];
+    477                  tx16[DLT645_MSG_TX_START_BODY_W + 12] = phase->metrology.V_dc_estimate[0] >> 16;
+    478                  #else
+    479                  //MM24
+    480                  //tx16[DLT645_MSG_TX_START_BODY_W + 11] = phase->metrology.V_dc_estimate;
+    481                  //tx16[DLT645_MSG_TX_START_BODY_W + 12] = phase->metrology.V_dc_estimate >> 16;
+    482                  
+    483                 tx16[DLT645_MSG_TX_START_BODY_W + 11] = phase->metrology.V_dc_estimate[0];
+    484                  tx16[DLT645_MSG_TX_START_BODY_W + 12] = phase->metrology.V_dc_estimate[0] >> 16;
+    485                  #endif
+    486                  //MM24
+    487                  //tx16[DLT645_MSG_TX_START_BODY_W + 13] = phase->metrology.current.I_dc_estimate[0];
+    488                  //tx16[DLT645_MSG_TX_START_BODY_W + 14] = phase->metrology.current.I_dc_estimate[0] >> 16;
+    489                   tx16[DLT645_MSG_TX_START_BODY_W + 13] = phase->metrology.current.I_dc_estimate[0][0];
+    490                  tx16[DLT645_MSG_TX_START_BODY_W + 14] = phase->metrology.current.I_dc_estimate[0][1];
+    491                  tx8[DLT645_MSG_TX_START_BODY + 30] = 0;
+    492              #endif
+    493                  prepare_tx_message(port, 31);
+    494                  break;
+    495              #if defined(NEUTRAL_MONITOR_SUPPORT)
+    496              case HOST_CMD_GET_READINGS_NEUTRAL:
+    497                  /* Exchange voltage, current and power readings (neutral).
+    498                     frequency, power factor and reactive power readings. */
+    499                  tx8[DLT645_MSG_TX_START_BODY] = rx_msg->uint8[DLT645_MSG_RX_START_BODY];
+    500                  tx8[DLT645_MSG_TX_START_BODY + 1] = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 1] | 0x80;
+    501                  #if defined(SINGLE_PHASE)
+    502                      #if defined(VRMS_SUPPORT)
+    503                  tx16[DLT645_MSG_TX_START_BODY_W + 1] = phase->readings.V_rms;
+    504                      #else
+    505                  tx16[DLT645_MSG_TX_START_BODY_W + 1] = 0;
+    506                      #endif
+    507                      #if defined(ESP_SUPPORT)
+    508                          #if defined(IRMS_SUPPORT)
+    509                  tx16[DLT645_MSG_TX_START_BODY_W + 2] = phase->metrology.neutral_I_rms;
+    510                          #else
+    511                  tx16[DLT645_MSG_TX_START_BODY_W + 2] = 0;
+    512                          #endif
+    513                  tx16[DLT645_MSG_TX_START_BODY_W + 3] = phase->metrology.neutral_active_power;
+    514                  tx16[DLT645_MSG_TX_START_BODY_W + 4] = phase->metrology.neutral_active_power >> 16;
+    515                          #if defined(REACTIVE_POWER_SUPPORT)
+    516                  tx16[DLT645_MSG_TX_START_BODY_W + 5] = phase->metrology.neutral_reactive_power;
+    517                  tx16[DLT645_MSG_TX_START_BODY_W + 6] = phase->metrology.neutral_reactive_power >> 16;
+    518                          #else
+    519                  tx16[DLT645_MSG_TX_START_BODY_W + 5] = 0;
+    520                  tx16[DLT645_MSG_TX_START_BODY_W + 6] = 0;
+    521                          #endif
+    522                      #else
+    523                          #if defined(IRMS_SUPPORT)
+    524                  tx16[DLT645_MSG_TX_START_BODY_W + 2] = phase->metrology.neutral.I_rms;
+    525                          #else
+    526                  tx16[DLT645_MSG_TX_START_BODY_W + 2] = 0;
+    527                          #endif
+    528                  tx16[DLT645_MSG_TX_START_BODY_W + 3] = phase->metrology.neutral.active_power;
+    529                  tx16[DLT645_MSG_TX_START_BODY_W + 4] = phase->metrology.neutral.active_power >> 16;
+    530                          #if defined(REACTIVE_POWER_SUPPORT)
+    531                  tx16[DLT645_MSG_TX_START_BODY_W + 5] = phase->metrology.neutral.reactive_power;
+    532                  tx16[DLT645_MSG_TX_START_BODY_W + 6] = phase->metrology.neutral.reactive_power >> 16;
+    533                          #else
+    534                  tx16[DLT645_MSG_TX_START_BODY_W + 5] = 0;
+    535                  tx16[DLT645_MSG_TX_START_BODY_W + 6] = 0;
+    536                          #endif
+    537                      #endif
+    538                      #if defined(APPARENT_POWER_SUPPORT)
+    539                  tx16[DLT645_MSG_TX_START_BODY_W + 7] = phase->readings.apparent_power;
+    540                  tx16[DLT645_MSG_TX_START_BODY_W + 8] = phase->readings.apparent_power >> 16;
+    541                      #else
+    542                  tx16[DLT645_MSG_TX_START_BODY_W + 7] = 0;
+    543                  tx16[DLT645_MSG_TX_START_BODY_W + 8] = 0;
+    544                      #endif
+    545                      #if defined(POWER_FACTOR_SUPPORT)
+    546                  tx16[DLT645_MSG_TX_START_BODY_W + 9] = phase->readings.power_factor;
+    547                      #else
+    548                  tx16[DLT645_MSG_TX_START_BODY_W + 9] = 0;
+    549                      #endif
+    550                  tx16[DLT645_MSG_TX_START_BODY_W + 10] = phase->readings.frequency;
+    551                      #if !defined(ESP_SUPPORT)
+    552                          #if defined(LIMP_MODE_SUPPORT)
+    553                  tx16[DLT645_MSG_TX_START_BODY_W + 11] = phase->metrology.V_dc_estimate[0];
+    554                  tx16[DLT645_MSG_TX_START_BODY_W + 12] = phase->metrology.V_dc_estimate[0] >> 16;
+    555                          #else
+    556                  tx16[DLT645_MSG_TX_START_BODY_W + 11] = phase->metrology.V_dc_estimate;
+    557                  tx16[DLT645_MSG_TX_START_BODY_W + 12] = phase->metrology.V_dc_estimate >> 16;
+    558                          #endif
+    559                  tx16[DLT645_MSG_TX_START_BODY_W + 13] = phase->metrology.neutral.I_dc_estimate[0];
+    560                  tx16[DLT645_MSG_TX_START_BODY_W + 14] = phase->metrology.neutral.I_dc_estimate[0] >> 16;
+    561                      #endif
+    562                  tx8[DLT645_MSG_TX_START_BODY + 30] = 0;
+    563                  #else
+    564                  tx16[DLT645_MSG_TX_START_BODY_W + 1] = 0;
+    565                  tx16[DLT645_MSG_TX_START_BODY_W + 2] = neutral.readings.I_rms;
+    566                  tx16[DLT645_MSG_TX_START_BODY_W + 3] = 0;
+    567                  tx16[DLT645_MSG_TX_START_BODY_W + 4] = 0;
+    568                  tx16[DLT645_MSG_TX_START_BODY_W + 5] = 0;
+    569                  tx16[DLT645_MSG_TX_START_BODY_W + 6] = 0;
+    570                  tx16[DLT645_MSG_TX_START_BODY_W + 7] = 0;
+    571                  tx16[DLT645_MSG_TX_START_BODY_W + 8] = 0;
+    572                  tx16[DLT645_MSG_TX_START_BODY_W + 9] = 0;
+    573          #if defined(MAINS_FREQUENCY_SUPPORT)
+    574                  tx16[DLT645_MSG_TX_START_BODY_W + 10] = neutral.readings.frequency;
+    575          #else
+    576                  tx16[DLT645_MSG_TX_START_BODY_W + 10] = 0;
+    577          #endif
+    578                  tx16[DLT645_MSG_TX_START_BODY_W + 11] = 0;
+    579                  tx16[DLT645_MSG_TX_START_BODY_W + 12] = 0;
+    580                  //MM24
+    581          //        tx16[DLT645_MSG_TX_START_BODY_W + 13] = neutral.metrology.I_dc_estimate[0];
+    582          //        tx16[DLT645_MSG_TX_START_BODY_W + 14] = neutral.metrology.I_dc_estimate[0] >> 16;
+    583                  tx16[DLT645_MSG_TX_START_BODY_W + 13] = neutral.metrology.I_dc_estimate[0][0];
+    584                  tx16[DLT645_MSG_TX_START_BODY_W + 14] = neutral.metrology.I_dc_estimate[0][1];
+    585                  tx8[DLT645_MSG_TX_START_BODY + 30] = 0;
+    586                  #endif
+    587                  prepare_tx_message(port, 31);
+    588                  break;
+    589              #endif
+    590              case HOST_CMD_ERASE_FLASH_SEGMENT:
+    591                  if (is_calibration_enabled())
+    592                  {
+    593                      /* Initialise flash data download, by erasing the area to be used, and setting the
+    594                         write pointer. */
+    595                      /* There is no checking here to ensure we do not erase inappropriate places. */
+    596                      next_flash_loc = (uint16_t *) rx_msg->uint16[DLT645_MSG_RX_START_BODY_W + 1];
+    597                      flash_clr((int16_t *) next_flash_loc);
+    598                      tx8[DLT645_MSG_TX_START_BODY] = rx_msg->uint8[DLT645_MSG_RX_START_BODY];
+    599                      tx8[DLT645_MSG_TX_START_BODY + 1] = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 1] | 0x80;
+    600                      prepare_tx_message(port, 2);
+    601                  }
+    602                  break;
+    603              case HOST_CMD_SET_FLASH_POINTER:
+    604                  next_flash_loc = (uint16_t *) rx_msg->uint16[DLT645_MSG_RX_START_BODY_W + 1];
+    605                  tx8[DLT645_MSG_TX_START_BODY] = rx_msg->uint8[DLT645_MSG_RX_START_BODY];
+    606                  tx8[DLT645_MSG_TX_START_BODY + 1] = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 1] | 0x80;
+    607                  prepare_tx_message(port, 2);
+    608                  break;
+    609              case HOST_CMD_FLASH_DOWNLOAD:
+    610                  if (is_calibration_enabled())
+    611                  {
+    612                      next_flash_loc = (uint16_t *) rx_msg->uint16[DLT645_MSG_RX_START_BODY_W + 1];
+    613                      for (i = 2;  i < (rx_len - 12) >> 1;  i++)
+    614                          flash_write_int16((int16_t *) next_flash_loc++, rx_msg->uint16[DLT645_MSG_RX_START_BODY_W + i]);
+    615                      flash_secure();
+    616                      /* Return the next address to the host, so it can check for missed messages */
+    617                      tx8[DLT645_MSG_TX_START_BODY] = rx_msg->uint8[DLT645_MSG_RX_START_BODY];
+    618                      tx8[DLT645_MSG_TX_START_BODY + 1] = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 1] | 0x80;
+    619                      tx16[DLT645_MSG_TX_START_BODY_W + 1] = (uint16_t) next_flash_loc;
+    620                      prepare_tx_message(port, 4);
+    621                  }
+    622                  break;
+    623              case HOST_CMD_FLASH_UPLOAD:
+    624                  if (is_calibration_enabled())
+    625                  {
+    626                      next_flash_loc = (uint16_t *) rx_msg->uint16[DLT645_MSG_RX_START_BODY_W + 1];
+    627                      tx8[DLT645_MSG_TX_START_BODY] = rx_msg->uint8[DLT645_MSG_RX_START_BODY];
+    628                      tx8[DLT645_MSG_TX_START_BODY + 1] = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 1] | 0x80;
+    629                      for (i = 1;  i < MAX_DLT645_MSG_BODY/2;  i++)
+    630                          tx16[DLT645_MSG_TX_START_BODY_W + i] = *next_flash_loc++;
+    631                      prepare_tx_message(port, MAX_DLT645_MSG_BODY);
+    632                  }
+    633                  break;
+    634              case HOST_CMD_ZAP_MEMORY_AREA:
+    635                  /* Zap memory area (usually this will be flash) */
+    636                  if (is_calibration_enabled())
+    637                  {
+    638                      next_flash_loc = (uint16_t *) rx_msg->uint16[DLT645_MSG_RX_START_BODY_W + 1];
+    639                      last_flash_loc = (uint16_t *) rx_msg->uint16[DLT645_MSG_RX_START_BODY_W + 2];
+    640                      while (next_flash_loc < last_flash_loc)
+    641                          flash_write_int16((int16_t *) next_flash_loc++, rx_msg->uint16[DLT645_MSG_RX_START_BODY_W + 3]);
+    642                      flash_secure();
+    643                      tx8[DLT645_MSG_TX_START_BODY] = rx_msg->uint8[DLT645_MSG_RX_START_BODY];
+    644                      tx8[DLT645_MSG_TX_START_BODY + 1] = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 1] | 0x80;
+    645                      tx16[DLT645_MSG_TX_START_BODY_W + 1] = (uint16_t) next_flash_loc;
+    646                      prepare_tx_message(port, 4);
+    647                  }
+    648                  break;
+    649              case HOST_CMD_SUMCHECK_MEMORY:
+    650                  /* Sumcheck a specified memory area, and return the sumcheck */
+    651                  if (is_calibration_enabled())
+    652                  {
+    653                      next_flash_loc = (uint16_t *) rx_msg->uint16[DLT645_MSG_RX_START_BODY_W + 1];
+    654                      last_flash_loc = (uint16_t *) rx_msg->uint16[DLT645_MSG_RX_START_BODY_W + 2];
+    655                      tx8[DLT645_MSG_TX_START_BODY] = rx_msg->uint8[DLT645_MSG_RX_START_BODY];
+    656                      tx8[DLT645_MSG_TX_START_BODY + 1] = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 1] | 0x80;
+    657                      tx16[DLT645_MSG_TX_START_BODY_W + 1] = 0;
+    658                      while (next_flash_loc < last_flash_loc)
+    659                          tx16[DLT645_MSG_TX_START_BODY_W + 1] += *next_flash_loc++;
+    660                      flash_secure();
+    661                      prepare_tx_message(port, 4);
+    662                  }
+    663                  break;
+    664              case HOST_CMD_GET_RAW_ACTIVE_POWER_PHASE_1:
+    665              #if !defined(SINGLE_PHASE)
+    666              case HOST_CMD_GET_RAW_ACTIVE_POWER_PHASE_2:
+    667              case HOST_CMD_GET_RAW_ACTIVE_POWER_PHASE_3:
+    668                  phase = &chan[rx_msg->uint8[DLT645_MSG_RX_START_BODY] - HOST_CMD_GET_RAW_ACTIVE_POWER_PHASE_1];
+    669              #endif
+    670                  tx8[DLT645_MSG_TX_START_BODY] = rx_msg->uint8[DLT645_MSG_RX_START_BODY];
+    671                  tx8[DLT645_MSG_TX_START_BODY + 1] = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 1] | 0x80;
+    672          #if !defined(ESP_SUPPORT)
+    673                  tx16[DLT645_MSG_TX_START_BODY_W + 1] = phase->metrology.current.dot_prod_logged.sample_count;
+    674                  //MM24
+    675                  //tx16[DLT645_MSG_TX_START_BODY_W + 2] = phase->metrology.current.dot_prod_logged.P_active[0][0];
+    676                  //tx16[DLT645_MSG_TX_START_BODY_W + 3] = phase->metrology.current.dot_prod_logged.P_active[0][1];
+    677                  //tx16[DLT645_MSG_TX_START_BODY_W + 4] = phase->metrology.current.dot_prod_logged.P_active[0][2];
+    678                  tx16[DLT645_MSG_TX_START_BODY_W + 2] = phase->metrology.current.dot_prod_logged.P_active[0];
+    679                  tx16[DLT645_MSG_TX_START_BODY_W + 3] = phase->metrology.current.dot_prod_logged.P_active[1];
+    680                  tx16[DLT645_MSG_TX_START_BODY_W + 4] = phase->metrology.current.dot_prod_logged.P_active[2];
+    681          #if GAIN_STAGES > 1
+    682                  tx16[DLT645_MSG_TX_START_BODY_W + 5] = phase->metrology.current.dot_prod_logged.P_active[1][0];
+    683                  tx16[DLT645_MSG_TX_START_BODY_W + 6] = phase->metrology.current.dot_prod_logged.P_active[1][1];
+    684                  tx16[DLT645_MSG_TX_START_BODY_W + 7] = phase->metrology.current.dot_prod_logged.P_active[1][2];
+    685                  prepare_tx_message(port, 16);
+    686          #else
+    687                  prepare_tx_message(port, 10);
+    688          #endif
+    689          #endif
+    690                  break;
+    691              #if defined(REACTIVE_POWER_BY_QUADRATURE_SUPPORT)
+    692              case HOST_CMD_GET_RAW_REACTIVE_POWER_PHASE_1:
+    693                  #if !defined(SINGLE_PHASE)
+    694              case HOST_CMD_GET_RAW_REACTIVE_POWER_PHASE_2:
+    695              case HOST_CMD_GET_RAW_REACTIVE_POWER_PHASE_3:
+    696                  phase = &chan[rx_msg->uint8[DLT645_MSG_RX_START_BODY] - HOST_CMD_GET_RAW_REACTIVE_POWER_PHASE_1];
+    697                  #endif
+    698                  tx8[DLT645_MSG_TX_START_BODY] = rx_msg->uint8[DLT645_MSG_RX_START_BODY];
+    699                  tx8[DLT645_MSG_TX_START_BODY + 1] = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 1] | 0x80;
+    700          #if !defined(ESP_SUPPORT)
+    701                  tx16[DLT645_MSG_TX_START_BODY_W + 1] = phase->metrology.current.dot_prod_logged.sample_count;
+    702                  //MM24
+    703          //        tx16[DLT645_MSG_TX_START_BODY_W + 2] = phase->metrology.current.dot_prod_logged.P_reactive[0][0];
+    704          //        tx16[DLT645_MSG_TX_START_BODY_W + 3] = phase->metrology.current.dot_prod_logged.P_reactive[0][1];
+    705          //        tx16[DLT645_MSG_TX_START_BODY_W + 4] = phase->metrology.current.dot_prod_logged.P_reactive[0][2];
+    706                   tx16[DLT645_MSG_TX_START_BODY_W + 2] = phase->metrology.current.dot_prod_logged.P_reactive[0];
+    707                  tx16[DLT645_MSG_TX_START_BODY_W + 3] = phase->metrology.current.dot_prod_logged.P_reactive[1];
+    708                  tx16[DLT645_MSG_TX_START_BODY_W + 4] = phase->metrology.current.dot_prod_logged.P_reactive[2];
+    709          #if GAIN_STAGES > 1
+    710                  tx16[DLT645_MSG_TX_START_BODY_W + 5] = phase->metrology.current.dot_prod_logged.P_reactive[1][0];
+    711                  tx16[DLT645_MSG_TX_START_BODY_W + 6] = phase->metrology.current.dot_prod_logged.P_reactive[1][1];
+    712                  tx16[DLT645_MSG_TX_START_BODY_W + 7] = phase->metrology.current.dot_prod_logged.P_reactive[1][2];
+    713                  prepare_tx_message(port, 16);
+    714          #else
+    715                  prepare_tx_message(port, 10);
+    716          #endif
+    717          #endif
+    718                  break;
+    719              #endif
+    720              #if defined(SINGLE_PHASE)  &&  defined(NEUTRAL_MONITOR_SUPPORT)
+    721              case HOST_CMD_GET_RAW_ACTIVE_POWER_NEUTRAL:
+    722                  tx8[DLT645_MSG_TX_START_BODY] = rx_msg->uint8[DLT645_MSG_RX_START_BODY];
+    723                  tx8[DLT645_MSG_TX_START_BODY + 1] = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 1] | 0x80;
+    724                  #if !defined(ESP_SUPPORT)
+    725                  tx16[DLT645_MSG_TX_START_BODY_W + 1] = phase->metrology.neutral.dot_prod_logged.sample_count;
+    726                  tx16[DLT645_MSG_TX_START_BODY_W + 2] = phase->metrology.neutral.dot_prod_logged.P_active[0][0];
+    727                  tx16[DLT645_MSG_TX_START_BODY_W + 3] = phase->metrology.neutral.dot_prod_logged.P_active[0][1];
+    728                  tx16[DLT645_MSG_TX_START_BODY_W + 4] = phase->metrology.neutral.dot_prod_logged.P_active[0][2];
+    729                      #if GAIN_STAGES > 1
+    730                  tx16[DLT645_MSG_TX_START_BODY_W + 5] = phase->metrology.neutral.dot_prod_logged.P_active[1][0];
+    731                  tx16[DLT645_MSG_TX_START_BODY_W + 6] = phase->metrology.neutral.dot_prod_logged.P_active[1][1];
+    732                  tx16[DLT645_MSG_TX_START_BODY_W + 7] = phase->metrology.neutral.dot_prod_logged.P_active[1][2];
+    733                  prepare_tx_message(port, 16);
+    734                      #else
+    735                  prepare_tx_message(port, 10);
+    736                      #endif
+    737                  #endif
+    738                  break;
+    739                  #if defined(REACTIVE_POWER_BY_QUADRATURE_SUPPORT)
+    740              case HOST_CMD_GET_RAW_REACTIVE_POWER_NEUTRAL:
+    741                  tx8[DLT645_MSG_TX_START_BODY] = rx_msg->uint8[DLT645_MSG_RX_START_BODY];
+    742                  tx8[DLT645_MSG_TX_START_BODY + 1] = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 1] | 0x80;
+    743                      #if !defined(ESP_SUPPORT)
+    744                  tx16[DLT645_MSG_TX_START_BODY_W + 1] = phase->metrology.neutral.dot_prod_logged.sample_count;
+    745                  tx16[DLT645_MSG_TX_START_BODY_W + 2] = phase->metrology.neutral.dot_prod_logged.P_reactive[0][0];
+    746                  tx16[DLT645_MSG_TX_START_BODY_W + 3] = phase->metrology.neutral.dot_prod_logged.P_reactive[0][1];
+    747                  tx16[DLT645_MSG_TX_START_BODY_W + 4] = phase->metrology.neutral.dot_prod_logged.P_reactive[0][2];
+    748                          #if GAIN_STAGES > 1
+    749                  tx16[DLT645_MSG_TX_START_BODY_W + 5] = phase->metrology.neutral.dot_prod_logged.P_reactive[1][0];
+    750                  tx16[DLT645_MSG_TX_START_BODY_W + 6] = phase->metrology.neutral.dot_prod_logged.P_reactive[1][1];
+    751                  tx16[DLT645_MSG_TX_START_BODY_W + 7] = phase->metrology.neutral.dot_prod_logged.P_reactive[1][2];
+    752                  prepare_tx_message(port, 16);
+    753                          #else
+    754                  prepare_tx_message(port, 10);
+    755                          #endif
+    756                  break;
+    757                      #endif
+    758                  #endif
+    759              #endif
+    760              #if defined(CORRECTED_RTC_SUPPORT)
+    761              case HOST_CMD_CHECK_RTC_ERROR:
+    762                  tx8[DLT645_MSG_TX_START_BODY] = rx_msg->uint8[DLT645_MSG_RX_START_BODY];
+    763                  tx8[DLT645_MSG_TX_START_BODY + 1] = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 1] | 0x80;
+    764              #if defined(__MSP430_HAS_TA3__)
+    765                  z = assess_rtc_speed();
+    766              #endif
+    767                  tx16[DLT645_MSG_TX_START_BODY_W + 1] = z;
+    768                  tx16[DLT645_MSG_TX_START_BODY_W + 2] = z >> 16;
+    769                  prepare_tx_message(port, 6);
+    770                  break;
+    771              case HOST_CMD_RTC_CORRECTION:
+    772                  tx8[DLT645_MSG_TX_START_BODY] = rx_msg->uint8[DLT645_MSG_RX_START_BODY];
+    773                  tx8[DLT645_MSG_TX_START_BODY + 1] = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 1] | 0x80;
+    774                  tx16[DLT645_MSG_TX_START_BODY_W + 1] = rtc_correction;
+    775                  tx16[DLT645_MSG_TX_START_BODY_W + 2] = rtc_correction >> 16;
+    776                  prepare_tx_message(port, 6);
+    777                  break;
+    778              #endif
+    779              #if defined(MULTI_RATE_SUPPORT)
+    780              case HOST_CMD_MULTIRATE_SET_PARAMETERS:
+    781                  i = multirate_put(&rx_msg->uint8[DLT645_MSG_RX_START_BODY]);
+    782                  tx8[DLT645_MSG_TX_START_BODY] = rx_msg->uint8[DLT645_MSG_RX_START_BODY];
+    783                  tx8[DLT645_MSG_TX_START_BODY + 1] = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 1] | 0x80;
+    784                  tx16[DLT645_MSG_TX_START_BODY_W + 1] = i;
+    785                  prepare_tx_message(port, 4);
+    786                  break;
+    787              case HOST_CMD_MULTIRATE_GET_PARAMETERS:
+    788                  i = multirate_get(&rx_msg->uint8[DLT645_MSG_RX_START_BODY], &tx8[DLT645_MSG_TX_START_BODY]);
+    789                  prepare_tx_message(port, i);
+    790                  break;
+    791              case HOST_CMD_MULTIRATE_CLEAR_USAGE:
+    792                  i = multirate_clear_usage(&rx_msg->uint8[DLT645_MSG_RX_START_BODY]);
+    793                  tx8[DLT645_MSG_TX_START_BODY] = rx_msg->uint8[DLT645_MSG_RX_START_BODY];
+    794                  tx8[DLT645_MSG_TX_START_BODY + 1] = rx_msg->uint8[DLT645_MSG_RX_START_BODY + 1] | 0x80;
+    795                  tx16[DLT645_MSG_TX_START_BODY_W + 1] = i;
+    796                  prepare_tx_message(port, 4);
+    797                  break;
+    798              case HOST_CMD_MULTIRATE_GET_USAGE:
+    799                  i = multirate_get_usage(&rx_msg->uint8[DLT645_MSG_RX_START_BODY], &tx8[DLT645_MSG_TX_START_BODY]);
+    800                  prepare_tx_message(port, i);
+    801                  break;
+    802              #endif
+    803              default:
+    804                  /* For all other message types reply with type 0xFF - bad message type */
+    805                  tx8[DLT645_MSG_TX_START_BODY] = rx_msg->uint8[DLT645_MSG_RX_START_BODY];
+    806                  tx8[DLT645_MSG_TX_START_BODY + 1] = 0xFF;
+    807                  prepare_tx_message(port, 2);
+    808                  break;
+    809              }
+    810          }
+    811          #endif
+    812          
+    813          #if defined(__MSP430__)  &&  (defined(DLT645_SUPPORT)  ||  defined(SERIAL_CALIBRATION_SUPPORT))
+    814          void dlt645_rx_byte(int port, uint8_t ch)
+    815          {
+    816              int i;
+    817              int sum;
+    818          
+    819              //if (rx_msg[port].inter_char_timeout == 0)
+    820              //    rx_msg[port].ptr = 0;
+    821              rx_msg[port].inter_char_timeout = SAMPLES_PER_10_SECONDS/200;
+    822              if (rx_msg[port].ptr == 0)
+    823              {
+    824                  if (ch == 0x68)
+    825                  {
+    826                      rx_msg[port].buf.uint8[rx_msg[port].ptr++] = ch;
+    827                      rx_msg[port].len = 12 + MAX_DLT645_MSG_BODY;
+    828                  }
+    829              }
+    830              else
+    831              {
+    832                  if (rx_msg[port].ptr == 9)
+    833                  {
+    834                      if (ch <= MAX_DLT645_MSG_BODY)
+    835                          rx_msg[port].len = 12 + ch;
+    836                      else
+    837                          rx_msg[port].ptr = 0;
+    838                  }
+    839                  rx_msg[port].buf.uint8[rx_msg[port].ptr++] = ch;
+    840                  if (rx_msg[port].ptr == rx_msg[port].len)
+    841                  {
+    842                      /* End of message */
+    843                      sum = rx_msg[port].buf.uint8[0];
+    844                      for (i = 1;  i < rx_msg[port].len - 2;  i++)
+    845                          sum += rx_msg[port].buf.uint8[i];
+    846                      if (rx_msg[port].buf.uint8[rx_msg[port].len - 2] == (sum & 0xFF)
+    847                          &&
+    848                          rx_msg[port].buf.uint8[rx_msg[port].len - 1] == 0x16)
+    849                      {
+    850                          /* Good message received */
+    851                          dlt645_process_rx_message(port, &rx_msg[port].buf, rx_msg[port].len);
+    852                      }
+    853                      rx_msg[port].ptr = 0;
+    854                  }
+    855              }
+    856          }
+    857          #endif
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+     20   dlt645_process_rx_message
+       20   -> align_hardware_with_calibration_data
+       20   -> flash_clr
+       20   -> flash_secure
+       20   -> flash_write_int16
+       20   -> is_calibration_enabled
+       20   -> prepare_tx_message
+       20   -> send_message
+       20   -> set_rtc_sumcheck
+     12   dlt645_rx_byte
+       12   -> dlt645_process_rx_message
+      8   prepare_tx_message
+        8   -> send_message
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       2  BCD2BIN
+       2  BIN2BCD
+       2  _A_RTCCTL0_L
+       2  _A_RTCDATE_L
+       2  _A_RTCTIM0_L
+       2  _A_RTCTIM1_L
+       2  _A_RTCYEAR_L
+    2878  dlt645_process_rx_message
+     248  dlt645_rx_byte
+       2  next_flash_loc
+     194  prepare_tx_message
+
+ 
+ 3 320 bytes in segment CODE
+    14 bytes in segment DATA16_AN
+     2 bytes in segment DATA16_Z
+ 
+ 3 320 bytes of CODE memory
+     2 bytes of DATA memory (+ 14 bytes shared)
+
+Errors: none
+Warnings: none

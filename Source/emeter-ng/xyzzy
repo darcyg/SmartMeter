@@ -1,0 +1,316 @@
+Only in ../../emeter-ng: .gdbinit
+Common subdirectories: ./CVS and ../../emeter-ng/CVS
+Only in ../../emeter-ng: Debug
+Only in ../../emeter-ng: a.exe
+Only in ../../emeter-ng: asm.s43
+Only in ../../emeter-ng: dependencies.in
+Only in ../../emeter-ng: doc
+Only in ../../emeter-ng: emeter
+Only in ../../emeter-ng: emeter-1ph-fe425.S19
+Only in ../../emeter-ng: emeter-1ph-fe425.hex
+Only in ../../emeter-ng: emeter-1ph-fe425.log
+Only in ../../emeter-ng: emeter-1ph-fe425.qin
+Only in ../../emeter-ng: emeter-1ph-fe425.qpj
+Only in ../../emeter-ng: emeter-1ph-fe425.qtx
+Only in ../../emeter-ng: emeter-1ph-fe425.trc
+Only in ../../emeter-ng: emeter-1ph-fe425.txt
+Only in ../../emeter-ng: emeter-1ph-fe427.S19
+Only in ../../emeter-ng: emeter-1ph-fe427.hex
+Only in ../../emeter-ng: emeter-1ph-fe427.log
+Only in ../../emeter-ng: emeter-1ph-fe427.qin
+Only in ../../emeter-ng: emeter-1ph-fe427.qtx
+Only in ../../emeter-ng: emeter-1ph-fe427.rxc
+Only in ../../emeter-ng: emeter-1ph-fe427.rxc.map
+Only in ../../emeter-ng: emeter-1ph-fe427.trc
+Only in ../../emeter-ng: emeter-1ph-fe427.txt
+Only in ../../emeter-ng: emeter-1ph-sml.h
+Only in ../../emeter-ng: emeter-1ph-stefan.h
+Only in ../../emeter-ng: emeter-1ph-stefan.qin
+Only in ../../emeter-ng: emeter-1ph-stefan.qtx
+Only in ../../emeter-ng: emeter-1ph-stefan.rxc
+Only in ../../emeter-ng: emeter-1ph-stefan.trc
+Only in ../../emeter-ng: emeter-1ph-stefan.txt
+Only in ../../emeter-ng: emeter-3ph-449.qin
+Only in ../../emeter-ng: emeter-3ph-449.qpj
+Only in ../../emeter-ng: emeter-3ph-449.qtx
+Only in ../../emeter-ng: emeter-3ph-449.rxc
+Only in ../../emeter-ng: emeter-3ph-449.trc
+Only in ../../emeter-ng: emeter-437.dep
+Only in ../../emeter-ng: emeter-447.aql
+Only in ../../emeter-ng: emeter-449.dep
+Only in ../../emeter-ng: emeter-4618.dep
+diff ./emeter-4618.ewd ../../emeter-ng/emeter-4618.ewd
+183c183
+<           <state>1</state>
+---
+>           <state>0</state>
+Only in ../../emeter-ng: emeter-4619.h
+Only in ../../emeter-ng: emeter-E425.aql
+Only in ../../emeter-ng: emeter-background-mux.c.save
+diff ./emeter-background.c ../../emeter-ng/emeter-background.c
+61c61
+< //  $Id: emeter-background.c,v 1.32 2007/11/26 07:06:27 a0754793 Exp $
+---
+> //  $Id: emeter-background.c,v 1.29 2007/08/07 05:55:38 a0754793 Exp $
+549a550,551
+> uint8_t extra;
+> 
+775a778,788
+> #if 0
+> if (j == 0)
+> {
+>     TXBUF0 = 0x80 | (V_sample >> 6);
+>     extra = V_sample & 0x3F;
+> }
+> else
+> {
+>     TXBUF0 = extra;
+> }
+> #endif
+865a879,881
+>             //accum48(phase->current.P_accum[use_stage], imul16(I_live_sample, I_live_sample));
+>             //accum48(phase->current.P_accum[0], imul16(corrected, corrected));
+>             //accum48(phase->current.P_accum[0], imul16(V_sample, V_sample));
+Only in ../../emeter-ng: emeter-background.c.save
+Only in ../../emeter-ng: emeter-background.o
+diff ./emeter-basic-display.c ../../emeter-ng/emeter-basic-display.c
+61c61
+< //  $Id: emeter-basic-display.c,v 1.19 2007/11/26 05:04:49 a0754793 Exp $
+---
+> //  $Id: emeter-basic-display.c,v 1.17 2007/08/07 05:55:38 a0754793 Exp $
+1346a1347,1349
+> 
+> //LCDdecu16(chan[0].current.P_accum_logged[0][1], 1, 6, 1);
+> LCDdecu16(chan[0].current.sample_count_logged, 1, 6, 1);
+Only in ../../emeter-ng: emeter-basic-display.o
+Only in ../../emeter-ng: emeter-bits.h
+diff ./emeter-communication.c ../../emeter-ng/emeter-communication.c
+61c61
+< //  $Id: emeter-communication.c,v 1.10 2007/11/26 07:57:58 a0754793 Exp $
+---
+> //  $Id: emeter-communication.c,v 1.8 2007/08/07 05:55:38 a0754793 Exp $
+600,601c600,601
+<         tx_msg.uint16[IEC1107_MSG_TX_START_BODY_W + 13] = phase->current.I_dc_estimate[0];
+<         tx_msg.uint16[IEC1107_MSG_TX_START_BODY_W + 14] = phase->current.I_dc_estimate[0] >> 16;
+---
+>         tx_msg.uint16[IEC1107_MSG_TX_START_BODY_W + 13] = phase->current.P_accum_logged[0][0]; //phase->current.I_dc_estimate[0];
+>         tx_msg.uint16[IEC1107_MSG_TX_START_BODY_W + 14] = phase->current.P_accum_logged[0][1]; //phase->current.I_dc_estimate[0] >> 16;
+Only in ../../emeter-ng: emeter-communication.o
+Only in ../../emeter-ng: emeter-fir-table.o
+Only in ../../emeter-ng: emeter-foreground.c.save
+Only in ../../emeter-ng: emeter-foreground.o
+Only in ../../emeter-ng: emeter-harmonics.c.save
+Only in ../../emeter-ng: emeter-host-environment.o
+Only in ../../emeter-ng: emeter-host.h
+Only in ../../emeter-ng: emeter-iiceeprom.o
+Only in ../../emeter-ng: emeter-india-FG4619.h
+Only in ../../emeter-ng: emeter-msp430x437.x
+Only in ../../emeter-ng: emeter-msp430xE425.x
+Only in ../../emeter-ng: emeter-multirate.o
+Only in ../../emeter-ng: emeter-phase-corrections.o
+diff ./emeter-setup.c ../../emeter-ng/emeter-setup.c
+61c61
+< //  $Id: emeter-setup.c,v 1.25 2007/11/26 04:26:02 a0754793 Exp $
+---
+> //  $Id: emeter-setup.c,v 1.24 2007/08/07 05:55:41 a0754793 Exp $
+574a575
+> #if 0
+579a581,587
+> #else
+>     /* 460800 Rx doesn't work very well from 32768Hz. Use the fast clock. */
+>     UTCTL0 = SSEL1;                     /* UCLK = SMCLK */
+>     UBR00 = 18;
+>     UBR10 = 0;
+>     UMCTL0 = 0x11;
+> #endif
+Only in ../../emeter-ng: emeter-setup.o
+Only in ../../emeter-ng: emeter-star3ph.h
+Only in ../../emeter-ng: emeter.dep
+diff ./emeter.eww ../../emeter-ng/emeter.eww
+24a25,42
+>   <project>
+>     <path>C:\emeters\power exerciser\exerciser.ewp</path>
+>   </project>
+>   <project>
+>     <path>$WS_DIR$\hpltest.ewp</path>
+>   </project>
+>   <project>
+>     <path>C:\emeters\power exerciser\hpltest2.ewp</path>
+>   </project>
+>   <project>
+>     <path>$WS_DIR$\mytest.ewp</path>
+>   </project>
+>   <project>
+>     <path>C:\emeters\sha2\sha1\set.ewp</path>
+>   </project>
+>   <project>
+>     <path>C:\emeters\sha2\sha1\sha1.ewp</path>
+>   </project>
+diff ./emeter.h ../../emeter-ng/emeter.h
+62c62
+< //  $Id: emeter.h,v 1.30 2007/11/26 05:04:49 a0754793 Exp $
+---
+> //  $Id: emeter.h,v 1.28 2007/08/15 07:49:43 a0754793 Exp $
+102c102
+< #define TOTAL_ENERGY_PULSES_PER_KW_HOUR             1600
+---
+> #define TOTAL_ENERGY_PULSES_PER_KW_HOUR             700
+107c107
+< #define PHASE_ENERGY_PULSES_PER_KW_HOUR             1600
+---
+> #define PHASE_ENERGY_PULSES_PER_KW_HOUR             700
+193c193
+< #define set_total_energy_pulse_indicator()          (P3OUT &= ~BIT6)
+---
+> #define set_total_energy_pulse_indicator()          (P3OUT &= ~BIT7)
+196c196
+< #define clr_total_energy_pulse_indicator()          (P3OUT |= BIT6)
+---
+> #define clr_total_energy_pulse_indicator()          (P3OUT |= BIT7)
+199c199
+< #define set_total_reactive_energy_pulse_indicator() (P3OUT &= ~BIT7)
+---
+> #define set_total_reactive_energy_pulse_indicator() (P3OUT &= ~BIT6)
+202c202
+< #define clr_total_reactive_energy_pulse_indicator() (P3OUT |= BIT7)
+---
+> #define clr_total_reactive_energy_pulse_indicator() (P3OUT |= BIT6)
+586a587
+> #if 1
+590c591
+< #define LIVE_HIGH_CURRENT_INPUT_1                   INCH_0
+---
+> #define LIVE_HIGH_CURRENT_INPUT_1                   INCH_2
+592c593
+< #define LIVE_HIGH_CURRENT_INPUT_3                   INCH_2
+---
+> #define LIVE_HIGH_CURRENT_INPUT_3                   INCH_0
+597a599,611
+> #else
+> #define VOLTAGE_INPUT_1                             INCH_3
+> #define VOLTAGE_INPUT_2                             INCH_4
+> #define VOLTAGE_INPUT_3                             INCH_5
+> #define LIVE_HIGH_CURRENT_INPUT_1                   INCH_3
+> #define LIVE_HIGH_CURRENT_INPUT_2                   INCH_4
+> #define LIVE_HIGH_CURRENT_INPUT_3                   INCH_5
+> #define LIVE_LOW_CURRENT_INPUT_1                    INCH_3
+> #define LIVE_LOW_CURRENT_INPUT_2                    INCH_4
+> #define LIVE_LOW_CURRENT_INPUT_3                    INCH_5
+> #define NEUTRAL_CURRENT_INPUT                       INCH_7
+> #define AGND_INPUT                                  INCH_7
+> #endif
+615,618c629,632
+< #define DEFAULT_P_SCALE_FACTOR_B_LOW                1075
+< #define DEFAULT_P_SCALE_FACTOR_B_HIGH               16074
+< #define DEFAULT_P_SCALE_FACTOR_C_LOW                1083
+< #define DEFAULT_P_SCALE_FACTOR_C_HIGH               16271
+---
+> #define DEFAULT_P_SCALE_FACTOR_B_LOW                1039
+> #define DEFAULT_P_SCALE_FACTOR_B_HIGH               15663
+> #define DEFAULT_P_SCALE_FACTOR_C_LOW                1039
+> #define DEFAULT_P_SCALE_FACTOR_C_HIGH               15663
+664c678,679
+< #include "lierda_lcd.h"
+---
+> //#include "lierda_lcd.h"
+> #include "star_lcd.h"
+666a682
+> #if 0
+733a750,817
+> #else
+> #define TWO_LINE_LCD
+> 
+> #define LCD_CELLS                                   5
+> #define LCD_POS_BASE                                6
+> #define LCD_POS_STEP                                1
+> //typedef uint8_t lcd_cell_t;
+> 
+> #define ICON_PHASE_A                                ((5<<5) | 20)
+> #define ICON_PHASE_B                                ((6<<5) | 20)
+> #define ICON_PHASE_C                                ((4<<5) | 20)
+> 
+> #define ICON_A                                      ((7<<5) | 20)
+> #define ICON_V                                      ((7<<5) | 20)
+> #define ICON_kW                                     ((7<<5) | 20)
+> #define ICON_H                                      ((7<<5) | 10)
+> 
+> #define ICON_DECIMAL_2                              ((7<<5) | 20)
+> #define ICON_DECIMAL_4                              ((7<<5) | 20)
+> 
+> //#define ICON_BATTERY                                ((7<<5) | 20)
+> 
+> #define ICON_TIME_COLON_1                           ((7<<5) | 20)
+> #define ICON_TIME_COLON_2                           ((7<<5) | 20)
+> 
+> #define ICON_DATE_COLON_1                           ((7<<5) | 20)
+> #define ICON_DATE_COLON_2                           ((7<<5) | 20)
+> 
+> #define FIRST_ROW_START                             9
+> #define FIRST_ROW_CHARS                             6
+> #define SECOND_ROW_START                            15
+> #define SECOND_ROW_CHARS                            6
+> 
+> #define FIRST_POSITION                              1
+> #define YEAR_POSITION                               1
+> #define MONTH_POSITION                              3
+> #define DAY_POSITION                                5
+> #define HOUR_POSITION                               10
+> #define MINUTE_POSITION                             12
+> #define SECONDS_POSITION                            14
+> #define NUMBER_WIDTH                                6
+> 
+> #define FIRST_ACTIVE_POWER_POSITION                 10
+> #define FIRST_VOLTAGE_POSITION                      10
+> #define FIRST_POWER_FACTOR_POSITION                 10
+> #define FIRST_APPARENT_POWER_POSITION               10
+> #define FIRST_TEMPERATURE_POSITION                  10
+> 
+> #define FIRST_REACTIVE_POWER_POSITION               1
+> #define FIRST_CURRENT_POSITION                      1
+> #define FIRST_FREQUENCY_POSITION                    1
+> #define FIRST_ENERGY_POSITION                       1
+> 
+> #define DISPLAY_TYPE_POSITION                       10
+> 
+> #define FREQUENCY_RESOLUTION                        2
+> #define ICON_DECIMAL_FREQUENCY                      ICON_DECIMAL_2
+> #define VOLTAGE_RESOLUTION                          2
+> #define ICON_DECIMAL_VOLTAGE                        ICON_DECIMAL_2
+> #define CURRENT_DISPLAY_DIVISOR                     10
+> #define CURRENT_RESOLUTION                          2
+> #define ICON_DECIMAL_CURRENT                        ICON_DECIMAL_2
+> #define POWER_RESOLUTION                            2
+> #define ICON_DECIMAL_POWER                          ICON_DECIMAL_2
+> #define ENERGY_RESOLUTION                           2
+> #define ICON_DECIMAL_ENERGY                         ICON_DECIMAL_2
+> #endif
+> 
+Only in ../../emeter-ng: emeter.hex
+Only in ../../emeter-ng: emeter.map
+Only in ../../emeter-ng: emeter.qin
+Only in ../../emeter-ng: emeter.qtx
+Only in ../../emeter-ng: emeter.rxc
+Only in ../../emeter-ng: emeter.save.h
+Only in ../../emeter-ng: emeter.trc
+Only in ../../emeter-ng: gdb.ini
+Only in ../../emeter-ng: gen_harmonic_parameters.c
+Only in ../../emeter-ng: go
+Only in ../../emeter-ng: hpltest.dep
+Only in ../../emeter-ng: hpltest.ewd
+Only in ../../emeter-ng: hpltest.ewp
+Only in ../../emeter-ng: iiceeprom.c
+Only in ../../emeter-ng: main.c
+Only in ../../emeter-ng: multirate-tests.c
+Only in ../../emeter-ng: mytest.dep
+Only in ../../emeter-ng: mytest.ewp
+Only in ../../emeter-ng: noise_search.c
+Only in ../../emeter-ng: orig
+Only in ../../emeter-ng: peel.c
+Only in ../../emeter-ng: peel.exe
+Only in ../../emeter-ng: peel2.c
+Only in ../../emeter-ng: rcxlink.rcx
+Only in ../../emeter-ng: settings
+Only in ../../emeter-ng: soft_uart.c
+Only in ../../emeter-ng: star_lcd.h
+Only in ../../emeter-ng: udaipur-notes.txt
+Only in .: xyzzy

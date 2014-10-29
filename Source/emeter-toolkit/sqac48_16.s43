@@ -1,0 +1,71 @@
+;******************************************************************************
+;  sqac48_16.s43 (IAR version) - 
+;
+;  Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/ 
+; 
+;  Redistribution and use in source and binary forms, with or without 
+;  modification, are permitted provided that the following conditions 
+;  are met:
+;
+;    Redistributions of source code must retain the above copyright 
+;    notice, this list of conditions and the following disclaimer.
+;
+;    Redistributions in binary form must reproduce the above copyright
+;    notice, this list of conditions and the following disclaimer in the 
+;    documentation and/or other materials provided with the   
+;    distribution.
+;
+;    Neither the name of Texas Instruments Incorporated nor the names of
+;    its contributors may be used to endorse or promote products derived
+;    from this software without specific prior written permission.
+;
+;  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
+;  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+;  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+;  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+;  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+;  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+;  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+;  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+;  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
+;  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+;  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+;
+;******************************************************************************
+
+#include "io.h"
+#include "macros.m43"
+
+#if !defined(__IAR_SYSTEMS_ASM__)  ||  !(((__TID__ >> 8) & 0x7f) == 43)
+#error This file is compatible with the IAR MSP430 assembler.
+#endif
+
+#if __VER__ >= 400
+#define z           R12
+#define x           R13
+#define tmp         R14
+#else
+#define z           R12
+#define x           R14
+#define tmp         R15
+#endif
+
+; Square and accumulate x into z
+;void sqac48_16(register int16_t z[3], register int16_t x)
+    public sqac48_16
+
+    RSEG CODE
+sqac48_16
+#if (defined(__MSP430_HAS_MPY__)  ||  defined(__MSP430_HAS_MPY32__))  &&  !defined(__TOOLKIT_USE_SOFT_MPY__)
+    ; NB: This is not protected against interrupts, so only use it in an interrupt routine
+    mov.w   x,&MPYS
+    mov.w   x,&OP2
+    mov.w   #RESLO,tmp
+    add.w   @tmp+,0(z)
+    addc.w  @tmp+,2(z)
+    addc.w  @tmp,4(z)
+#else
+    ; TODO: software multiply version
+#endif
+    xret
+    end

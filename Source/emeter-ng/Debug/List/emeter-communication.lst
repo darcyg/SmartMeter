@@ -1,0 +1,780 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V6.10.2.50871/W32 for MSP430         28/Oct/2014  22:48:16
+# Copyright 1996-2014 IAR Systems AB.
+# Evaluation license - IAR Embedded Workbench for Texas Instruments MSP430, Evaluation Version 6.10
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\emeter-communication.c
+#    Command line  =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\emeter-communication.c
+#        -D "CUSTOM_EMETER_H=\"emeter-1ph-neutral-6733_shunt.h\"" -D X_ZEBU_
+#        -lcN D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\List\ -o
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\Obj\ --debug
+#        -D__MSP430F6736__ -e --double=32 --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.0\430\lib\dlib\dl430xlsfn.h" -I
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng/../emeter-toolkit\
+#        --core=430X --data_model=small -Ohs --multiplier=32
+#        --multiplier_location=4C0 --hw_workaround=CPU40 --hw_workaround=CPU39
+#        --code_model=large
+#    List file     =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\List\emeter-communication.lst
+#    Object file   =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\Obj\emeter-communication.r43
+#
+###############################################################################
+
+D:\Documents\GitHub\SmartMeter\Source\emeter-ng\emeter-communication.c
+      1          //--------------------------------------------------------------------------
+      2          //
+      3          //  Software for MSP430 based e-meters.
+      4          //
+      5          //  THIS PROGRAM IS PROVIDED "AS IS". TI MAKES NO WARRANTIES OR
+      6          //  REPRESENTATIONS, EITHER EXPRESS, IMPLIED OR STATUTORY,
+      7          //  INCLUDING ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS
+      8          //  FOR A PARTICULAR PURPOSE, LACK OF VIRUSES, ACCURACY OR
+      9          //  COMPLETENESS OF RESPONSES, RESULTS AND LACK OF NEGLIGENCE.
+     10          //  TI DISCLAIMS ANY WARRANTY OF TITLE, QUIET ENJOYMENT, QUIET
+     11          //  POSSESSION, AND NON-INFRINGEMENT OF ANY THIRD PARTY
+     12          //  INTELLECTUAL PROPERTY RIGHTS WITH REGARD TO THE PROGRAM OR
+     13          //  YOUR USE OF THE PROGRAM.
+     14          //
+     15          //  IN NO EVENT SHALL TI BE LIABLE FOR ANY SPECIAL, INCIDENTAL,
+     16          //  CONSEQUENTIAL OR INDIRECT DAMAGES, HOWEVER CAUSED, ON ANY
+     17          //  THEORY OF LIABILITY AND WHETHER OR NOT TI HAS BEEN ADVISED
+     18          //  OF THE POSSIBILITY OF SUCH DAMAGES, ARISING IN ANY WAY OUT
+     19          //  OF THIS AGREEMENT, THE PROGRAM, OR YOUR USE OF THE PROGRAM.
+     20          //  EXCLUDED DAMAGES INCLUDE, BUT ARE NOT LIMITED TO, COST OF
+     21          //  REMOVAL OR REINSTALLATION, COMPUTER TIME, LABOR COSTS, LOSS
+     22          //  OF GOODWILL, LOSS OF PROFITS, LOSS OF SAVINGS, OR LOSS OF
+     23          //  USE OR INTERRUPTION OF BUSINESS. IN NO EVENT WILL TI'S
+     24          //  AGGREGATE LIABILITY UNDER THIS AGREEMENT OR ARISING OUT OF
+     25          //  YOUR USE OF THE PROGRAM EXCEED FIVE HUNDRED DOLLARS
+     26          //  (U.S.$500).
+     27          //
+     28          //  Unless otherwise stated, the Program written and copyrighted
+     29          //  by Texas Instruments is distributed as "freeware".  You may,
+     30          //  only under TI's copyright in the Program, use and modify the
+     31          //  Program without any charge or restriction.  You may
+     32          //  distribute to third parties, provided that you transfer a
+     33          //  copy of this license to the third party and the third party
+     34          //  agrees to these terms by its first use of the Program. You
+     35          //  must reproduce the copyright notice and any other legend of
+     36          //  ownership on each copy or partial copy, of the Program.
+     37          //
+     38          //  You acknowledge and agree that the Program contains
+     39          //  copyrighted material, trade secrets and other TI proprietary
+     40          //  information and is protected by copyright laws,
+     41          //  international copyright treaties, and trade secret laws, as
+     42          //  well as other intellectual property laws.  To protect TI's
+     43          //  rights in the Program, you agree not to decompile, reverse
+     44          //  engineer, disassemble or otherwise translate any object code
+     45          //  versions of the Program to a human-readable form.  You agree
+     46          //  that in no event will you alter, remove or destroy any
+     47          //  copyright notice included in the Program.  TI reserves all
+     48          //  rights not specifically granted under this license. Except
+     49          //  as specifically provided herein, nothing in this agreement
+     50          //  shall be construed as conferring by implication, estoppel,
+     51          //  or otherwise, upon you, any license or other right under any
+     52          //  TI patents, copyrights or trade secrets.
+     53          //
+     54          //  You may not use the Program in non-TI devices.
+     55          //
+     56          //  File: emeter-communications.c
+     57          //
+     58          //  Steve Underwood <steve-underwood@ti.com>
+     59          //  Texas Instruments Hong Kong Ltd.
+     60          //
+     61          //  $Id: emeter-communication.c,v 1.18 2009/04/27 09:05:25 a0754793 Exp $
+     62          //
+     63          /*! \file emeter-structs.h */
+     64          //
+     65          //--------------------------------------------------------------------------
+     66          //
+     67          #include <stdint.h>
+     68          #if !defined(__MSP430__)
+     69          #include <stdio.h>
+     70          #include <fcntl.h>
+     71          #include <stdlib.h>
+     72          #include <unistd.h>
+     73          #endif
+     74          #if defined(__GNUC__)
+     75          #include <signal.h>
+     76          #endif
+     77          #if defined(__MSP430__)
+     78          #include <io.h>
+     79          #endif
+     80          
+     81          #include <emeter-toolkit.h>
+     82          
+     83          #include "emeter-structs.h"
+     84          
+     85          #if defined(IEC62056_21_SUPPORT)
+     86          #include "iec62056-21.h"
+     87          #endif
+     88          
+     89          #if !defined(NULL)
+     90          #define NULL    (void *) 0
+     91          #endif
+     92          
+     93          #if defined(__MSP430__)  &&  defined(IEC62056_21_SUPPORT)
+     94          uint8_t iec62056_21_address[] = "Node 1";
+     95          uint8_t iec62056_21_address_len = 6;
+     96          #endif
+     97          
+     98          enum
+     99          {
+    100              MEASURES_ACTIVE_POWER                       = 0x01,
+    101              MEASURES_TRIGONOMETRIC_REACTIVE_POWER       = 0x02,
+    102              MEASURES_APPARENT_POWER                     = 0x04,
+    103              MEASURES_VRMS                               = 0x08,
+    104              MEASURES_IRMS                               = 0x10,
+    105              MEASURES_POWER_FACTOR                       = 0x20,
+    106              MEASURES_MAINS_FREQUENCY                    = 0x40,
+    107              MEASURES_QUADRATURE_REACTIVE_POWER          = 0x80
+    108          };
+    109          
+    110          enum host_commands_e
+    111          {
+    112              HOST_CMD_GET_METER_CONFIGURATION            = 0x56,
+    113              HOST_CMD_SET_METER_CONSUMPTION              = 0x57,
+    114              HOST_CMD_SET_RTC                            = 0x58,
+    115              HOST_CMD_GET_RTC                            = 0x59,
+    116              HOST_CMD_SET_PASSWORD                       = 0x60,
+    117              HOST_CMD_GET_READINGS_PHASE_1               = 0x61,
+    118              HOST_CMD_GET_READINGS_PHASE_2               = 0x62,
+    119              HOST_CMD_GET_READINGS_PHASE_3               = 0x63,
+    120              HOST_CMD_GET_READINGS_NEUTRAL               = 0x64,
+    121              HOST_CMD_ERASE_FLASH_SEGMENT                = 0x70,
+    122              HOST_CMD_SET_FLASH_POINTER                  = 0x71,
+    123              HOST_CMD_FLASH_DOWNLOAD                     = 0x72,
+    124              HOST_CMD_FLASH_UPLOAD                       = 0x73,
+    125              HOST_CMD_ZAP_MEMORY_AREA                    = 0x74,
+    126              HOST_CMD_SUMCHECK_MEMORY                    = 0x75,
+    127              HOST_CMD_GET_RAW_ACTIVE_POWER_PHASE_1       = 0x91,
+    128              HOST_CMD_GET_RAW_ACTIVE_POWER_PHASE_2       = 0x92,
+    129              HOST_CMD_GET_RAW_ACTIVE_POWER_PHASE_3       = 0x93,
+    130              HOST_CMD_GET_RAW_REACTIVE_POWER_PHASE_1     = 0x95,
+    131              HOST_CMD_GET_RAW_REACTIVE_POWER_PHASE_2     = 0x96,
+    132              HOST_CMD_GET_RAW_REACTIVE_POWER_PHASE_3     = 0x97,
+    133              HOST_CMD_GET_RAW_ACTIVE_POWER_NEUTRAL       = 0x99,
+    134              HOST_CMD_GET_RAW_REACTIVE_POWER_NEUTRAL     = 0x9D,
+    135              HOST_CMD_CHECK_RTC_ERROR                    = 0xA0,
+    136              HOST_CMD_RTC_CORRECTION                     = 0xA1,
+    137              HOST_CMD_MULTIRATE_SET_PARAMETERS           = 0xC0,
+    138              HOST_CMD_MULTIRATE_GET_PARAMETERS           = 0xC1,
+    139              HOST_CMD_MULTIRATE_CLEAR_USAGE              = 0xC2,
+    140              HOST_CMD_MULTIRATE_GET_USAGE                = 0xC3
+    141          };
+    142          
+    143          #if defined(__MSP430__)  &&  (defined(IEC1107_SUPPORT)  ||  defined(SERIAL_CALIBRATION_SUPPORT))
+    144          
+    145          #if defined(UART_PORT_3_SUPPORT)
+    146          serial_msg_buf_t tx_msg[4];
+    147          serial_msg_buf_t rx_msg[4];
+    148          #elif defined(UART_PORT_2_SUPPORT)
+    149          serial_msg_buf_t tx_msg[3];
+    150          serial_msg_buf_t rx_msg[3];
+    151          #elif defined(UART_PORT_1_SUPPORT)
+    152          serial_msg_buf_t tx_msg[2];
+    153          serial_msg_buf_t rx_msg[2];
+    154          #elif defined(UART_PORT_0_SUPPORT)
+    155          serial_msg_buf_t tx_msg[1];
+    156          serial_msg_buf_t rx_msg[1];
+    157          #endif
+    158          
+    159          #endif
+    160          
+    161          int is_calibration_enabled(void)
+    162          {
+    163              return TRUE;
+    164          }
+    165          
+    166          #if defined(IEC62056_21_SUPPORT)  ||  defined(IEC1107_D_SUPPORT)
+    167          
+    168          int iec1107d_status;
+    169          
+    170          void send_1107d_report(void)
+    171          {
+    172              int i;
+    173              uint8_t x;
+    174              uint8_t bcd[5];
+    175              const uint8_t *s;
+    176              static const uint8_t id[] = "/XXXXXXXXXX V1.00\r\n";
+    177              static const uint8_t serial_number_tag[] = "1-0:0.0.9*255(";
+    178              static const uint8_t property_number_tag[] = "1-0:0.0.0*255(";
+    179              static const uint8_t energy_tag[] = "1-0:1.8.0*255(";
+    180              static const uint8_t status_tag[] = "1-0:96.5.5*255(";
+    181              static const uint8_t factory_number_tag[] = "0-0:96.1.255*255(";
+    182              static const uint8_t even_parity[128] =
+    183              {
+    184                  0x00, 0x81, 0x82, 0x03, 0x84, 0x05, 0x06, 0x87,
+    185                  0x88, 0x09, 0x0A, 0x8B, 0x0C, 0x8D, 0x8E, 0x0F,
+    186                  0x90, 0x11, 0x12, 0x93, 0x14, 0x95, 0x96, 0x17,
+    187                  0x18, 0x99, 0x9A, 0x1B, 0x9C, 0x1D, 0x1E, 0x9F,
+    188                  0xA0, 0x21, 0x22, 0xA3, 0x24, 0xA5, 0xA6, 0x27,
+    189                  0x28, 0xA9, 0xAA, 0x2B, 0xAC, 0x2D, 0x2E, 0xAF,
+    190                  0x30, 0xB1, 0xB2, 0x33, 0xB4, 0x35, 0x36, 0xB7,
+    191                  0xB8, 0x39, 0x3A, 0xBB, 0x3C, 0xBD, 0xBE, 0x3F,
+    192                  0xC0, 0x41, 0x42, 0xC3, 0x44, 0xC5, 0xC6, 0x47,
+    193                  0x48, 0xC9, 0xCA, 0x4B, 0xCC, 0x4D, 0x4E, 0xCF,
+    194                  0x50, 0xD1, 0xD2, 0x53, 0xD4, 0x55, 0x56, 0xD7,
+    195                  0xD8, 0x59, 0x5A, 0xDB, 0x5C, 0xDD, 0xDE, 0x5F,
+    196                  0x60, 0xE1, 0xE2, 0x63, 0xE4, 0x65, 0x66, 0xE7,
+    197                  0xE8, 0x69, 0x6A, 0xEB, 0x6C, 0xED, 0xEE, 0x6F,
+    198                  0xF0, 0x71, 0x72, 0xF3, 0x74, 0xF5, 0xF6, 0x77,
+    199                  0x78, 0xF9, 0xFA, 0x7B, 0xFC, 0x7D, 0x7E, 0xFF,
+    200              };
+    201          
+    202              /* IEC1107 specifies 7 bit + even parity data. We want to use 8 bit data for calibration, so we
+    203                 use software generation for the parity bit. */
+    204              /* If the password is set we are in calibration mode, and the IEC1107D messages should not be sent.
+    205                 After calibration is complete, the password may or may not have been cleared. If it is still set
+    206                 a reset of the MCU will restore normal operation. */
+    207              if ((meter_status & PASSWORD_OK))
+    208                  return;
+    209              iec1107d_status = 0;
+    210          #if 0
+    211              if (total_power > 0)
+    212                  iec1107d_status |= 0x80;
+    213          #endif
+    214          #if defined(SELF_TEST_SUPPORT)
+    215              if (nv_parms.s.meter_failures != 0xFFFF)
+    216                  iec1107d_status |= 0x01;
+    217          #endif
+    218          
+    219              i = 0;
+    220              s = id;
+    221              while (*s)
+    222                  tx_msg[0].buf.uint8[i++] = even_parity[*s++];
+    223          
+    224              tx_msg[0].buf.uint8[i++] = even_parity['\r'];
+    225              tx_msg[0].buf.uint8[i++] = even_parity['\n'];
+    226          
+    227          #if 0
+    228          #if 0
+    229              if (nv_parms.s.property_number[0])
+    230              {
+    231                  s = property_number_tag;
+    232                  while (*s)
+    233                      tx_msg[0].buf.uint8[i++] = even_parity[*s++];
+    234                  s = nv_parms.s.property_number;
+    235                  while (*s)
+    236                      tx_msg[0].buf.uint8[i++] = even_parity[*s++];
+    237                  tx_msg[0].buf.uint8[i++] = even_parity[')'];
+    238                  tx_msg[0].buf.uint8[i++] = even_parity['\r'];
+    239                  tx_msg[0].buf.uint8[i++] = even_parity['\n'];
+    240              }
+    241          
+    242              if (nv_parms.s.serial_number[0])
+    243              {
+    244                  s = serial_number_tag;
+    245                  while (*s)
+    246                      tx_msg[0].buf.uint8[i++] = even_parity[*s++];
+    247                  s = nv_parms.s.serial_number;
+    248                  while (*s)
+    249                      tx_msg[0].buf.uint8[i++] = even_parity[*s++];
+    250                  tx_msg[0].buf.uint8[i++] = even_parity[')'];
+    251                  tx_msg[0].buf.uint8[i++] = even_parity['\r'];
+    252                  tx_msg[0].buf.uint8[i++] = even_parity['\n'];
+    253              }
+    254          #endif
+    255          
+    256              s = energy_tag;
+    257              while (*s)
+    258                  tx_msg[0].buf.uint8[i++] = even_parity[*s++];
+    259          
+    260              bin2bcd32(bcd, (long int) &chan[0].current.active_power);
+    261              tx_msg[0].buf.uint8[i++] = even_parity['0' + ((bcd[2] >> 4) & 0xF)];
+    262              tx_msg[0].buf.uint8[i++] = even_parity['0' + (bcd[2] & 0xF)];
+    263              tx_msg[0].buf.uint8[i++] = even_parity['0' + ((bcd[3] >> 4) & 0xF)];
+    264              tx_msg[0].buf.uint8[i++] = even_parity['0' + (bcd[3] & 0xF)];
+    265              tx_msg[0].buf.uint8[i++] = even_parity['0' + ((bcd[4] >> 4) & 0xF)];
+    266              tx_msg[0].buf.uint8[i++] = even_parity['0' + (bcd[4] & 0xF)];
+    267              tx_msg[0].buf.uint8[i++] = even_parity['.'];
+    268              bin2bcd16(bcd, 0);
+    269              tx_msg[0].buf.uint8[i++] = even_parity['0' + ((bcd[1] >> 4) & 0xF)];
+    270              tx_msg[0].buf.uint8[i++] = even_parity['0' + (bcd[1] & 0xF)];
+    271              tx_msg[0].buf.uint8[i++] = even_parity['0' + ((bcd[2] >> 4) & 0xF)];
+    272              tx_msg[0].buf.uint8[i++] = even_parity['0' + (bcd[2] & 0xF)];
+    273              tx_msg[0].buf.uint8[i++] = even_parity[')'];
+    274              tx_msg[0].buf.uint8[i++] = even_parity['\r'];
+    275              tx_msg[0].buf.uint8[i++] = even_parity['\n'];
+    276          
+    277              s = status_tag;
+    278              while (*s)
+    279                  tx_msg[0].buf.uint8[i++] = even_parity[*s++];
+    280              x = '0' + ((iec1107d_status >> 4) & 0xF);
+    281              if (x > '9')
+    282                  x += 7;
+    283              tx_msg[0].buf.uint8[i++] = even_parity[x];
+    284              x = '0' + (iec1107d_status & 0xF);
+    285              if (x > '9')
+    286                  x += 7;
+    287              tx_msg[0].buf.uint8[i++] = even_parity[x];
+    288              tx_msg[0].buf.uint8[i++] = even_parity[')'];
+    289              tx_msg[0].buf.uint8[i++] = even_parity['\r'];
+    290              tx_msg[0].buf.uint8[i++] = even_parity['\n'];
+    291          
+    292          #if 0
+    293              if (nv_parms.s.factory_number[0])
+    294              {
+    295                  s = factory_number_tag;
+    296                  while (*s)
+    297                      tx_msg[0].buf.uint8[i++] = even_parity[*s++];
+    298                  s = nv_parms.s.factory_number;
+    299                  while (*s)
+    300                      tx_msg[0].buf.uint8[i++] = even_parity[*s++];
+    301                  tx_msg[0].buf.uint8[i++] = even_parity[')'];
+    302                  tx_msg[0].buf.uint8[i++] = even_parity['\r'];
+    303                  tx_msg[0].buf.uint8[i++] = even_parity['\n'];
+    304              }
+    305          #endif
+    306          #endif
+    307              tx_msg[0].buf.uint8[i++] = even_parity['!'];
+    308              tx_msg[0].buf.uint8[i++] = even_parity['\r'];
+    309              tx_msg[0].buf.uint8[i++] = even_parity['\n'];
+    310              send_message(0, i);
+    311          
+    312          #if 0
+    313              #if defined(USART1TX_VECTOR)
+    314              U1IE |= UTXIE1;
+    315              #else
+    316              U0IE |= UTXIE0;
+    317              #endif
+    318          #endif
+    319          }
+    320          #endif
+    321          
+    322          #if defined(__MSP430__)  &&  defined(IEC62056_21_SUPPORT)
+    323          int iec62056_21_process_ack(const uint8_t *msg, int len)
+    324          {
+    325              return len;
+    326          }
+    327          
+    328          int iec62056_21_process_nak(const uint8_t *msg, int len)
+    329          {
+    330              return len;
+    331          }
+    332          
+    333          int iec62056_21_process_ident(const uint8_t *msg, int len)
+    334          {
+    335              return len;
+    336          }
+    337          
+    338          void iec62056_21_process_request(void)
+    339          {
+    340              if (tx_msg[0].len == 0)
+    341                  send_1107d_report();
+    342          }
+    343          
+    344          int iec62056_21_process_header(const uint8_t *msg, int len)
+    345          {
+    346              int i;
+    347          
+    348              for (i = 0;  i < len  &&  msg[i] != 2;  i++)
+    349                  ;
+    350              return i;
+    351          }
+    352          
+    353          int iec62056_21_process_field(const uint8_t instance_id[6], const uint8_t *val, int len)
+    354          {
+    355              return len;
+    356          }
+    357          #endif
+    358          
+    359          #if defined(__MSP430__)  &&  (defined(IEC62056_21_SUPPORT)  ||  defined(IEC1107_SUPPORT)  ||  defined(SERIAL_CALIBRATION_SUPPORT))
+    360          /* Interrupt routines to send serial messages. */
+    361          
+    362              #if defined(UART_PORT_0_SUPPORT)
+    363                  #if defined(__MSP430_HAS_UART0__)
+    364          ISR(USART0RX, serial_rx_interrupt0)
+    365          {
+    366          #if defined(IEC62056_21_SUPPORT)  ||  defined(DLT645_SUPPORT)
+    367              uint8_t ch;
+    368          
+    369              ch = RXBUF0;
+    370          #endif
+    371          #if defined(UART0_IEC62056_21_SUPPORT)
+    372              if (inter_char_timeout == 0)
+    373                  iec62056_21_rx_restart();
+    374              inter_char_timeout = SAMPLES_PER_10_SECONDS/200;
+    375              if (tx_msg[0].len == 0)
+    376                  iec62056_21_rx_byte(ch & 0x7F);
+    377          #endif
+    378          #if defined(UART0_DLT645_SUPPORT)
+    379              dlt645_rx_byte(0, ch);
+    380          #endif
+    381          }
+    382          
+    383          ISR(USART0TX, serial_tx_interrupt0)
+    384          {
+    385              TXBUF0 = tx_msg[0].buf.uint8[tx_msg[0].ptr++];
+    386              if (tx_msg[0].ptr >= tx_msg[0].len)
+    387              {
+    388                  /* Stop transmission */
+    389                  U0IE &= ~UTXIE0;
+    390                  tx_msg[0].ptr = 0;
+    391                  tx_msg[0].len = 0;
+    392              }
+    393          }
+    394                  #elif defined(__MSP430_HAS_USCI_AB0__)
+    395          ISR(USCIAB0RX, serial_rx_interrupt0)
+    396          {
+    397              uint8_t ch;
+    398          
+    399              ch = UCA0RXBUF;
+    400          #if defined(UART0_IEC62056_21_SUPPORT)
+    401              //if (inter_char_timeout == 0)
+    402              //    iec62056_21_rx_restart();
+    403              //inter_char_timeout = SAMPLES_PER_10_SECONDS/200;
+    404              if (tx_msg[0].len == 0)
+    405                  iec62056_21_rx_byte(ch & 0x7F);
+    406          #endif
+    407          #if defined(UART0_DLT645_SUPPORT)
+    408              dlt645_rx_byte(0, ch);
+    409          #endif
+    410          }
+    411          
+    412          ISR(USCIAB0TX, serial_tx_interrupt0)
+    413          {
+    414              UCA0TXBUF = tx_msg[0].buf.uint8[tx_msg[0].ptr++];
+    415              if (tx_msg[0].ptr >= tx_msg[0].len)
+    416              {
+    417                  /* Stop transmission */
+    418                  UC0IE &= ~UCA0TXIE;
+    419                  tx_msg[0].ptr = 0;
+    420                  tx_msg[0].len = 0;
+    421              }
+    422          }
+    423                  #elif defined(__MSP430_HAS_USCI_A0__)
+    424          ISR(USCI_A0, serial_interrupt0)
+    425          {
+    426              uint8_t ch;
+    427              switch(__even_in_range(UCA0IV,USCI_UART_UCRXIFG))
+    428              {
+    429              case USCI_UART_UCRXIFG:
+    430              ch = UCA0RXBUF;
+    431          #if defined(UART0_IEC62056_21_SUPPORT)
+    432              //if (inter_char_timeout == 0)
+    433              //    iec62056_21_rx_restart();
+    434              //inter_char_timeout = SAMPLES_PER_10_SECONDS/200;
+    435              if (tx_msg[0].len == 0)
+    436                  iec62056_21_rx_byte(ch & 0x7F);
+    437          #endif
+    438          #if defined(UART0_DLT645_SUPPORT)
+    439              dlt645_rx_byte(0, ch);
+    440          #endif
+    441              break;
+    442              case USCI_UART_UCTXIFG:
+    443              UCA0TXBUF = tx_msg[0].buf.uint8[tx_msg[0].ptr++];
+    444              if (tx_msg[0].ptr >= tx_msg[0].len)
+    445              {
+    446                  /* Stop transmission */
+    447                  UCA0IE &= ~UCTXIE;
+    448                  tx_msg[0].ptr = 0;
+    449                  tx_msg[0].len = 0;
+    450              }
+    451              break;
+    452              }
+    453          
+    454          }
+    455                  #elif defined(__MSP430_HAS_EUSCI_A0__)
+    456          ISR(USCI_A0, serial_interrupt0)
+    457          {
+    458              uint8_t ch;
+    459              switch(__even_in_range(UCA0IV,USCI_UART_UCTXCPTIFG))
+    460              {
+    461              case USCI_NONE:
+    462              break;
+    463              case USCI_UART_UCRXIFG:
+    464              ch = UCA0RXBUF;
+    465          #if defined(UART0_IEC62056_21_SUPPORT)
+    466              //if (inter_char_timeout == 0)
+    467              //    iec62056_21_rx_restart();
+    468              //inter_char_timeout = SAMPLES_PER_10_SECONDS/200;
+    469              if (tx_msg[0].len == 0)
+    470                  iec62056_21_rx_byte(ch & 0x7F);
+    471          #endif
+    472          #if defined(UART0_DLT645_SUPPORT)
+    473              dlt645_rx_byte(0, ch);
+    474          #endif
+    475              break;
+    476              case USCI_UART_UCTXIFG:
+    477              UCA0TXBUF = tx_msg[0].buf.uint8[tx_msg[0].ptr++];
+    478              if (tx_msg[0].ptr >= tx_msg[0].len)
+    479              {
+    480                  /* Stop transmission */
+    481                  UCA0IE &= ~UCTXIE;
+    482                  tx_msg[0].ptr = 0;
+    483                  tx_msg[0].len = 0;
+    484              }
+    485              break;
+    486              case USCI_UART_UCSTTIFG:
+    487              break;
+    488              case USCI_UART_UCTXCPTIFG:
+    489              break;
+    490              }
+    491          
+    492          }
+    493                  #else
+    494                      #error Device does not have a UART port 0
+    495                  #endif
+    496              #endif
+    497          
+    498              #if defined(UART_PORT_1_SUPPORT)
+    499                  #if defined(__MSP430_HAS_UART1__)
+    500          ISR(USART1RX, serial_rx_interrupt1)
+    501          {
+    502              uint8_t ch;
+    503          
+    504              ch = RXBUF1;
+    505          #if defined(UART1_IEC62056_21_SUPPORT)
+    506              if (inter_char_timeout == 0)
+    507                  iec62056_21_rx_restart();
+    508              inter_char_timeout = SAMPLES_PER_10_SECONDS/200;
+    509              iec62056_21_rx_byte(ch & 0x7F);
+    510          #endif
+    511          #if defined(UART1_DLT645_SUPPORT)
+    512              dlt645_rx_byte(1, ch);
+    513          #endif
+    514          }
+    515          
+    516          ISR(USART1TX, serial_tx_interrupt1)
+    517          {
+    518              TXBUF1 = tx_msg[1].uint8[tx_msg[1].ptr++];
+    519              if (tx_msg[1].ptr >= tx_msg[1].len)
+    520              {
+    521                  /* Stop transmission */
+    522                  U1IE &= ~UTXIE1;
+    523                  tx_msg[1].ptr = 0;
+    524                  tx_msg[1].len = 0;
+    525              }
+    526          }
+    527                  #elif defined(__MSP430_HAS_USCI_AB1__)
+    528          ISR(USCIAB1RX, serial_rx_interrupt1)
+    529          {
+    530              uint8_t ch;
+    531          
+    532              ch = UCA1RXBUF;
+    533          #if defined(UART1_IEC62056_21_SUPPORT)
+    534              //if (inter_char_timeout == 0)
+    535              //    iec62056_21_rx_restart();
+    536              //inter_char_timeout = SAMPLES_PER_10_SECONDS/200;
+    537              if (tx_msg[0].len == 0)
+    538                  iec62056_21_rx_byte(ch & 0x7F);
+    539          #endif
+    540          #if defined(UART1_DLT645_SUPPORT)
+    541              dlt645_rx_byte(1, ch);
+    542          #endif
+    543          }
+    544          
+    545          ISR(USCIAB1TX, serial_tx_interrupt1)
+    546          {
+    547              UCA1TXBUF = tx_msg[1].buf.uint8[tx_msg[1].ptr++];
+    548              if (tx_msg[1].ptr >= tx_msg[1].len)
+    549              {
+    550                  /* Stop transmission */
+    551                  UC1IE &= ~UCA1TXIE;
+    552                  tx_msg[1].ptr = 0;
+    553                  tx_msg[1].len = 0;
+    554              }
+    555          }
+    556                  #elif defined(__MSP430_HAS_USCI_A1__)
+    557          ISR(USCI_A1, serial_interrupt1)
+    558          {
+    559              uint8_t ch;
+    560              switch(__even_in_range(UCA1IV,USCI_UART_UCRXIFG))
+    561              {
+    562              case USCI_UART_UCRXIFG:
+    563              ch = UCA1RXBUF;
+    564          #if defined(UART1_IEC62056_21_SUPPORT)
+    565              //if (inter_char_timeout == 0)
+    566              //    iec62056_21_rx_restart();
+    567              //inter_char_timeout = SAMPLES_PER_10_SECONDS/200;
+    568              if (tx_msg[1].len == 0)
+    569                  iec62056_21_rx_byte(ch & 0x7F);
+    570          #endif
+    571          #if defined(UART0_DLT645_SUPPORT)
+    572              dlt645_rx_byte(1, ch);
+    573          #endif
+    574              break;
+    575              case USCI_UART_UCTXIFG:
+    576              UCA0TXBUF = tx_msg[1].buf.uint8[tx_msg[1].ptr++];
+    577              if (tx_msg[1].ptr >= tx_msg[1].len)
+    578              {
+    579                  /* Stop transmission */
+    580                  UCA1IE &= ~UCTXIE;
+    581                  tx_msg[1].ptr = 0;
+    582                  tx_msg[1].len = 0;
+    583              }
+    584              break;
+    585              }
+    586          
+    587          }
+    588                  #elif defined(__MSP430_HAS_EUSCI_A1__)
+    589          ISR(USCI_A1, serial_interrupt1)
+    590          {
+    591              uint8_t ch;
+    592              switch(__even_in_range(UCA1IV,USCI_UART_UCTXCPTIFG))
+    593              {
+    594              case USCI_UART_UCRXIFG:
+    595              ch = UCA1RXBUF;
+    596          #if defined(UART1_IEC62056_21_SUPPORT)
+    597              //if (inter_char_timeout == 0)
+    598              //    iec62056_21_rx_restart();
+    599              //inter_char_timeout = SAMPLES_PER_10_SECONDS/200;
+    600              if (tx_msg[1].len == 0)
+    601                  iec62056_21_rx_byte(ch & 0x7F);
+    602          #endif
+    603          #if defined(UART1_DLT645_SUPPORT)
+    604              dlt645_rx_byte(1, ch);
+    605          #endif
+    606              break;
+    607              case USCI_UART_UCTXIFG:
+    608              UCA1TXBUF = tx_msg[1].buf.uint8[tx_msg[1].ptr++];
+    609              if (tx_msg[1].ptr >= tx_msg[1].len)
+    610              {
+    611                  /* Stop transmission */
+    612                  UCA1IE &= ~UCTXIE;
+    613                  tx_msg[1].ptr = 0;
+    614                  tx_msg[1].len = 0;
+    615              }
+    616              break;
+    617              case USCI_UART_UCSTTIFG:
+    618              break;
+    619              case USCI_UART_UCTXCPTIFG:
+    620              break;
+    621              }
+    622          
+    623          }
+    624                  #else
+    625                      #error Device does not have a UART port 1
+    626                  #endif
+    627              #endif
+    628          
+    629              #if defined(UART_PORT_2_SUPPORT)
+    630                  #if defined(__MSP430_HAS_USCI_AB2__)
+    631          ISR(USCIAB2TX, serial_tx_interrupt2)
+    632          {
+    633              UCA2TXBUF = tx_msg[2].uint8[tx_msg[2].ptr++];
+    634              if (tx_msg[2].ptr >= tx_msg[2].len)
+    635              {
+    636                  /* Stop transmission */
+    637                  UC2IE &= ~UCA2TXIE;
+    638                  tx_msg[2].ptr = 0;
+    639                  tx_msg[2].len = 0;
+    640              }
+    641          }
+    642                  #else
+    643                      #error Device does not have a UART port 2
+    644                  #endif
+    645              #endif
+    646          
+    647              #if defined(UART_PORT_3_SUPPORT)
+    648                  #if defined(__MSP430_HAS_USCI_AB3__)
+    649          ISR(USCIAB3TX, serial_tx_interrupt3)
+    650          {
+    651              UCA3TXBUF = tx_msg[3].uint8[tx_msg[3].ptr++];
+    652              if (tx_msg[3].ptr >= tx_msg[3].len)
+    653              {
+    654                  /* Stop transmission */
+    655                  UC3IE &= ~UCA3TXIE;
+    656                  tx_msg[3].ptr = 0;
+    657                  tx_msg[3].len = 0;
+    658              }
+    659          }
+    660                  #else
+    661                      #error Device does not have a UART port 3
+    662                  #endif
+    663              #endif
+    664          
+    665          void send_message(int port, int len)
+    666          {
+    667              tx_msg[port].ptr = 0;
+    668              tx_msg[port].len = len;
+    669              switch (port)
+    670              {
+    671              #if defined(UART_PORT_0_SUPPORT)
+    672              case 0:
+    673                  #if defined(__MSP430_HAS_UART0__)
+    674                  U0IE |= UTXIE0;
+    675                  #elif defined(__MSP430_HAS_USCI_A0__) || defined(__MSP430_HAS_EUSCI_A0__)
+    676                  UCA0IE |= UCTXIE;
+    677                  #else
+    678                  UC0IE |= UCA0TXIE;
+    679                  #endif
+    680                  break;
+    681              #endif
+    682              #if defined(UART_PORT_1_SUPPORT)
+    683              case 1:
+    684                  #if defined(__MSP430_HAS_UART1__)
+    685                  U1IE |= UTXIE1;
+    686                  #elif defined(__MSP430_HAS_USCI_A1__) || defined(__MSP430_HAS_EUSCI_A1__)
+    687                  UCA1IE |= UCTXIE;
+    688                  #else
+    689                  UC1IE |= UCA1TXIE;
+    690                  #endif
+    691                  break;
+    692              #endif
+    693              #if defined(UART_PORT_2_SUPPORT)
+    694              case 2:
+    695                  UC2IE |= UCA2TXIE;
+    696                  break;
+    697              #endif
+    698              #if defined(UART_PORT_3_SUPPORT)
+    699              case 3:
+    700                  UC3IE |= UCA3TXIE;
+    701                  break;
+    702              #endif
+    703              }
+    704          }
+    705          
+    706          #endif
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   is_calibration_enabled
+      4   send_message
+     12   serial_interrupt1
+       12   -> dlt645_rx_byte
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       2  ??serial_interrupt1??INTVEC 106
+       2  UCA1IV
+       2  _A_UCA1IE_L
+       2  _A_UCA1RXBUF_L
+       2  _A_UCA1TXBUF_L
+       4  is_calibration_enabled
+     172  rx_msg
+      36  send_message
+      70  serial_interrupt1
+     172  tx_msg
+
+ 
+  40 bytes in segment CODE
+   8 bytes in segment DATA16_AN
+ 344 bytes in segment DATA16_Z
+   2 bytes in segment INTVEC
+  70 bytes in segment ISR_CODE
+ 
+ 110 bytes of CODE  memory
+   0 bytes of CONST memory (+ 2 bytes shared)
+ 344 bytes of DATA  memory (+ 8 bytes shared)
+
+Errors: none
+Warnings: none

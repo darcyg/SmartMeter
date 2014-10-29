@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<Project>
+  <Desktop>
+    <Static>
+      <Debug-Log/>
+      <Build>
+        
+        
+        
+        
+      <ColumnWidth0>16</ColumnWidth0><ColumnWidth1>1158</ColumnWidth1><ColumnWidth2>309</ColumnWidth2><ColumnWidth3>77</ColumnWidth3></Build>
+      <Workspace>
+        <ColumnWidths>
+          
+          
+          
+          
+        <Column0>349</Column0><Column1>27</Column1><Column2>27</Column2><Column3>27</Column3></ColumnWidths>
+      </Workspace>
+      <Disassembly>
+        
+        
+      <PreferedWindows><Position>2</Position><ScreenPosX>0</ScreenPosX><ScreenPosY>0</ScreenPosY><Windows/></PreferedWindows><MixedMode>1</MixedMode><CodeCovShow>0</CodeCovShow></Disassembly>
+    <Register/><Find-in-Files><ColumnWidth0>552</ColumnWidth0><ColumnWidth1>78</ColumnWidth1><ColumnWidth2>946</ColumnWidth2></Find-in-Files><Watch><Format><struct_types/><watch_formats><Fmt><Key>{W}Watch-0:adc_buffer[0]</Key><Value>4</Value></Fmt></watch_formats></Format><Column0>100</Column0><Column1>100</Column1><Column2>100</Column2><Column3>100</Column3></Watch></Static>
+    <Windows>
+      
+      
+      
+    <Wnd0>
+        <Tabs>
+          <Tab>
+            <Identity>TabID-6826-209</Identity>
+            <TabName>Debug Log</TabName>
+            <Factory>Debug-Log</Factory>
+            <Session/>
+          </Tab>
+          <Tab>
+            <Identity>TabID-6304-219</Identity>
+            <TabName>Build</TabName>
+            <Factory>Build</Factory>
+            <Session/>
+          </Tab>
+        <Tab><Identity>TabID-13489-19012</Identity><TabName>Find in Files</TabName><Factory>Find-in-Files</Factory><Session/></Tab></Tabs>
+        
+      <SelectedTab>0</SelectedTab></Wnd0><Wnd1>
+        <Tabs>
+          <Tab>
+            <Identity>TabID-17575-213</Identity>
+            <TabName>Workspace</TabName>
+            <Factory>Workspace</Factory>
+            <Session>
+              
+            <NodeDict><ExpandedNode>emeter-427a-lierda-bare-bones</ExpandedNode><ExpandedNode>emeter-427a-lierda-bare-bones/emeter-background.c</ExpandedNode><ExpandedNode>emeter-427a-lierda-bare-bones/emeter-communication.c</ExpandedNode><ExpandedNode>emeter-427a-lierda-bare-bones/emeter-dlt645.c</ExpandedNode><ExpandedNode>emeter-427a-lierda-bare-bones/emeter-main.c</ExpandedNode></NodeDict></Session>
+          </Tab>
+        </Tabs>
+        
+      <SelectedTab>0</SelectedTab></Wnd1><Wnd2><Tabs><Tab><Identity>TabID-32214-5055</Identity><TabName>Register</TabName><Factory>Register</Factory><Session><REG1>0</REG1><REG2>0</REG2><Group>12</Group><States>11</States><State0>LCDCTL</State0><State1>P1DIR</State1><State2>P1IES</State2><State3>P1IFG</State3><State4>P1IN</State4><State5>P1OUT</State5><State6>P1SEL</State6><State7>SD16CCTL0</State7><State8>SD16CCTL2</State8><State9>SD16INCTL0</State9><State10>SD16INCTL2</State10></Session></Tab></Tabs><SelectedTab>0</SelectedTab></Wnd2><Wnd3><Tabs><Tab><Identity>TabID-5673-13819</Identity><TabName>Watch</TabName><Factory>Watch</Factory><Session><Expressions><Expression><Expression>adc_buffer[0]</Expression></Expression><Expression><Expression>phase->readings</Expression></Expression></Expressions><TabId>0</TabId><Column0>100</Column0><Column1>100</Column1><Column2>100</Column2><Column3>100</Column3></Session></Tab></Tabs><SelectedTab>0</SelectedTab></Wnd3><Wnd4><Tabs><Tab><Identity>TabID-3852-3889</Identity><TabName>Disassembly</TabName><Factory>Disassembly</Factory><Session/></Tab></Tabs><SelectedTab>0</SelectedTab></Wnd4></Windows>
+    <Editor>
+      
+      
+      
+      
+    <Pane><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\emeter and calibrator 09 2 26\emeter-toolkit\setdco.c</Filename><XPos>0</XPos><YPos>41</YPos><SelStart>3207</SelStart><SelEnd>3207</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>C:\Program Files\IAR Systems\Embedded Workbench 5.0\430\inc\msp430xE42x.h</Filename><XPos>0</XPos><YPos>777</YPos><SelStart>41248</SelStart><SelEnd>41269</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\emeter and calibrator 09 2 26\emeter-ng\emeter-dlt645.c</Filename><XPos>0</XPos><YPos>456</YPos><SelStart>21189</SelStart><SelEnd>21202</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\emeter and calibrator 09 2 26\emeter-ng\emeter-structs.h</Filename><XPos>0</XPos><YPos>1035</YPos><SelStart>55758</SelStart><SelEnd>55775</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\emeter and calibrator 09 2 26\emeter-ng\emeter.h</Filename><XPos>0</XPos><YPos>126</YPos><SelStart>7554</SelStart><SelEnd>7554</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\emeter and calibrator 09 2 26\emeter-ng\emeter-setup.c</Filename><XPos>0</XPos><YPos>936</YPos><SelStart>33388</SelStart><SelEnd>33388</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\emeter and calibrator 09 2 26\emeter-toolkit\LCD-internal.c</Filename><XPos>0</XPos><YPos>143</YPos><SelStart>6620</SelStart><SelEnd>6620</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\emeter and calibrator 09 2 26\emeter-ng\emeter-foreground.c</Filename><XPos>0</XPos><YPos>330</YPos><SelStart>13972</SelStart><SelEnd>13972</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\emeter and calibrator 09 2 26\emeter-ng\emeter-1ph-lierda.h</Filename><XPos>0</XPos><YPos>144</YPos><SelStart>8526</SelStart><SelEnd>8526</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\emeter and calibrator 09 2 26\emeter-ng\emeter-main.c</Filename><XPos>0</XPos><YPos>368</YPos><SelStart>12083</SelStart><SelEnd>12083</SelEnd></Tab><ActiveTab>9</ActiveTab><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\emeter and calibrator 09 2 26\calibrator\calibration-config.xml</Filename><XPos>0</XPos><YPos>243</YPos><SelStart>13930</SelStart><SelEnd>13930</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\emeter and calibrator 09 2 26\emeter-ng\emeter-3ph-neutral-47197.h</Filename><XPos>0</XPos><YPos>851</YPos><SelStart>41752</SelStart><SelEnd>41752</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\emeter and calibrator 09 2 26\emeter-ng\emeter-background.c</Filename><XPos>0</XPos><YPos>917</YPos><SelStart>32422</SelStart><SelEnd>32422</SelEnd></Tab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
+    <Positions>
+      
+      
+      
+      
+      
+    <Top><Row0><Sizes><Toolbar-01a58628><key>iaridepm.enu1</key></Toolbar-01a58628></Sizes></Row0><Row1><Sizes><Toolbar-05ddc1f0><key>debuggergui.enu1</key></Toolbar-05ddc1f0></Sizes></Row1><Row2><Sizes><Toolbar-05dbf9a8><key>430fet1</key></Toolbar-05dbf9a8></Sizes></Row2></Top><Left><Row0><Sizes><Wnd1><Rect><Top>-2</Top><Left>-2</Left><Bottom>924</Bottom><Right>440</Right><x>-2</x><y>-2</y><xscreen>360</xscreen><yscreen>221</yscreen><sizeHorzCX>187500</sizeHorzCX><sizeHorzCY>197321</sizeHorzCY><sizeVertCX>230208</sizeVertCX><sizeVertCY>826786</sizeVertCY></Rect></Wnd1></Sizes></Row0></Left><Right><Row0><Sizes><Wnd2><Rect><Top>-2</Top><Left>-2</Left><Bottom>924</Bottom><Right>477</Right><x>-2</x><y>-2</y><xscreen>360</xscreen><yscreen>221</yscreen><sizeHorzCX>187500</sizeHorzCX><sizeHorzCY>197321</sizeHorzCY><sizeVertCX>249479</sizeVertCX><sizeVertCY>826786</sizeVertCY></Rect></Wnd2></Sizes></Row0><Row1><Sizes><Wnd3><Rect><Top>-2</Top><Left>475</Left><Bottom>924</Bottom><Right>675</Right><x>475</x><y>-2</y><xscreen>200</xscreen><yscreen>200</yscreen><sizeHorzCX>104167</sizeHorzCX><sizeHorzCY>178571</sizeHorzCY><sizeVertCX>104167</sizeVertCX><sizeVertCY>826786</sizeVertCY></Rect></Wnd3></Sizes></Row1><Row2><Sizes><Wnd4><Rect><Top>-2</Top><Left>673</Left><Bottom>924</Bottom><Right>873</Right><x>673</x><y>-2</y><xscreen>200</xscreen><yscreen>200</yscreen><sizeHorzCX>104167</sizeHorzCX><sizeHorzCY>178571</sizeHorzCY><sizeVertCX>104167</sizeVertCX><sizeVertCY>826786</sizeVertCY></Rect></Wnd4></Sizes></Row2></Right><Bottom><Row0><Sizes><Wnd0><Rect><Top>-2</Top><Left>-2</Left><Bottom>104</Bottom><Right>1922</Right><x>-2</x><y>-2</y><xscreen>1924</xscreen><yscreen>106</yscreen><sizeHorzCX>1002083</sizeHorzCX><sizeHorzCY>94643</sizeHorzCY><sizeVertCX>187500</sizeVertCX><sizeVertCY>197321</sizeVertCY></Rect></Wnd0></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
+  </Desktop>
+</Project>
+
+

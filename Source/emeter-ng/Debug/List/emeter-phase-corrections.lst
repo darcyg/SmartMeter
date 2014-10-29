@@ -1,0 +1,230 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V6.10.2.50871/W32 for MSP430         28/Oct/2014  22:48:18
+# Copyright 1996-2014 IAR Systems AB.
+# Evaluation license - IAR Embedded Workbench for Texas Instruments MSP430, Evaluation Version 6.10
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\emeter-phase-corrections.c
+#    Command line  =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\emeter-phase-corrections.c
+#        -D "CUSTOM_EMETER_H=\"emeter-1ph-neutral-6733_shunt.h\"" -D X_ZEBU_
+#        -lcN D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\List\ -o
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\Obj\ --debug
+#        -D__MSP430F6736__ -e --double=32 --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.0\430\lib\dlib\dl430xlsfn.h" -I
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng/../emeter-toolkit\
+#        --core=430X --data_model=small -Ohs --multiplier=32
+#        --multiplier_location=4C0 --hw_workaround=CPU40 --hw_workaround=CPU39
+#        --code_model=large
+#    List file     =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\List\emeter-phase-corrections.lst
+#    Object file   =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\Obj\emeter-phase-corrections.r43
+#
+###############################################################################
+
+D:\Documents\GitHub\SmartMeter\Source\emeter-ng\emeter-phase-corrections.c
+      1          //
+      2          //  Software for MSP430 based e-meters.
+      3          //
+      4          //  THIS PROGRAM IS PROVIDED "AS IS". TI MAKES NO WARRANTIES OR
+      5          //  REPRESENTATIONS, EITHER EXPRESS, IMPLIED OR STATUTORY, 
+      6          //  INCLUDING ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS 
+      7          //  FOR A PARTICULAR PURPOSE, LACK OF VIRUSES, ACCURACY OR 
+      8          //  COMPLETENESS OF RESPONSES, RESULTS AND LACK OF NEGLIGENCE. 
+      9          //  TI DISCLAIMS ANY WARRANTY OF TITLE, QUIET ENJOYMENT, QUIET 
+     10          //  POSSESSION, AND NON-INFRINGEMENT OF ANY THIRD PARTY 
+     11          //  INTELLECTUAL PROPERTY RIGHTS WITH REGARD TO THE PROGRAM OR 
+     12          //  YOUR USE OF THE PROGRAM.
+     13          //
+     14          //  IN NO EVENT SHALL TI BE LIABLE FOR ANY SPECIAL, INCIDENTAL, 
+     15          //  CONSEQUENTIAL OR INDIRECT DAMAGES, HOWEVER CAUSED, ON ANY 
+     16          //  THEORY OF LIABILITY AND WHETHER OR NOT TI HAS BEEN ADVISED 
+     17          //  OF THE POSSIBILITY OF SUCH DAMAGES, ARISING IN ANY WAY OUT 
+     18          //  OF THIS AGREEMENT, THE PROGRAM, OR YOUR USE OF THE PROGRAM. 
+     19          //  EXCLUDED DAMAGES INCLUDE, BUT ARE NOT LIMITED TO, COST OF 
+     20          //  REMOVAL OR REINSTALLATION, COMPUTER TIME, LABOR COSTS, LOSS 
+     21          //  OF GOODWILL, LOSS OF PROFITS, LOSS OF SAVINGS, OR LOSS OF 
+     22          //  USE OR INTERRUPTION OF BUSINESS. IN NO EVENT WILL TI'S 
+     23          //  AGGREGATE LIABILITY UNDER THIS AGREEMENT OR ARISING OUT OF 
+     24          //  YOUR USE OF THE PROGRAM EXCEED FIVE HUNDRED DOLLARS 
+     25          //  (U.S.$500).
+     26          //
+     27          //  Unless otherwise stated, the Program written and copyrighted 
+     28          //  by Texas Instruments is distributed as "freeware".  You may, 
+     29          //  only under TI's copyright in the Program, use and modify the 
+     30          //  Program without any charge or restriction.  You may 
+     31          //  distribute to third parties, provided that you transfer a 
+     32          //  copy of this license to the third party and the third party 
+     33          //  agrees to these terms by its first use of the Program. You 
+     34          //  must reproduce the copyright notice and any other legend of 
+     35          //  ownership on each copy or partial copy, of the Program.
+     36          //
+     37          //  You acknowledge and agree that the Program contains 
+     38          //  copyrighted material, trade secrets and other TI proprietary 
+     39          //  information and is protected by copyright laws, 
+     40          //  international copyright treaties, and trade secret laws, as 
+     41          //  well as other intellectual property laws.  To protect TI's 
+     42          //  rights in the Program, you agree not to decompile, reverse 
+     43          //  engineer, disassemble or otherwise translate any object code 
+     44          //  versions of the Program to a human-readable form.  You agree 
+     45          //  that in no event will you alter, remove or destroy any 
+     46          //  copyright notice included in the Program.  TI reserves all 
+     47          //  rights not specifically granted under this license. Except 
+     48          //  as specifically provided herein, nothing in this agreement 
+     49          //  shall be construed as conferring by implication, estoppel, 
+     50          //  or otherwise, upon you, any license or other right under any 
+     51          //  TI patents, copyrights or trade secrets.
+     52          //
+     53          //  You may not use the Program in non-TI devices.
+     54          //
+     55          //    File: emeter-phase-corrections.c
+     56          //
+     57          //  Steve Underwood <steve-underwood@ti.com>
+     58          //  Texas Instruments Hong Kong Ltd.
+     59          //
+     60          //  $Id: emeter-phase-corrections.c,v 1.4 2009/01/08 08:30:37 a0754793 Exp $
+     61          //
+     62          /*! \file emeter-structs.h */
+     63          //
+     64          //--------------------------------------------------------------------------
+     65          //
+     66          //  MSP430 e-meter dynamic phase correction parameters. These are modified during
+     67          //  calibration, so they must be on a separate page/pages of flash memory from
+     68          //  the program itself, so the program is not corrupted when the flash is erased.
+     69          //
+     70          #include <stdint.h>
+     71          #include <io.h>
+     72          #include <emeter-toolkit.h>
+     73          
+     74          #include "emeter-structs.h"
+     75          
+     76          #if defined(PHASE_CORRECTION_SUPPORT)  &&  defined(DYNAMIC_PHASE_CORRECTION_SUPPORT)
+     77          
+     78          #if NUM_CURRENT_CHANNELS == 1
+     79          #define FREQ_PHASE_DEFS 0
+     80          #define FREQ_GAIN_DEFS 0
+     81          #define TAB_DEFS DEFAULT_PHASE_CORRECTION1, DEFAULT_GAIN_CORRECTION1
+     82          #elif NUM_CURRENT_CHANNELS == 2
+     83          #define FREQ_PHASE_DEFS 0
+     84          #define FREQ_GAIN_DEFS 0
+     85          #define TAB_DEFS {DEFAULT_PHASE_CORRECTION1, DEFAULT_GAIN_CORRECTION1}, {DEFAULT_PHASE_CORRECTION2, DEFAULT_GAIN_CORRECTION2}
+     86          #elif NUM_CURRENT_CHANNELS == 3
+     87          #define FREQ_PHASE_DEFS 0
+     88          #define FREQ_GAIN_DEFS 0
+     89          #define TAB_DEFS {DEFAULT_PHASE_CORRECTION1, DEFAULT_GAIN_CORRECTION1}, {DEFAULT_PHASE_CORRECTION2, DEFAULT_GAIN_CORRECTION2}, {DEFAULT_PHASE_CORRECTION3, DEFAULT_GAIN_CORRECTION3}
+     90          #else
+     91          #define FREQ_PHASE_DEFS 0
+     92          #define FREQ_GAIN_DEFS 0
+     93          #define TAB_DEFS {DEFAULT_PHASE_CORRECTION1, DEFAULT_GAIN_CORRECTION1}, {DEFAULT_PHASE_CORRECTION2, DEFAULT_GAIN_CORRECTION2}, {DEFAULT_PHASE_CORRECTION3, DEFAULT_GAIN_CORRECTION3}, {DEFAULT_PHASE_CORRECTION4, DEFAULT_GAIN_CORRECTION4}
+     94          #endif
+     95          
+     96          const int16_t __erasablemem__ frequency_phase_factor[NUM_CURRENT_CHANNELS] =
+     97          {
+     98              FREQ_PHASE_DEFS
+     99          };
+    100          
+    101          const int16_t __erasablemem__ frequency_gain_factor[NUM_CURRENT_CHANNELS] =
+    102          {
+    103              FREQ_GAIN_DEFS
+    104          };
+    105          
+    106          const int8_t __erasablemem__ phase_corrections[77][NUM_CURRENT_CHANNELS][2] =
+    107          {
+    108              {TAB_DEFS},  // 0.00A
+    109              {TAB_DEFS},  // 0.10A
+    110              {TAB_DEFS},  // 0.20A
+    111              {TAB_DEFS},  // 0.30A
+    112              {TAB_DEFS},  // 0.40A
+    113              {TAB_DEFS},  // 0.50A
+    114              {TAB_DEFS},  // 0.60A
+    115              {TAB_DEFS},  // 0.70A
+    116              {TAB_DEFS},  // 0.80A
+    117              {TAB_DEFS},  // 0.90A
+    118              {TAB_DEFS},  // 1.00A
+    119              {TAB_DEFS},  // 1.10A
+    120              {TAB_DEFS},  // 1.20A
+    121              {TAB_DEFS},  // 1.30A
+    122              {TAB_DEFS},  // 1.40A
+    123              {TAB_DEFS},  // 1.50A
+    124              {TAB_DEFS},  // 1.60A
+    125              {TAB_DEFS},  // 1.70A
+    126              {TAB_DEFS},  // 1.80A
+    127              {TAB_DEFS},  // 1.90A
+    128              {TAB_DEFS},  // 2.00A
+    129              {TAB_DEFS},  // 2.10A
+    130              {TAB_DEFS},  // 2.20A
+    131              {TAB_DEFS},  // 2.30A
+    132              {TAB_DEFS},  // 2.40A
+    133              {TAB_DEFS},  // 2.50A
+    134              {TAB_DEFS},  // 2.60A
+    135              {TAB_DEFS},  // 2.70A
+    136              {TAB_DEFS},  // 2.80A
+    137              {TAB_DEFS},  // 2.90A
+    138              {TAB_DEFS},  // 3.00A
+    139              {TAB_DEFS},  // 3.10A
+    140              {TAB_DEFS},  // 3.20A
+    141              {TAB_DEFS},  // 3.30A
+    142              {TAB_DEFS},  // 3.40A
+    143              {TAB_DEFS},  // 3.50A
+    144              {TAB_DEFS},  // 3.60A
+    145              {TAB_DEFS},  // 3.70A
+    146              {TAB_DEFS},  // 3.80A
+    147              {TAB_DEFS},  // 3.90A
+    148              {TAB_DEFS},  // 4.00A
+    149              {TAB_DEFS},  // 4.10A
+    150              {TAB_DEFS},  // 4.20A
+    151              {TAB_DEFS},  // 4.30A
+    152              {TAB_DEFS},  // 4.40A
+    153              {TAB_DEFS},  // 4.50A
+    154              {TAB_DEFS},  // 4.60A
+    155              {TAB_DEFS},  // 4.70A
+    156              {TAB_DEFS},  // 4.80A
+    157              {TAB_DEFS},  // 4.90A
+    158              {TAB_DEFS},  // 5.00A    new step
+    159              {TAB_DEFS},  // 6.00A
+    160              {TAB_DEFS},  // 7.00A
+    161              {TAB_DEFS},  // 8.00A
+    162              {TAB_DEFS},  // 9.00A
+    163              {TAB_DEFS},  // 10.00A
+    164              {TAB_DEFS},  // 11.00A
+    165              {TAB_DEFS},  // 12.00A
+    166              {TAB_DEFS},  // 13.00A
+    167              {TAB_DEFS},  // 14.00A
+    168              {TAB_DEFS},  // 15.00A
+    169              {TAB_DEFS},  // 16.00A
+    170              {TAB_DEFS},  // 17.00A
+    171              {TAB_DEFS},  // 18.00A
+    172              {TAB_DEFS},  // 19.00A
+    173              {TAB_DEFS},  // 20.00A
+    174              {TAB_DEFS},  // 21.00A
+    175              {TAB_DEFS},  // 22.00A
+    176              {TAB_DEFS},  // 23.00A
+    177              {TAB_DEFS},  // 24.00A
+    178              {TAB_DEFS},  // 25.00A    new step
+    179              {TAB_DEFS},  // 30.00A
+    180              {TAB_DEFS},  // 35.00A
+    181              {TAB_DEFS},  // 40.00A
+    182              {TAB_DEFS},  // 45.00A
+    183              {TAB_DEFS},  // 50.00A
+    184              {TAB_DEFS}   // 55.00A
+    185          };
+    186          #endif
+
+
+ 
+
+ 
+
+
+Errors: none
+Warnings: none

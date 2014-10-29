@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<Workspace>
+  <ConfigDictionary>
+    
+    
+    
+  <CurrentConfigs><Project>emeter-6733/Debug</Project><Project>emeter-6733/Debug</Project></CurrentConfigs><CurrentProj>emeter-6733</CurrentProj><OverviewSelected>0</OverviewSelected></ConfigDictionary>
+  <Desktop>
+    <Static>
+      <Workspace>
+        <ColumnWidths>
+          
+          
+          
+          
+        <Column0>150</Column0><Column1>27</Column1><Column2>27</Column2><Column3>27</Column3></ColumnWidths>
+      </Workspace>
+      <Build>
+        
+        
+        
+        
+      <ColumnWidth0>20</ColumnWidth0><ColumnWidth1>1109</ColumnWidth1><ColumnWidth2>295</ColumnWidth2><ColumnWidth3>73</ColumnWidth3></Build>
+      <TerminalIO/>
+    <Find-in-Files><ColumnWidth0>349</ColumnWidth0><ColumnWidth1>49</ColumnWidth1><ColumnWidth2>598</ColumnWidth2></Find-in-Files></Static>
+    <Windows>
+      
+      
+    <Wnd0>
+        <Tabs>
+          <Tab>
+            <Identity>TabID-24547-17709</Identity>
+            <TabName>Workspace</TabName>
+            <Factory>Workspace</Factory>
+            <Session>
+              
+            <NodeDict><ExpandedNode>emeter-6733</ExpandedNode></NodeDict></Session>
+          </Tab>
+        </Tabs>
+        
+      <SelectedTab>0</SelectedTab></Wnd0><Wnd1>
+        <Tabs>
+          <Tab>
+            <Identity>TabID-5937-26245</Identity>
+            <TabName>Build</TabName>
+            <Factory>Build</Factory>
+            <Session/>
+          </Tab>
+        <Tab><Identity>TabID-42-6543</Identity><TabName>Find in Files</TabName><Factory>Find-in-Files</Factory><Session/></Tab></Tabs>
+        
+      <SelectedTab>0</SelectedTab></Wnd1></Windows>
+    <Editor>
+      
+      
+      
+      
+    <Pane><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\emeter-foreground.c</Filename><XPos>0</XPos><YPos>284</YPos><SelStart>11714</SelStart><SelEnd>11714</SelEnd></Tab><ActiveTab>0</ActiveTab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
+    <Positions>
+      
+      
+      
+      
+      
+    <Top><Row0><Sizes><Toolbar-0272e158><key>iaridepm.enu1</key></Toolbar-0272e158></Sizes></Row0><Row1><Sizes/></Row1><Row2><Sizes/></Row2><Row3><Sizes><Toolbar-0cb35140><key>debuggergui.enu1</key></Toolbar-0cb35140></Sizes></Row3><Row4><Sizes><Toolbar-0cb35208><key>430fet1</key></Toolbar-0cb35208></Sizes></Row4></Top><Left><Row0><Sizes><Wnd0><Rect><Top>-2</Top><Left>-2</Left><Bottom>662</Bottom><Right>224</Right><x>-2</x><y>-2</y><xscreen>159</xscreen><yscreen>121</yscreen><sizeHorzCX>103381</sizeHorzCX><sizeHorzCY>141026</sizeHorzCY><sizeVertCX>146944</sizeVertCX><sizeVertCY>773893</sizeVertCY></Rect></Wnd0></Sizes></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd1><Rect><Top>-2</Top><Left>-2</Left><Bottom>151</Bottom><Right>1540</Right><x>-2</x><y>-2</y><xscreen>1542</xscreen><yscreen>153</yscreen><sizeHorzCX>1002601</sizeHorzCX><sizeHorzCY>178322</sizeHorzCY><sizeVertCX>103381</sizeVertCX><sizeVertCY>141026</sizeVertCY></Rect></Wnd1></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
+  </Desktop>
+</Workspace>
+
+

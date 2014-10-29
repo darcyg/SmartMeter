@@ -1,0 +1,2344 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V6.10.2.50871/W32 for MSP430         28/Oct/2014  22:48:19
+# Copyright 1996-2014 IAR Systems AB.
+# Evaluation license - IAR Embedded Workbench for Texas Instruments MSP430, Evaluation Version 6.10
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\emeter-setup.c
+#    Command line  =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\emeter-setup.c -D
+#        "CUSTOM_EMETER_H=\"emeter-1ph-neutral-6733_shunt.h\"" -D X_ZEBU_ -lcN
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\List\ -o
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\Obj\ --debug
+#        -D__MSP430F6736__ -e --double=32 --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 7.0\430\lib\dlib\dl430xlsfn.h" -I
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng/../emeter-toolkit\
+#        --core=430X --data_model=small -Ohs --multiplier=32
+#        --multiplier_location=4C0 --hw_workaround=CPU40 --hw_workaround=CPU39
+#        --code_model=large
+#    List file     =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\List\emeter-setup.lst
+#    Object file   =  
+#        D:\Documents\GitHub\SmartMeter\Source\emeter-ng\Debug\Obj\emeter-setup.r43
+#
+###############################################################################
+
+D:\Documents\GitHub\SmartMeter\Source\emeter-ng\emeter-setup.c
+      1          //--------------------------------------------------------------------------
+      2          //
+      3          //  Software for MSP430 based e-meters.
+      4          //
+      5          //  THIS PROGRAM IS PROVIDED "AS IS". TI MAKES NO WARRANTIES OR
+      6          //  REPRESENTATIONS, EITHER EXPRESS, IMPLIED OR STATUTORY,
+      7          //  INCLUDING ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS
+      8          //  FOR A PARTICULAR PURPOSE, LACK OF VIRUSES, ACCURACY OR
+      9          //  COMPLETENESS OF RESPONSES, RESULTS AND LACK OF NEGLIGENCE.
+     10          //  TI DISCLAIMS ANY WARRANTY OF TITLE, QUIET ENJOYMENT, QUIET
+     11          //  POSSESSION, AND NON-INFRINGEMENT OF ANY THIRD PARTY
+     12          //  INTELLECTUAL PROPERTY RIGHTS WITH REGARD TO THE PROGRAM OR
+     13          //  YOUR USE OF THE PROGRAM.
+     14          //
+     15          //  IN NO EVENT SHALL TI BE LIABLE FOR ANY SPECIAL, INCIDENTAL,
+     16          //  CONSEQUENTIAL OR INDIRECT DAMAGES, HOWEVER CAUSED, ON ANY
+     17          //  THEORY OF LIABILITY AND WHETHER OR NOT TI HAS BEEN ADVISED
+     18          //  OF THE POSSIBILITY OF SUCH DAMAGES, ARISING IN ANY WAY OUT
+     19          //  OF THIS AGREEMENT, THE PROGRAM, OR YOUR USE OF THE PROGRAM.
+     20          //  EXCLUDED DAMAGES INCLUDE, BUT ARE NOT LIMITED TO, COST OF
+     21          //  REMOVAL OR REINSTALLATION, COMPUTER TIME, LABOR COSTS, LOSS
+     22          //  OF GOODWILL, LOSS OF PROFITS, LOSS OF SAVINGS, OR LOSS OF
+     23          //  USE OR INTERRUPTION OF BUSINESS. IN NO EVENT WILL TI'S
+     24          //  AGGREGATE LIABILITY UNDER THIS AGREEMENT OR ARISING OUT OF
+     25          //  YOUR USE OF THE PROGRAM EXCEED FIVE HUNDRED DOLLARS
+     26          //  (U.S.$500).
+     27          //
+     28          //  Unless otherwise stated, the Program written and copyrighted
+     29          //  by Texas Instruments is distributed as "freeware".  You may,
+     30          //  only under TI's copyright in the Program, use and modify the
+     31          //  Program without any charge or restriction.  You may
+     32          //  distribute to third parties, provided that you transfer a
+     33          //  copy of this license to the third party and the third party
+     34          //  agrees to these terms by its first use of the Program. You
+     35          //  must reproduce the copyright notice and any other legend of
+     36          //  ownership on each copy or partial copy, of the Program.
+     37          //
+     38          //  You acknowledge and agree that the Program contains
+     39          //  copyrighted material, trade secrets and other TI proprietary
+     40          //  information and is protected by copyright laws,
+     41          //  international copyright treaties, and trade secret laws, as
+     42          //  well as other intellectual property laws.  To protect TI's
+     43          //  rights in the Program, you agree not to decompile, reverse
+     44          //  engineer, disassemble or otherwise translate any object code
+     45          //  versions of the Program to a human-readable form.  You agree
+     46          //  that in no event will you alter, remove or destroy any
+     47          //  copyright notice included in the Program.  TI reserves all
+     48          //  rights not specifically granted under this license. Except
+     49          //  as specifically provided herein, nothing in this agreement
+     50          //  shall be construed as conferring by implication, estoppel,
+     51          //  or otherwise, upon you, any license or other right under any
+     52          //  TI patents, copyrights or trade secrets.
+     53          //
+     54          //  You may not use the Program in non-TI devices.
+     55          //
+     56          //  File: emeter-setup.c
+     57          //
+     58          //  Steve Underwood <steve-underwood@ti.com>
+     59          //  Texas Instruments Hong Kong Ltd.
+     60          //
+     61          //  $Id: emeter-setup.c,v 1.44 2009/04/27 09:46:32 a0754793 Exp $
+     62          //
+     63          /*! \file emeter-structs.h */
+     64          //
+     65          //--------------------------------------------------------------------------
+     66          //
+     67          //  MSP430 setup routines for e-meters.
+     68          //
+     69          //  This software is appropriate for single phase and three phase e-meters
+     70          //  using a voltage sensor plus CT or shunt resistor current sensors, or
+     71          //  a combination of a CT plus a shunt.
+     72          //
+     73          #include <stdint.h>
+     74          #include <string.h>
+     75          #if !defined(__MSP430__)
+     76          #include <stdio.h>
+     77          #include <stdlib.h>
+     78          #endif
+     79          #if defined(__GNUC__)
+     80          #include <signal.h>
+     81          #endif
+     82          #include <io.h>
+     83          #include <emeter-toolkit.h>
+     84          
+     85          #include "emeter-structs.h"
+     86          
+     87          #if defined(MESH_NET_SUPPORT)
+     88          #include "mesh_structure.h"
+     89          #endif
+     90          
+     91          #if defined(__MSP430_HAS_SD16_2__)  ||  defined(__MSP430_HAS_SD16_3__)
+     92          
+     93          #define SD16CONF0_FUDGE     0x70
+     94          #define SD16CONF1_FUDGE     0x48    //0x38
+     95          
+     96          /*
+     97           * Analog front-end initialization routine.
+     98           *
+     99           * Configures the sigma-delta ADC module as analog front-end for
+    100           * a tamper-resistant meter using a current transformer and a
+    101           * shunt as current sensors (see configuration of channel 0 and 1).
+    102           */
+    103          static __inline__ void init_analog_front_end_normal(void)
+    104          {
+    105              /*
+    106               * First it makes sure that the Embedded Signal Processing is
+    107               * disabled, otherwise it will not be possible to modify the
+    108               * SD16 registers.
+    109               */
+    110              #if defined(__MSP430_HAS_ESP430E__)
+    111              ESPCTL &= ~ESPEN;
+    112              #endif
+    113          
+    114              /*
+    115               * The general configuration of the analog front-end,
+    116               * that applies to all channels: clock selection (SMCLK) and divider
+    117               * settings (depending on SMCLK frequency) and reference voltage
+    118               * selections.
+    119               */
+    120          
+    121              SD16CCTL_VOLTAGE &= ~SD16SC;
+    122              SD16CCTL_LIVE &= ~SD16SC;
+    123              #if defined(SINGLE_PHASE)  &&  defined(NEUTRAL_MONITOR_SUPPORT)
+    124              SD16CCTL_NEUTRAL &= ~SD16SC;
+    125              #endif
+    126          
+    127              SD16CTL = SD16SSEL_1  /* Clock is SMCLK */
+    128                      | SD16DIV_3   /* Divide by 8 => ADC clock: 1.048576MHz */
+    129                      | SD16REFON;  /* Use internal reference */
+    130          
+    131              SD16INCTL_LIVE = SD16INCH_CURRENT | CURRENT_LIVE_GAIN;          /* Set gain for channel 0 (I1) */
+    132              SD16CCTL_LIVE = SD16OSR_256 | SD16DF | SD16GRP | SD16IE;        /* Set oversampling ratio to 256 (default) */
+    133              SD16PRE_LIVE = 0;
+    134          
+    135                  #if defined(NEUTRAL_MONITOR_SUPPORT)
+    136              SD16INCTL_NEUTRAL = SD16INCH_CURRENT | CURRENT_NEUTRAL_GAIN;    /* Set gain for channel 1 (I2) */
+    137              SD16CCTL_NEUTRAL = SD16OSR_256 | SD16DF | SD16GRP | SD16IE;     /* Set oversampling ratio to 256 (default) */
+    138              SD16PRE_NEUTRAL = 0;
+    139                  #endif
+    140          
+    141              /* Configure analog front-end channel 2 - Voltage */
+    142              SD16INCTL_VOLTAGE = SD16INCH_0 | VOLTAGE_GAIN;                  /* Set gain for channel 2 (V) */
+    143              SD16CCTL_VOLTAGE = SD16OSR_256 | SD16DF | SD16SC | SD16IE;      /* Set oversampling ratio to 256 (default) */
+    144              SD16PRE_VOLTAGE = DEFAULT_V_PRESCALE_FACTOR;
+    145              #if defined(SD16CONF1_FUDGE)
+    146              SD16CONF1 = SD16CONF1_FUDGE;
+    147              #endif
+    148          
+    149              #if !defined(ESP_SUPPORT)  &&  defined(SINGLE_PHASE)
+    150              chan1.metrology.current.in_phase_correction[0].sd16_preloaded_offset = 0;
+    151                  #if defined(NEUTRAL_MONITOR_SUPPORT)
+    152              chan1.metrology.neutral.in_phase_correction[0].sd16_preloaded_offset = 0;
+    153                  #endif
+    154              #endif
+    155              /*
+    156               * \note
+    157               * Please note, the oversampling ratio should be the same
+    158               * for all channels. Default is 256.
+    159               */
+    160          }
+    161          
+    162              #if defined(LIMP_MODE_SUPPORT)
+    163          static __inline__ void init_analog_front_end_limp(void)
+    164          {
+    165                  #if defined(__MSP430_HAS_ESP430E__)
+    166              ESPCTL &= ~ESPEN;
+    167                  #endif
+    168              SD16CCTL_VOLTAGE &= ~SD16SC;
+    169              SD16CCTL_LIVE &= ~SD16SC;
+    170                  #if defined(SINGLE_PHASE)  &&  defined(NEUTRAL_MONITOR_SUPPORT)
+    171              SD16CCTL_NEUTRAL &= ~SD16SC;
+    172                  #endif
+    173              SD16CTL = SD16SSEL_1  /* Clock is SMCLK */
+    174                      | SD16DIV_3   /* Divide by 8 => ADC clock: 1.048576MHz */
+    175                      | SD16REFON   /* Use internal reference */
+    176                      | SD16LP;
+    177              SD16INCTL_LIVE = SD16INCH_CURRENT | CURRENT_LIVE_GAIN;                  /* Set gain for channel 0 (I1) */
+    178              SD16CCTL_LIVE = SD16OSR_32 | SD16DF | SD16SNGL | SD16GRP | SD16IE;      /* Set oversampling ratio to 32 */
+    179              SD16PRE_LIVE = 0;
+    180              #if defined(SINGLE_PHASE)  &&  defined(NEUTRAL_MONITOR_SUPPORT)
+    181              SD16INCTL_NEUTRAL = SD16INCH_CURRENT | CURRENT_NEUTRAL_GAIN;            /* Set gain for channel 1 (I2) */
+    182              SD16CCTL_NEUTRAL = SD16OSR_32 | SD16DF | SD16SNGL | SD16GRP | SD16IE;   /* Set oversampling ratio to 32 */
+    183              SD16PRE_NEUTRAL = 0;
+    184              #endif
+    185              SD16INCTL_VOLTAGE = SD16INCH_0 | VOLTAGE_GAIN;                          /* Set gain for channel 2 (V) */
+    186              SD16CCTL_VOLTAGE = SD16OSR_32 | SD16DF | SD16SNGL | SD16IE;             /* Set oversampling ratio to 32 */
+    187              SD16PRE_VOLTAGE = DEFAULT_V_PRESCALE_FACTOR;
+    188              #if defined(SD16CONF0_FUDGE)
+    189              SD16CONF0 = SD16CONF0_FUDGE;
+    190              #endif
+    191              #if defined(SD16CONF1_FUDGE)
+    192              SD16CONF1 = SD16CONF1_FUDGE;
+    193              #endif
+    194              chan1.metrology.current.in_phase_correction[0].sd16_preloaded_offset = 0;
+    195                  #if defined(SINGLE_PHASE)  &&  defined(NEUTRAL_MONITOR_SUPPORT)
+    196              chan1.metrology.neutral.in_phase_correction[0].sd16_preloaded_offset = 0;
+    197                  #endif
+    198          }
+    199              #endif
+    200          
+    201          static __inline__ void disable_analog_front_end(void)
+    202          {
+    203              #if defined(__MSP430_HAS_ESP430E__)
+    204              ESPCTL &= ~ESPEN;
+    205              #endif
+    206          
+    207              SD16INCTL_VOLTAGE = 0;
+    208              SD16CCTL_VOLTAGE = 0;
+    209              SD16PRE_VOLTAGE = DEFAULT_V_PRESCALE_FACTOR;
+    210          
+    211              SD16INCTL_LIVE = 0;
+    212              SD16CCTL_LIVE = 0;
+    213              SD16PRE_LIVE = 0;
+    214          
+    215              #if defined(SINGLE_PHASE)  &&  defined(NEUTRAL_MONITOR_SUPPORT)
+    216              SD16INCTL_NEUTRAL = 0;
+    217              SD16CCTL_NEUTRAL = 0;
+    218              SD16PRE_NEUTRAL = 0;
+    219              #endif
+    220          
+    221              SD16CTL = 0;
+    222              #if defined(SD16CONF0_FUDGE)
+    223              SD16CONF0 = SD16CONF0_FUDGE;
+    224              #endif
+    225              #if defined(SD16CONF1_FUDGE)
+    226              SD16CONF1 = SD16CONF1_FUDGE;
+    227              #endif
+    228          
+    229              #if !defined(ESP_SUPPORT)  &&  defined(SINGLE_PHASE)
+    230              chan1.metrology.current.in_phase_correction[0].sd16_preloaded_offset = 0;
+    231                  #if defined(NEUTRAL_MONITOR_SUPPORT)
+    232              chan1.metrology.neutral.in_phase_correction[0].sd16_preloaded_offset = 0;
+    233                  #endif
+    234              #endif
+    235          }
+    236          #endif
+    237          
+    238          #if defined(__MSP430_HAS_SD24_A2__)  ||  defined(__MSP430_HAS_SD24_A3__)
+    239          
+    240          #define SD24CONF0_FUDGE     0x70
+    241          #define SD24CONF1_FUDGE     0x48    //0x38
+    242          
+    243          /*
+    244           * Analog front-end initialization routine.
+    245           *
+    246           * Configures the sigma-delta ADC module as analog front-end for
+    247           * a tamper-resistant meter using a current transformer and a
+    248           * shunt as current sensors (see configuration of channel 0 and 1).
+    249           */
+    250          static __inline__ void init_analog_front_end_normal(void)
+    251          {
+    252              /*
+    253               * The general configuration of the analog front-end,
+    254               * that applies to all channels: clock selection (SMCLK) and divider
+    255               * settings (depending on SMCLK frequency) and reference voltage
+    256               * selections.
+    257               */
+    258          
+    259              SD16CCTL_VOLTAGE &= ~SD24SC;
+    260              SD16CCTL_LIVE &= ~SD24SC;
+    261              #if defined(SINGLE_PHASE)  &&  defined(NEUTRAL_MONITOR_SUPPORT)
+    262              SD16CCTL_NEUTRAL &= ~SD24SC;
+    263              #endif
+    264          
+    265          #if MCLK_DEF == 16
+    266              SD24CTL = SD24SSEL_1  /* Clock is SMCLK */
+    267                      | SD24DIV_4   /* Divide by 16 => ADC clock: 1.048576MHz */
+    268                      | SD24REFON;  /* Use internal reference */
+    269          #endif
+    270          #if MCLK_DEF == 8
+    271              SD24CTL = SD24SSEL_1  /* Clock is SMCLK */
+    272                      | SD24DIV_3   /* Divide by 8 => ADC clock: 1.048576MHz */
+    273                      | SD24REFON;  /* Use internal reference */
+    274          #endif
+    275          
+    276              SD16INCTL_LIVE = SD16INCH_CURRENT | CURRENT_LIVE_GAIN;          /* Set gain for channel 0 (I1) */
+    277              SD16CCTL_LIVE = SD24OSR_256 | SD24DF | SD24GRP | SD24IE;        /* Set oversampling ratio to 256 (default) */
+    278              SD16PRE_LIVE = 0;
+    279          
+    280                  #if defined(NEUTRAL_MONITOR_SUPPORT)
+    281              SD16INCTL_NEUTRAL = SD16INCH_CURRENT | CURRENT_NEUTRAL_GAIN;    /* Set gain for channel 1 (I2) */
+    282              SD16CCTL_NEUTRAL = SD24OSR_256 | SD24DF | SD24GRP | SD24IE;     /* Set oversampling ratio to 256 (default) */
+    283              SD16PRE_NEUTRAL = 0;
+    284                  #endif
+    285          
+    286              /* Configure analog front-end channel 2 - Voltage */
+    287              SD16INCTL_VOLTAGE = SD24INCH_0 | VOLTAGE_GAIN;                  /* Set gain for channel 2 (V) */
+    288              SD16CCTL_VOLTAGE = SD24OSR_256 | SD24DF | SD24SC | SD24IE;      /* Set oversampling ratio to 256 (default) */
+    289              SD16PRE_VOLTAGE = DEFAULT_V_PRESCALE_FACTOR;
+    290              #if defined(SD24CONF1_FUDGE)
+    291              SD24CONF1 = SD24CONF1_FUDGE;
+    292              #endif
+    293          
+    294              #if !defined(ESP_SUPPORT)  &&  defined(SINGLE_PHASE)
+    295              chan1.metrology.current.in_phase_correction[0].sd16_preloaded_offset = 0;
+    296                  #if defined(NEUTRAL_MONITOR_SUPPORT)
+    297              chan1.metrology.neutral.in_phase_correction[0].sd16_preloaded_offset = 0;
+    298                  #endif
+    299              #endif
+    300              /*
+    301               * \note
+    302               * Please note, the oversampling ratio should be the same
+    303               * for all channels. Default is 256.
+    304               */
+    305          }
+    306          
+    307              #if defined(LIMP_MODE_SUPPORT)
+    308          static __inline__ void init_analog_front_end_limp(void)
+    309          {
+    310                  #if defined(__MSP430_HAS_ESP430E__)
+    311              ESPCTL &= ~ESPEN;
+    312                  #endif
+    313              SD24CCTL_VOLTAGE &= ~SD24SC;
+    314              SD24CCTL_LIVE &= ~SD24SC;
+    315                  #if defined(SINGLE_PHASE)  &&  defined(NEUTRAL_MONITOR_SUPPORT)
+    316              SD24CCTL_NEUTRAL &= ~SD24SC;
+    317                  #endif
+    318          #if MCLK_DEF == 16
+    319              SD24CTL = SD24SSEL_1  /* Clock is SMCLK */
+    320                      | SD24DIV_3   /* Divide by 16 => ADC clock: 1.048576MHz */
+    321                      | SD24REFON   /* Use internal reference */
+    322                      | SD24LP;
+    323          #endif
+    324          #if MCLK_DEF == 8
+    325              SD24CTL = SD24SSEL_1  /* Clock is SMCLK */
+    326                      | SD24DIV_3   /* Divide by 8 => ADC clock: 1.048576MHz */
+    327                      | SD24REFON   /* Use internal reference */
+    328                      | SD24LP;
+    329          #endif
+    330              SD24INCTL_LIVE = SD24INCH_CURRENT | CURRENT_LIVE_GAIN;                  /* Set gain for channel 0 (I1) */
+    331              SD24CCTL_LIVE = SD24OSR_32 | SD24DF | SD24SNGL | SD24GRP | SD24IE;      /* Set oversampling ratio to 32 */
+    332              SD24PRE_LIVE = 0;
+    333              #if defined(SINGLE_PHASE)  &&  defined(NEUTRAL_MONITOR_SUPPORT)
+    334              SD24INCTL_NEUTRAL = SD24INCH_CURRENT | CURRENT_NEUTRAL_GAIN;            /* Set gain for channel 1 (I2) */
+    335              SD24CCTL_NEUTRAL = SD24OSR_32 | SD24DF | SD24SNGL | SD24GRP | SD24IE;   /* Set oversampling ratio to 32 */
+    336              SD24PRE_NEUTRAL = 0;
+    337              #endif
+    338              SD24INCTL_VOLTAGE = SD24INCH_0 | VOLTAGE_GAIN;                          /* Set gain for channel 2 (V) */
+    339              SD24CCTL_VOLTAGE = SD24OSR_32 | SD24DF | SD24SNGL | SD24IE;             /* Set oversampling ratio to 32 */
+    340              SD24PRE_VOLTAGE = 0;
+    341              #if defined(SD24CONF0_FUDGE)
+    342              SD24CONF0 = SD24CONF0_FUDGE;
+    343              #endif
+    344              #if defined(SD24CONF1_FUDGE)
+    345              SD24CONF1 = SD24CONF1_FUDGE;
+    346              #endif
+    347              chan1.metrology.current.in_phase_correction[0].sd16_preloaded_offset = 0;
+    348                  #if defined(SINGLE_PHASE)  &&  defined(NEUTRAL_MONITOR_SUPPORT)
+    349              chan1.metrology.neutral.in_phase_correction[0].sd16_preloaded_offset = 0;
+    350                  #endif
+    351          }
+    352              #endif
+    353          
+    354          static __inline__ void disable_analog_front_end(void)
+    355          {
+    356              #if defined(__MSP430_HAS_ESP430E__)
+    357              ESPCTL &= ~ESPEN;
+    358              #endif
+    359          
+    360              SD16INCTL_VOLTAGE = 0;
+    361              SD16CCTL_VOLTAGE = 0;
+    362              SD16PRE_VOLTAGE = DEFAULT_V_PRESCALE_FACTOR;
+    363          
+    364              SD16INCTL_LIVE = 0;
+    365              SD16CCTL_LIVE = 0;
+    366              SD16PRE_LIVE = 0;
+    367          
+    368              #if defined(SINGLE_PHASE)  &&  defined(NEUTRAL_MONITOR_SUPPORT)
+    369              SD16INCTL_NEUTRAL = 0;
+    370              SD16CCTL_NEUTRAL = 0;
+    371              SD16PRE_NEUTRAL = 0;
+    372              #endif
+    373          
+    374              SD24CTL = 0;
+    375              #if defined(SD24CONF0_FUDGE)
+    376              SD24CONF0 = SD24CONF0_FUDGE;
+    377              #endif
+    378              #if defined(SD24CONF1_FUDGE)
+    379              SD24CONF1 = SD24CONF1_FUDGE;
+    380              #endif
+    381          
+    382              #if !defined(ESP_SUPPORT)  &&  defined(SINGLE_PHASE)
+    383              chan1.metrology.current.in_phase_correction[0].sd16_preloaded_offset = 0;
+    384                  #if defined(NEUTRAL_MONITOR_SUPPORT)
+    385              chan1.metrology.neutral.in_phase_correction[0].sd16_preloaded_offset = 0;
+    386                  #endif
+    387              #endif
+    388          }
+    389          #endif
+    390          
+    391          #if defined(__MSP430_HAS_SD16_A3__)  ||  defined(__MSP430_HAS_SD16_A4__)
+    392          #error TBD
+    393          #endif
+    394          
+    395          #if defined (__MSP430_HAS_SD24_B__)
+    396          //#define SD16CONF0_FUDGE     0x70
+    397          //#define SD16CONF1_FUDGE     0x48    //0x38
+    398          
+    399          /*
+    400           * Analog front-end initialization routine.
+    401           *
+    402           * Configures the sigma-delta ADC module as analog front-end for
+    403           * a tamper-resistant meter using a current transformer and a
+    404           * shunt as current sensors (see configuration of channel 0 and 1).
+    405           */
+    406          static __inline__ void init_analog_front_end_normal(void)
+    407          {
+    408              /*
+    409               * First it makes sure that the Embedded Signal Processing is
+    410               * disabled, otherwise it will not be possible to modify the
+    411               * SD16 registers.
+    412               */
+    413              #if defined(__MSP430_HAS_ESP430E__)
+    414              ESPCTL &= ~ESPEN;
+    415              #endif
+    416          
+    417              /*
+    418               * The general configuration of the analog front-end,
+    419               * that applies to all channels: clock selection (SMCLK) and divider
+    420               * settings (depending on SMCLK frequency) and reference voltage
+    421               * selections.
+    422               */
+    423          
+    424              REFCTL0 = REFMSTR + REFVSEL_1 + REFON;         /* Enabale Reference = 2.0V */
+    425          
+    426              //SD16CCTL_VOLTAGE &= ~SD24SC;
+    427              //SD16CCTL_LIVE &= ~SD24SC;
+    428              SD24BCTL1 &= ~SD24GRP0SC;                                        /* SD16SC */
+    429              #if defined(SINGLE_PHASE)  &&  defined(NEUTRAL_MONITOR_SUPPORT)
+    430          //    SD16CCTL_NEUTRAL &= ~SD24SC;
+    431              #endif
+    432          
+    433          #if MCLK_DEF == 16
+    434              SD24BCTL0 = SD24SSEL__SMCLK  /* Clock is SMCLK */
+    435                      | SD24PDIV_3    /* Divide by 16 => ADC clock: 1.048576MHz */
+    436                      | SD24DIV0
+    437                      | SD24REFS;     /* Use internal reference */
+    438          #endif
+    439          #if MCLK_DEF == 8
+    440              SD24BCTL0 = SD24SSEL__SMCLK  /* Clock is SMCLK */
+    441                      | SD24PDIV_3    /* Divide by 8 => ADC clock: 1.048576MHz */
+    442                      | SD24REFS;     /* Use internal reference */
+    443          #endif
+    444          
+    445              //MM24 Take away SD24ALGN Part
+    446              SD16INCTL_LIVE =   CURRENT_LIVE_GAIN;          /* Set gain for channel 0 (I1) */
+    447              SD16CCTL_LIVE = SD24DF_1  | SD24SCS_4;                /* Set oversampling ratio to 256 (default) */
+    448              SD16BOSR_LIVE = 256 - 1;                                        /* Set oversampling ratio to 256 (default) */
+    449          ///    SD16BIE |= SD16IE_LIVE;
+    450              SD16PRE_LIVE = 0;
+    451          
+    452                  #if defined(NEUTRAL_MONITOR_SUPPORT)
+    453              SD16INCTL_NEUTRAL =   CURRENT_NEUTRAL_GAIN;    /* Set gain for channel 1 (I2) */
+    454              SD16CCTL_NEUTRAL = SD24DF_1 | SD24SCS_4;             /* Set oversampling ratio to 256 (default) */
+    455              SD16BOSR_NEUTRAL = 256 -1;                                      /* Set oversampling ratio to 256 (default) */
+    456          ///    SD16BIE |= SD16IE_NEUTRAL;
+    457              SD16PRE_NEUTRAL = 0;
+    458                  #endif
+    459          
+    460              /* Configure analog front-end channel 2 - Voltage */
+    461              SD16INCTL_VOLTAGE =   VOLTAGE_GAIN;                  /* Set gain for channel 2 (V) */
+    462              SD16CCTL_VOLTAGE = SD24DF_1 | SD24ALGN | SD24SCS_4;             /* Set oversampling ratio to 256 (default) */
+    463              SD16BOSR_VOLTAGE = 256 -1;                                      /* Set oversampling ratio to 256 (default) */
+    464              SD24BCTL1 |= SD24GRP0SC;                                        /* SD16SC */
+    465              SET_SD16IE_VOLTAGE;
+    466          #ifdef with_DMA
+    467            extern int16_t dma_adc_buffer[6];
+    468          
+    469            SD24BCTL1_H = SD24DMA1_H;
+    470          
+    471            DMACTL0 = DMA0TSEL__SD24IFG;
+    472            DMA0SA = (unsigned short) &SD24BMEML0;
+    473            DMA0DA = (unsigned short) dma_adc_buffer;
+    474            DMA0SZ = 6;
+    475            DMA0CTL = DMASWDW + DMASRCINCR_3 + DMADSTINCR_3 + DMADT_5 + DMAEN + DMAIE; // word, inc dest, repeated block, Enable, Enable IE
+    476          #else
+    477              //SET_SD16IE_VOLTAGE;
+    478          #endif
+    479              SD16PRE_VOLTAGE = DEFAULT_V_PRESCALE_FACTOR;
+    480          //    #if defined(SD16CONF1_FUDGE)
+    481          //    SD16CONF1 = SD16CONF1_FUDGE;
+    482          //    #endif
+    483          
+    484              #if !defined(ESP_SUPPORT)  &&  defined(SINGLE_PHASE)
+    485              chan1.metrology.current.in_phase_correction[0].sd16_preloaded_offset = 0;
+    486                  #if defined(NEUTRAL_MONITOR_SUPPORT)
+    487              chan1.metrology.neutral.in_phase_correction[0].sd16_preloaded_offset = 0;
+    488                  #endif
+    489              #endif
+    490              /*
+    491               * \note
+    492               * Please note, the oversampling ratio should be the same
+    493               * for all channels. Default is 256.
+    494               */
+    495              
+    496              //SD24BIE=0x1;
+    497              //SD24BCTL1 |= SD24GRP0SC; Changed
+    498          }
+    499          
+    500              #if defined(LIMP_MODE_SUPPORT)
+    501          static __inline__ void init_analog_front_end_limp(void)
+    502          {
+    503                  #if defined(__MSP430_HAS_ESP430E__)
+    504              ESPCTL &= ~ESPEN;
+    505                  #endif
+    506              SD16CCTL_VOLTAGE &= ~SD16SC;
+    507              SD16CCTL_LIVE &= ~SD16SC;
+    508                  #if defined(SINGLE_PHASE)  &&  defined(NEUTRAL_MONITOR_SUPPORT)
+    509              SD16CCTL_NEUTRAL &= ~SD16SC;
+    510                  #endif
+    511              SD16CTL = SD16SSEL_1  /* Clock is SMCLK */
+    512                      | SD16DIV_3   /* Divide by 8 => ADC clock: 1.048576MHz */
+    513                      | SD16REFON   /* Use internal reference */
+    514                      | SD16LP;
+    515              SD16INCTL_LIVE = SD16INCH_CURRENT | CURRENT_LIVE_GAIN;                  /* Set gain for channel 0 (I1) */
+    516              SD16CCTL_LIVE = SD16OSR_32 | SD16DF | SD16SNGL | SD16GRP | SD16IE;      /* Set oversampling ratio to 32 */
+    517              SD16PRE_LIVE = 0;
+    518              #if defined(SINGLE_PHASE)  &&  defined(NEUTRAL_MONITOR_SUPPORT)
+    519              SD16INCTL_NEUTRAL = SD16INCH_CURRENT | CURRENT_NEUTRAL_GAIN;            /* Set gain for channel 1 (I2) */
+    520              SD16CCTL_NEUTRAL = SD16OSR_32 | SD16DF | SD16SNGL | SD16GRP | SD16IE;   /* Set oversampling ratio to 32 */
+    521              SD16PRE_NEUTRAL = 0;
+    522              #endif
+    523              SD16INCTL_VOLTAGE = SD16INCH_0 | VOLTAGE_GAIN;                          /* Set gain for channel 2 (V) */
+    524              SD16CCTL_VOLTAGE = SD16OSR_32 | SD16DF | SD16SNGL | SD16IE;             /* Set oversampling ratio to 32 */
+    525              SD16PRE_VOLTAGE = DEFAULT_V_PRESCALE_FACTOR;
+    526              #if defined(SD16CONF0_FUDGE)
+    527              SD16CONF0 = SD16CONF0_FUDGE;
+    528              #endif
+    529              #if defined(SD16CONF1_FUDGE)
+    530              SD16CONF1 = SD16CONF1_FUDGE;
+    531              #endif
+    532              chan1.metrology.current.in_phase_correction[0].sd16_preloaded_offset = 0;
+    533                  #if defined(SINGLE_PHASE)  &&  defined(NEUTRAL_MONITOR_SUPPORT)
+    534              chan1.metrology.neutral.in_phase_correction[0].sd16_preloaded_offset = 0;
+    535                  #endif
+    536          }
+    537              #endif
+    538          
+    539          static __inline__ void disable_analog_front_end(void)
+    540          {
+    541              #if defined(__MSP430_HAS_ESP430E__)
+    542              ESPCTL &= ~ESPEN;
+    543              #endif
+    544          
+    545              SD16INCTL_VOLTAGE = 0;
+    546              SD16CCTL_VOLTAGE = 0;
+    547              SD16PRE_VOLTAGE = DEFAULT_V_PRESCALE_FACTOR;
+    548          
+    549              SD16INCTL_LIVE = 0;
+    550              SD16CCTL_LIVE = 0;
+    551              SD16PRE_LIVE = 0;
+    552          
+    553              #if defined(SINGLE_PHASE)  &&  defined(NEUTRAL_MONITOR_SUPPORT)
+    554              SD16INCTL_NEUTRAL = 0;
+    555              SD16CCTL_NEUTRAL = 0;
+    556              SD16PRE_NEUTRAL = 0;
+    557              #endif
+    558          
+    559              SD24BCTL0 = 0;
+    560              #if defined(SD16CONF0_FUDGE)
+    561              SD16CONF0 = SD16CONF0_FUDGE;
+    562              #endif
+    563              #if defined(SD16CONF1_FUDGE)
+    564              SD16CONF1 = SD16CONF1_FUDGE;
+    565              #endif
+    566          
+    567              #if !defined(ESP_SUPPORT)  &&  defined(SINGLE_PHASE)
+    568              chan1.metrology.current.in_phase_correction[0].sd16_preloaded_offset = 0;
+    569                  #if defined(NEUTRAL_MONITOR_SUPPORT)
+    570              chan1.metrology.neutral.in_phase_correction[0].sd16_preloaded_offset = 0;
+    571                  #endif
+    572              #endif
+    573          }
+    574          #endif
+    575          
+    576          #if defined(__MSP430_HAS_SD16_A6__)  ||  defined(__MSP430_HAS_SD16_A7__)
+    577          static __inline__ void init_analog_front_end_normal(void)
+    578          {
+    579              int i;
+    580          
+    581              /*
+    582               * The general configurations of the analog front-end,
+    583               * that applies to all channels: clock selection (SMCLK) and divider
+    584               * settings (depending on SMCLK frequency) and reference voltage
+    585               * selections.
+    586               */
+    587          
+    588              #if defined(SINGLE_PHASE)
+    589              SD16CCTL_VOLTAGE &= ~SD16SC;
+    590              SD16CCTL_LIVE &= ~SD16SC;
+    591              #else
+    592              SD16CCTL_VOLTAGE_1 &= ~SD16SC;
+    593              SD16CCTL_VOLTAGE_2 &= ~SD16SC;
+    594              SD16CCTL_VOLTAGE_3 &= ~SD16SC;
+    595              SD16CCTL_CURRENT_1 &= ~SD16SC;
+    596              SD16CCTL_CURRENT_2 &= ~SD16SC;
+    597              SD16CCTL_CURRENT_3 &= ~SD16SC;
+    598              #endif
+    599              #if defined(__MSP430_HAS_SD16_A7__)
+    600              SD16CCTL_NEUTRAL &= ~SD16SC;
+    601              #endif
+    602          
+    603              SD16CTL = SD16SSEL_1  /* Clock is SMCLK */
+    604                      | SD16XDIV_2  /* Divide by 16 => ADC clock: 1.048576MHz */
+    605                      | SD16REFON;  /* Use internal reference */
+    606          
+    607              #if defined(SINGLE_PHASE)
+    608              SD16INCTL_LIVE = SD16INCH_CURRENT | CURRENT_PHASE_GAIN;        /* Set gain for channel 1 */
+    609              SD16CCTL_LIVE = SD16OSR_256 | SD16DF | SD16GRP | SD16IE;       /* Set oversampling ratio to 256 (default) */
+    610              SD16PRE_LIVE = 0;
+    611          
+    612              #else
+    613              SD16INCTL_CURRENT_1 = SD16INCH_CURRENT | CURRENT_PHASE_GAIN;        /* Set gain for channel 1 */
+    614              SD16CCTL_CURRENT_1 = SD16OSR_256 | SD16DF | SD16GRP | SD16IE;       /* Set oversampling ratio to 256 (default) */
+    615              SD16PRE_CURRENT_1 = 0;
+    616          
+    617              SD16INCTL_CURRENT_2 = SD16INCH_CURRENT | CURRENT_PHASE_GAIN;        /* Set gain for channel 2 */
+    618              SD16CCTL_CURRENT_2 = SD16OSR_256 | SD16DF | SD16GRP | SD16IE;       /* Set oversampling ratio to 256 (default) */
+    619              SD16PRE_CURRENT_2 = 0;
+    620          
+    621              SD16INCTL_CURRENT_3 = SD16INCH_CURRENT | CURRENT_PHASE_GAIN;        /* Set gain for channel 3 */
+    622              SD16CCTL_CURRENT_3 = SD16OSR_256 | SD16DF | SD16GRP | SD16IE;       /* Set oversampling ratio to 256 (default) */
+    623              SD16PRE_CURRENT_3 = 0;
+    624              #endif
+    625          
+    626              #if defined(__MSP430_HAS_SD16_A7__)
+    627              SD16INCTL_NEUTRAL = SD16INCH_CURRENT | CURRENT_NEUTRAL_GAIN;        /* Set gain for channel neutral */
+    628              SD16CCTL_NEUTRAL = SD16OSR_256 | SD16DF | SD16GRP; // | SD16IE;         /* Set oversampling ratio to 256 (default) */
+    629              SD16PRE_NEUTRAL = 0;
+    630              #endif
+    631          
+    632              /* Configure analog front-end channel 2 - Voltage */
+    633              #if defined(SINGLE_PHASE)
+    634              SD16INCTL_VOLTAGE = SD16INCH_0 | VOLTAGE_GAIN;
+    635              SD16CCTL_VOLTAGE = SD16OSR_256 | SD16DF | SD16GRP | SD16IE;
+    636              SD16PRE_VOLTAGE = DEFAULT_V_PRESCALE_FACTOR;
+    637          
+    638              #else
+    639              SD16INCTL_VOLTAGE_1 = SD16INCH_0 | VOLTAGE_GAIN;
+    640              SD16CCTL_VOLTAGE_1 = SD16OSR_256 | SD16DF | SD16GRP | SD16IE;
+    641              SD16PRE_VOLTAGE_1 = 0;
+    642          
+    643              SD16INCTL_VOLTAGE_2 = SD16INCH_0 | VOLTAGE_GAIN;
+    644              SD16CCTL_VOLTAGE_2 = SD16OSR_256 | SD16DF | SD16GRP; // | SD16IE;
+    645              SD16PRE_VOLTAGE_2 = 0;
+    646          
+    647              SD16INCTL_VOLTAGE_3 = SD16INCH_0 | VOLTAGE_GAIN;
+    648              SD16CCTL_VOLTAGE_3 = SD16OSR_256 | SD16DF | SD16GRP; // | SD16IE;
+    649              SD16PRE_VOLTAGE_3 = 0;
+    650              #endif
+    651          
+    652              #if defined(__MSP430_HAS_SD16_A3__)
+    653              SD16CCTL2 |= SD16SC;
+    654              #elif defined(__MSP430_HAS_SD16_A4__)
+    655              SD16CCTL3 |= SD16SC;
+    656              #elif defined(__MSP430_HAS_SD16_A6__)
+    657              SD16CCTL5 |= SD16SC;
+    658              #elif defined(__MSP430_HAS_SD16_A7__)
+    659              SD16CCTL6 |= SD16SC;
+    660              #endif
+    661          
+    662              #if defined(SINGLE_PHASE)
+    663                  chan1.metrology.current.in_phase_correction[0].sd16_preloaded_offset = 0;
+    664              #else
+    665              for (i = 0;  i < NUM_PHASES;  i++)
+    666                  chan[i].metrology.current.in_phase_correction[0].sd16_preloaded_offset = 0;
+    667              #endif
+    668          }
+    669          
+    670              #if defined(LIMP_MODE_SUPPORT)
+    671          static __inline__ void init_analog_front_end_limp(void)
+    672          {
+    673          }
+    674              #endif
+    675          
+    676          static __inline__ void disable_analog_front_end(void)
+    677          {
+    678              int i;
+    679              #if defined(SINGLE_PHASE)
+    680          
+    681              SD16INCTL_VOLTAGE = 0;
+    682              SD16CCTL_VOLTAGE = 0;
+    683              SD16PRE_VOLTAGE = DEFAULT_V_PRESCALE_FACTOR;
+    684          
+    685              SD16INCTL_LIVE = 0;
+    686              SD16CCTL_LIVE = 0;
+    687              SD16PRE_LIVE = 0;
+    688          
+    689              #else
+    690              SD16INCTL_VOLTAGE_1 = 0;
+    691              SD16CCTL_VOLTAGE_1 = 0;
+    692              SD16PRE_VOLTAGE_1 = 0;
+    693          
+    694              SD16INCTL_VOLTAGE_2 = 0;
+    695              SD16CCTL_VOLTAGE_2 = 0;
+    696              SD16PRE_VOLTAGE_2 = 0;
+    697          
+    698              SD16INCTL_VOLTAGE_3 = 0;
+    699              SD16CCTL_VOLTAGE_3 = 0;
+    700              SD16PRE_VOLTAGE_3 = 0;
+    701          
+    702              SD16INCTL_CURRENT_1 = 0;
+    703              SD16CCTL_CURRENT_1 = 0;
+    704              SD16PRE_CURRENT_1 = 0;
+    705          
+    706              SD16INCTL_CURRENT_2 = 0;
+    707              SD16CCTL_CURRENT_2 = 0;
+    708              SD16PRE_CURRENT_2 = 0;
+    709          
+    710              SD16INCTL_CURRENT_3 = 0;
+    711              SD16CCTL_CURRENT_3 = 0;
+    712              SD16PRE_CURRENT_3 = 0;
+    713              #endif
+    714              #if defined(__MSP430_HAS_SD16_A7__)
+    715              SD16INCTL_NEUTRAL = 0;
+    716              SD16CCTL_NEUTRAL = 0;
+    717              SD16PRE_NEUTRAL = 0;
+    718              #endif
+    719          
+    720              SD16CTL = 0;
+    721              #if defined(SD16CONF0_FUDGE)
+    722              SD16CONF0 = SD16CONF0_FUDGE;
+    723              #endif
+    724              #if defined(SD16CONF1_FUDGE)
+    725              SD16CONF1 = SD16CONF1_FUDGE;
+    726              #endif
+    727          
+    728              #if defined(SINGLE_PHASE)
+    729                  chan1.metrology.current.in_phase_correction[0].sd16_preloaded_offset = 0;
+    730              #else
+    731              for (i = 0;  i < NUM_PHASES;  i++)
+    732                  chan[i].metrology.current.in_phase_correction[0].sd16_preloaded_offset = 0;
+    733              #endif
+    734          }
+    735          #endif
+    736          
+    737          #if defined(__MSP430__)
+    738          void system_setup(void)
+    739          {
+    740              #if !defined(SINGLE_PHASE)
+    741              struct phase_parms_s *phase;
+    742              struct phase_nv_parms_s const *phase_nv;
+    743              int j;
+    744              #endif
+    745          
+    746              WDTCTL = (WDTCTL & 0xFF) | WDTPW | WDTHOLD;
+    747          
+    748              #if defined(__MSP430_HAS_DCO__)
+    749              /* Set up the DCO clock */
+    750              BCSCTL1 |= (RSEL0 | RSEL1 | RSEL2); /* Select the highest nominal freq */
+    751              BCSCTL2 |= DCOR;                    /* Select the external clock control resistor pin */
+    752              DCOCTL = 0xFF;                      /* Select the highest speed. */
+    753              #endif
+    754              #if defined(__MSP430_HAS_FLLPLUS__)  ||  defined(__MSP430_HAS_FLLPLUS_SMALL__)
+    755              FLL_CTL0 |= OSCCAP_3;               /* Configure load caps */
+    756                  #if defined(XT2OFF)
+    757              FLL_CTL1 |= XT2OFF;
+    758                  #endif
+    759              SCFI0 = SCFI0_LOW;
+    760              SCFQCTL = SCFQCTL_LOW;
+    761              FLL_CTL0 |= DCOPLUS;
+    762              /* There seems no benefit in waiting for the FLL to settle at this point. */
+    763              #endif
+    764          
+    765              #if defined(__MSP430_HAS_UCS__)
+    766          #include "hal_UCS.h"
+    767          #include "hal_PMM.h"
+    768              #if defined (__MSP430_HAS_AUX_SUPPLY__)
+    769              
+    770           
+    771                   AUX3CHCTL = AUXCHKEY | AUXCHC_1 | AUXCHV_1 /*| AUXCHEN*/;  // Enable Charger for AUX3 to enable RTC
+    772                  
+    773              #endif
+    774          #if MCLK_DEF > 8
+    775              SetVCore(3);      // Set VCore to level 0
+    776          #endif
+    777              SetVCore(3);  
+    778              LFXT_Start(XT1DRIVE_3);
+    779          
+    780              Init_FLL_Settle(MCLK_DEF*8388608/8/1000, MCLK_DEF*32768*32/32768);
+    781              /* There seems no benefit in waiting for the FLL to settle at this point. */
+    782              #endif
+    783             
+    784              #if defined (__MSP430_HAS_AUX_SUPPLY__)
+    785                  PMMCTL0_H = PMMPW_H;    
+    786                  SVSMHCTL|=SVSMHRRL_4;
+    787          
+    788                  AUXCTL0 = AUXKEY;
+    789                  AUXCTL1 |= AUX2MD;
+    790                  AUXCTL2 |=AUX0LVL_6+AUX1LVL_5;
+    791                  PMMCTL0_H = 0;    
+    792              #endif
+    793                  
+    794              
+    795          
+    796              #if defined(__MSP430_HAS_RTC_C__)
+    797          #ifdef LOCKBAK
+    798             while(BAKCTL & LOCKBAK){                // unlock Backup Subsystem
+    799                BAKCTL &= ~LOCKBAK;
+    800              }
+    801          #endif
+    802              /* Basic timer setup */
+    803              /* Set ticker to 32768/(256*256) */
+    804             RTCPS0CTL = RT0IP_7;                    //  / 256
+    805             RTCPS1CTL = RT1IP_6 + RT1PSIE;          //  /128 / 256 = / 32768 -> sec interval
+    806          
+    807              /* We want a real watchdog function, but it doesn't have to be fast. */
+    808              /* Use the longest timer - 1s */
+    809                  #if defined(USE_WATCHDOG)
+    810              kick_watchdog();    /* Set the watchdog timer to exactly 1s */
+    811                  #else
+    812              WDTCTL = (WDTCTL & 0xFF) | WDTPW | WDTHOLD;
+    813                  #endif
+    814              #else
+    815              #if defined(__MSP430_HAS_BT__)  ||  defined(__MSP430_HAS_BT_RTC__)
+    816              /* Basic timer setup */
+    817              /* Set ticker to 32768/(256*256) */
+    818                  #if defined(__MSP430_HAS_BT__)
+    819              BTCTL = BT_fLCD_DIV64 | BT_fCLK2_DIV128 | BT_fCLK2_ACLK_DIV256;
+    820                  #else
+    821              BTCTL = BT_fCLK2_DIV128 | BT_fCLK2_ACLK_DIV256;
+    822                  #endif
+    823              /* Enable the 1 second counter interrupt */
+    824              IE2 |= BTIE;
+    825          
+    826              /* We want a real watchdog function, but it doesn't have to be fast. */
+    827              /* Use the longest timer - 1s */
+    828                  #if defined(USE_WATCHDOG)
+    829              kick_watchdog();    /* Set the watchdog timer to exactly 1s */
+    830                  #else
+    831              WDTCTL = (WDTCTL & 0xFF) | WDTPW | WDTHOLD;
+    832                  #endif
+    833              #else
+    834              IE1 |= WDTIE;               /* Enable the WDT interrupt */
+    835              #endif
+    836              #endif
+    837          
+    838          //MM commented start
+    839          //    #if (defined(BASIC_LCD_SUPPORT)  ||  defined(CUSTOM_LCD_SUPPORT))
+    840          //    LCDinit();
+    841          //    custom_lcd_init();
+    842          //        #if defined(LCD_INIT)  &&  defined(__MSP430_HAS_LCD4__)
+    843          //    LCDCTL = LCD_INIT;
+    844          //        #endif
+    845          //        #if defined(LCDACTL_INIT)  &&  defined(__MSP430_HAS_LCD_A__)
+    846          //    LCDACTL = LCDACTL_INIT;
+    847          //    LCDAPCTL0 = LCDAPCTL0_INIT;
+    848          //    LCDAPCTL1 = LCDAPCTL1_INIT;
+    849          //    LCDAVCTL0 = LCDAVCTL0_INIT;
+    850          //    LCDAVCTL1 = LCDAVCTL1_INIT;
+    851          //        #endif
+    852          //        #if defined(LCDCCTL_INIT)  &&  defined(__MSP430_HAS_LCD_C__)
+    853          //    LCDCCTL0 = LCDCCTL0_INIT;
+    854          //    LCDCCTL1 = LCDCCTL1_INIT;
+    855          //    LCDCPCTL0 = LCDCPCTL0_INIT;
+    856          //    LCDCPCTL1 = LCDCPCTL1_INIT;
+    857          //    LCDCVCTL0 = LCDCVCTL0_INIT;
+    858          //    LCDCVCTL1 = LCDCVCTL1_INIT;
+    859          //        #endif
+    860          //    #endif
+    861          //MM end
+    862          
+    863              #if defined(P1OUT_INIT)
+    864              P1OUT = P1OUT_INIT;
+    865              #endif
+    866              #if defined(P1DIR_INIT)
+    867              P1DIR = P1DIR_INIT;
+    868              #endif
+    869              #if defined(P1SEL_INIT)
+    870              P1SEL = P1SEL_INIT;
+    871              #endif
+    872              #if defined(P1REN_INIT)
+    873              P1REN = P1REN_INIT;
+    874              #endif
+    875              #if defined(P1MAP01_INIT)
+    876              P1MAP01 = P1MAP01_INIT;
+    877              #endif
+    878          
+    879              #if defined(P2OUT_INIT)
+    880              P2OUT = P2OUT_INIT;
+    881              #endif
+    882              #if defined(P2DIR_INIT)
+    883              P2DIR = P2DIR_INIT;
+    884              #endif
+    885              #if defined(P2SEL_INIT)
+    886              P2SEL = P2SEL_INIT;
+    887              #endif
+    888              #if defined(P2REN_INIT)
+    889              P2REN = P2REN_INIT;
+    890              #endif
+    891          
+    892              #if defined(P3OUT_INIT)
+    893              P3OUT = P3OUT_INIT;
+    894              #endif
+    895              #if defined(P3DIR_INIT)
+    896              P3DIR = P3DIR_INIT;
+    897              #endif
+    898              #if defined(P3SEL_INIT)
+    899              P3SEL = P3SEL_INIT;
+    900              #endif
+    901              #if defined(P3REN_INIT)
+    902              P3REN = P3REN_INIT;
+    903              #endif
+    904          
+    905              #if defined(P4OUT_INIT)
+    906              P4OUT = P4OUT_INIT;
+    907              #endif
+    908              #if defined(P4DIR_INIT)
+    909              P4DIR = P4DIR_INIT;
+    910              #endif
+    911              #if defined(P4SEL_INIT)
+    912              P4SEL = P4SEL_INIT;
+    913              #endif
+    914              #if defined(P4REN_INIT)
+    915              P4REN = P4REN_INIT;
+    916              #endif
+    917          
+    918              #if defined(P5OUT_INIT)
+    919              P5OUT = P5OUT_INIT;
+    920              #endif
+    921              #if defined(P5DIR_INIT)
+    922              P5DIR = P5DIR_INIT;
+    923              #endif
+    924              #if defined(P5SEL_INIT)
+    925              P5SEL = P5SEL_INIT;
+    926              #endif
+    927              #if defined(P5REN_INIT)
+    928              P5REN = P5REN_INIT;
+    929              #endif
+    930          
+    931              #if defined(P6OUT_INIT)
+    932              P6OUT = P6OUT_INIT;
+    933              #endif
+    934              #if defined(P6DIR_INIT)
+    935              P6DIR = P6DIR_INIT;
+    936              #endif
+    937              #if defined(P6SEL_INIT)
+    938              P6SEL = P6SEL_INIT;
+    939              #endif
+    940              #if defined(P6REN_INIT)
+    941              P6REN = P6REN_INIT;
+    942              #endif
+    943          
+    944              #if defined(P7OUT_INIT)
+    945              P7OUT = P7OUT_INIT;
+    946              #endif
+    947              #if defined(P7DIR_INIT)
+    948              P7DIR = P7DIR_INIT;
+    949              #endif
+    950              #if defined(P7SEL_INIT)
+    951              P7SEL = P7SEL_INIT;
+    952              #endif
+    953              #if defined(P7REN_INIT)
+    954              P7REN = P7REN_INIT;
+    955              #endif
+    956          
+    957              #if defined(P8OUT_INIT)
+    958              P8OUT = P8OUT_INIT;
+    959              #endif
+    960              #if defined(P8DIR_INIT)
+    961              P8DIR = P8DIR_INIT;
+    962              #endif
+    963              #if defined(P8SEL_INIT)
+    964              P8SEL = P8SEL_INIT;
+    965              #endif
+    966              #if defined(P8REN_INIT)
+    967              P8REN = P8REN_INIT;
+    968              #endif
+    969          
+    970              #if defined(P9OUT_INIT)
+    971              P9OUT = P9OUT_INIT;
+    972              #endif
+    973              #if defined(P9DIR_INIT)
+    974              P9DIR = P9DIR_INIT;
+    975              #endif
+    976              #if defined(P9SEL_INIT)
+    977              P9SEL = P9SEL_INIT;
+    978              #endif
+    979              #if defined(P9REN_INIT)
+    980              P9REN = P9REN_INIT;
+    981              #endif
+    982          
+    983              #if defined(P10OUT_INIT)
+    984              P10OUT = P10OUT_INIT;
+    985              #endif
+    986              #if defined(P10DIR_INIT)
+    987              P10DIR = P10DIR_INIT;
+    988              #endif
+    989              #if defined(P10SEL_INIT)
+    990              P10SEL = P10SEL_INIT;
+    991              #endif
+    992              #if defined(P10REN_INIT)
+    993              P10REN = P10REN_INIT;
+    994              #endif
+    995          
+    996              #if defined(PJOUT_INIT)
+    997              PJOUT = PJOUT_INIT;
+    998              #endif
+    999              #if defined(PJDIR_INIT)
+   1000              PJDIR = PJDIR_INIT;
+   1001              #endif
+   1002              #if defined(PJSEL_INIT)
+   1003              PJSEL = PJSEL_INIT;
+   1004              #endif
+   1005              #if defined(PJREN_INIT)
+   1006              PJREN = PJREN_INIT;
+   1007              #endif
+   1008          
+   1009              #if defined(IO_EXPANDER_SUPPORT)
+   1010              set_io_expander(0, 0);
+   1011              #endif
+   1012          
+   1013          //MM
+   1014          //    #if defined(BASIC_LCD_SUPPORT)
+   1015          //    display_startup_message();
+   1016          //    #endif
+   1017              
+   1018              //MM start 
+   1019              //LCD SUPPORT FOR F6736 EVM, Added by Kripa
+   1020          
+   1021          
+   1022              LCDCCTL0 =  LCDDIV_31 | LCDPRE_1 | LCD4MUX | LCDON;
+   1023          
+   1024              //Charge pump generated internally at 2.96V, external bias (V2-V4) generation
+   1025              //Internal reference for charge pump
+   1026              LCDCVCTL = LCDCPEN | VLCD_2_96;
+   1027              REFCTL0 &= ~REFMSTR;
+   1028          
+   1029              LCDCPCTL0 = 0xFFFF;                     //Select LCD Segments 4-5
+   1030              LCDCPCTL1 = 0xFFFF;                     //
+   1031              LCDCPCTL2 = 0xFFC3;                   //MM: Changed for LCD workaround;
+   1032              
+   1033              //MM end
+   1034          
+   1035              #if defined(LIMP_MODE_SUPPORT)
+   1036              samples_per_second = LIMP_SAMPLES_PER_10_SECONDS/10;
+   1037              #else
+   1038              samples_per_second = SAMPLES_PER_10_SECONDS/10;
+   1039              #endif
+   1040          
+   1041              #if defined(__MSP430_HAS_TA3__)  &&  defined(__MSP430_HAS_ADC12__)
+   1042              /* Use timer A to control the ADC sampling interval, and the ADC on/off timing. */
+   1043              /* TACCR0 determines the sample period */
+   1044              TAR = 0;
+   1045                  #if defined(LIMP_MODE_SUPPORT)
+   1046              TACCR0 = (SAMPLE_PERIOD*LIMP_SAMPLING_RATIO) - 1;
+   1047              TACCR1 = (SAMPLE_PERIOD*LIMP_SAMPLING_RATIO) - 3;
+   1048              TACCR2 = (SAMPLE_PERIOD*LIMP_SAMPLING_RATIO) - 4;
+   1049                  #else
+   1050              TACCR0 = SAMPLE_PERIOD - 1;
+   1051              TACCR1 = SAMPLE_PERIOD - 3;
+   1052              TACCR2 = SAMPLE_PERIOD - 4;
+   1053                  #endif
+   1054              TACCTL0 = 0;
+   1055              TACCTL1 = OUTMOD_3;
+   1056                  #if defined(FINE_ENERGY_PULSE_TIMING_SUPPORT)
+   1057              TACCTL2 = OUTMOD_0 | OUT;           /* Turn off the pulse LED */
+   1058                  #endif
+   1059              TACTL = TACLR | MC_1 | TASSEL_1;
+   1060              #endif
+   1061          
+   1062              #if defined(__MSP430_HAS_TA3__)  &&  defined(__HAS_SD_ADC__)
+   1063              /* Use timer A to control the ADC sampling interval in limp mode. */
+   1064              /* CCR0 determines the sample period - 1024Hz */
+   1065              TAR = 0;
+   1066              TACCR0 = 32 - 1;
+   1067              TACCTL0 = 0;
+   1068              TACCTL1 = OUTMOD_3;
+   1069              TACTL = TACLR | MC_1 | TASSEL_1;
+   1070              #endif
+   1071          
+   1072              #if defined(PWM_DITHERING_SUPPORT)
+   1073              /* Configure timer B to generate a dithering signal, to be added to the     */
+   1074              /* analogue signals, something like this.                                   */
+   1075              /*                                                                          */
+   1076              /*   -----------------                100n                                  */
+   1077              /*                    |    __47k_     ||    __1M__       __4K7__            */
+   1078              /*                TB1 |->-|______|-- -||---|______|->---|_______|--< Signal */
+   1079              /*                    |             | ||              |                     */
+   1080              /*                    |           -----               |                     */
+   1081              /*                    |           -----2n2            |                     */
+   1082              /*                    |             |                 |                     */
+   1083              /*                    |            GND                |                     */
+   1084              /*                    |                               |                     */
+   1085              /*                A0  |-<-----------------------------                      */
+   1086              /*                    |                                                     */
+   1087              P2SEL |= BIT2;                      /* Select P2.2 for PWM output */
+   1088              P2DIR |= BIT2;                      /* Select P2.2 for PWM output */
+   1089          
+   1090              TBR = 0;
+   1091              TBCCR0 = PWM_FREQ - 1;              /* load period register */
+   1092              TBCCR1 = PWM_MID_POINT;             /* start with 50% PWM duty cycle */
+   1093              TBCCR2 = PWM_FREQ - 1;
+   1094              TBCCTL0 = OUTMOD_4;                 /* set outmode 4 for toggle */
+   1095              TBCCTL1 = OUTMOD_6 | CLLD_1;        /* set outmode 6 Toggle/set */
+   1096                                                  /* load new CCR1 when TBR = 0 */
+   1097              TBCCTL2 = OUTMOD_4;
+   1098              TBCTL = TBCLR | MC_1 | TBSSEL_2;    /* start TIMER_B up mode, SMCLK as input clock */
+   1099              #endif
+   1100          
+   1101              #if defined(__MSP430_HAS_ADC12__)
+   1102              /* Set up the ADC12 */
+   1103              /* Disable conversion while changing the settings */
+   1104              ADC12CTL0 = 0;
+   1105                  #if defined(SINGLE_PHASE)
+   1106              ADC12MCTL0 = SREF_0 | AGND_INPUT;
+   1107              ADC12MCTL1 = SREF_0 | NEUTRAL_CURRENT_INPUT;
+   1108              ADC12MCTL2 = SREF_0 | AGND_INPUT;
+   1109              ADC12MCTL3 = SREF_0 | LIVE_CURRENT_INPUT;
+   1110              ADC12MCTL4 = SREF_0 | AGND_INPUT;
+   1111                      #if defined(BATTERY_MONITOR_SUPPORT)
+   1112              ADC12MCTL5 = SREF_0 | VOLTAGE_INPUT;
+   1113              ADC12MCTL6 = EOS | SREF_0 | BATTERY_INPUT;
+   1114                      #else
+   1115              ADC12MCTL5 = EOS | SREF_0 | VOLTAGE_INPUT;
+   1116                      #endif
+   1117                  #else
+   1118                      #if GAIN_STAGES > 1
+   1119              ADC12MCTL0 = SREF_0 | LIVE_LOW_CURRENT_INPUT_1;
+   1120              ADC12MCTL1 = SREF_0 | LIVE_HIGH_CURRENT_INPUT_1;
+   1121              ADC12MCTL2 = SREF_0 | VOLTAGE_INPUT_1;
+   1122              ADC12MCTL3 = SREF_0 | LIVE_LOW_CURRENT_INPUT_2;
+   1123              ADC12MCTL4 = SREF_0 | LIVE_HIGH_CURRENT_INPUT_2;
+   1124              ADC12MCTL5 = SREF_0 | VOLTAGE_INPUT_2;
+   1125              ADC12MCTL6 = SREF_0 | LIVE_LOW_CURRENT_INPUT_3;
+   1126              ADC12MCTL7 = SREF_0 | LIVE_HIGH_CURRENT_INPUT_3;
+   1127                          #if defined(NEUTRAL_CURRENT_INPUT)
+   1128              ADC12MCTL8 = SREF_0 | VOLTAGE_INPUT_3;
+   1129              ADC12MCTL9 = EOS | SREF_0 | NEUTRAL_CURRENT_INPUT;
+   1130                          #else
+   1131              ADC12MCTL8 = EOS | SREF_0 | NEUTRAL_CURRENT_INPUT;
+   1132                          #endif
+   1133                      #else
+   1134              ADC12MCTL0 = SREF_0 | LIVE_CURRENT_INPUT_1;
+   1135              ADC12MCTL1 = SREF_0 | AGND_INPUT;
+   1136              ADC12MCTL2 = SREF_0 | VOLTAGE_INPUT_1;
+   1137              ADC12MCTL3 = SREF_0 | LIVE_CURRENT_INPUT_2;
+   1138              ADC12MCTL4 = SREF_0 | AGND_INPUT;
+   1139              ADC12MCTL5 = SREF_0 | VOLTAGE_INPUT_2;
+   1140              ADC12MCTL6 = SREF_0 | LIVE_CURRENT_INPUT_3;
+   1141              ADC12MCTL7 = SREF_0 | AGND_INPUT;
+   1142                          #if defined(NEUTRAL_CURRENT_INPUT)
+   1143              ADC12MCTL8 = SREF_0 | VOLTAGE_INPUT_3;
+   1144              ADC12MCTL9 = EOS | SREF_0 | NEUTRAL_CURRENT_INPUT;
+   1145                          #else
+   1146              ADC12MCTL8 = EOS | SREF_0 | VOLTAGE_INPUT_3;
+   1147                          #endif
+   1148                      #endif
+   1149                      #if defined(BATTERY_MONITOR_SUPPORT)
+   1150              /* Battery sensing control pin */
+   1151              P3DIR &= ~(BIT1);
+   1152              P3OUT |= (BIT1);
+   1153                      #endif
+   1154                  #endif
+   1155          
+   1156              /* Later, we will program the ADC for the following. For now
+   1157                 we just get the basic configuration done, and wait until
+   1158                 we are sure there is enough power to do more. */
+   1159              /* Sample & hold time 0 (for low ADC channels) */
+   1160              /* Sample & hold time 1 (for high ADC channels) */
+   1161              /* Multiple sample & hold off */
+   1162              /* Reference voltage is switched on at 2.5V */
+   1163              /* ADC12 module is switched on */
+   1164              /* Interrupt at the end of every ADC conversion */
+   1165              ADC12CTL0 = MSC;
+   1166          
+   1167              /* First conv. result is stored in ADC12MEM0 */
+   1168              /* ADC12SC bit triggers sample & hold */
+   1169              /* ISSH trigger is NOT inverted */
+   1170              /* Sample pulse is generated by sampling timer */
+   1171              /* Clock Source: TIMER_A OUT 1 */
+   1172              /* Clock divider: 1 */
+   1173              /* Sequence of channels conversion */
+   1174              ADC12CTL1 = SHS_1 | CONSEQ_1 | SHP | ADC12SSEL_0;
+   1175              #endif
+   1176              #if defined( __HAS_SD_ADC__)
+   1177              disable_analog_front_end();
+   1178              #endif
+   1179          
+   1180              #if defined(POWER_UP_BY_SUPPLY_SENSING)
+   1181                #if defined(__MSP430_HAS_COMPA__)
+   1182              /* Set up comparator A to monitor a drooping voltage within the
+   1183                 e-meter's main power supply. This is an early warning of power
+   1184                 fail, so we can get to low power mode before we start burning the
+   1185                 battery. */
+   1186              CACTL1 = CAREF_1;
+   1187              CACTL2 = P2CA1 | CAF;
+   1188              P1SEL |= BIT7;
+   1189              CAPD |= BIT7;
+   1190                #endif
+   1191                #if defined(__MSP430_HAS_ADC10_A__)
+   1192              /* Set up comparator to monitor a drooping voltage within the
+   1193                 e-meter's main power supply. This is an early warning of power
+   1194                 fail, so we can get to low power mode before we start burning the
+   1195                 battery. */
+   1196              CACTL1 = CAREF_1;
+   1197              CACTL2 = P2CA1 | CAF;
+   1198              P1SEL |= BIT7;
+   1199              CAPD |= BIT7;
+   1200                #endif
+   1201              #endif
+   1202          
+   1203              #if defined(IEC1107_SUPPORT)  ||  defined(IEC62056_21_SUPPORT)  ||  defined(SERIAL_CALIBRATION_SUPPORT)  ||  defined(SERIAL_CALIBRATION_REF_SUPPORT)
+   1204                  #if defined(__MSP430_HAS_UART0__)  &&  defined(UART0_BAUD_RATE)
+   1205              /* Configure UART0 */
+   1206              UCTL0 = CHAR;                       /* 8-bit character */
+   1207                      #if UART0_BAUD_RATE == 460800
+   1208              /* 460800 Rx doesn't work very well from 32768Hz. Use the fast clock. */
+   1209              UTCTL0 = SSEL1;                     /* UCLK = SMCLK */
+   1210              UBR00 = 18;
+   1211              UBR10 = 0;
+   1212              UMCTL0 = 0x11;
+   1213                      #elif UART0_BAUD_RATE == 9600
+   1214              /* 9600 Rx doesn't work very well from 32768Hz. Use the fast clock. */
+   1215              UTCTL0 = SSEL1;                     /* UCLK = SMCLK */
+   1216              UBR10 = 0x3;
+   1217              UBR00 = 0x69;
+   1218              UMCTL0 = 0x77;
+   1219                      #elif UART0_BAUD_RATE == 4800
+   1220              UTCTL0 = SSEL0;                     /* UCLK = ACLK */
+   1221              UBR10 = 0;
+   1222              UBR00 = 6;                          /* 32k/4800 - 6.8266 */
+   1223              UMCTL0 = 0x6F;
+   1224                      #elif UART0_BAUD_RATE == 2400
+   1225              UTCTL0 = SSEL0;                     /* UCLK = ACLK */
+   1226              UBR10 = 0;
+   1227              UBR00 = 13;                         /* 32k/2400 - 13.653 */
+   1228              UMCTL0 = 0x6B;
+   1229                      #else
+   1230              UTCTL0 = SSEL0;                     /* UCLK = ACLK */
+   1231              UBR10 = 0;
+   1232              UBR00 = 27;                         /* 32k/1200 - 27.307 */
+   1233              UMCTL0 = 0x03;
+   1234                      #endif
+   1235          
+   1236                      #if defined(SERIAL_CALIBRATION_REF_SUPPORT)
+   1237              U0ME |= (UTXE0 | URXE0);            /* Enable USART0 TXD/RXD */
+   1238              U0IE |= URXIE0;
+   1239                      #elif defined(SERIAL_CALIBRATION_SUPPORT)
+   1240              U0ME |= URXE0;                      /* Enable only USART0 RXD */
+   1241              U0IE |= URXIE0;
+   1242                      #else
+   1243              U0ME |= UTXE0;                      /* Enable only USART0 TXD */
+   1244                      #endif
+   1245              /* If you do not initially kick the Tx port the TXEPT bit is not set. */
+   1246              TXBUF0 = 0;
+   1247                  #endif
+   1248          
+   1249                  #if defined(__MSP430_HAS_UART1__)  &&  defined(UART1_BAUD_RATE)
+   1250              /* Configure UART1 */
+   1251              //UCTL1 = PENA | PEV;               /* 7-bit + even parity character */
+   1252              UCTL1 = CHAR;                       /* 8-bit character */
+   1253              //UCTL1 = PENA | PEV | CHAR;        /* 8-bit + even parity character */
+   1254                      #if UART1_BAUD_RATE == 9600
+   1255              /* 9600 Rx doesn't work very well from 32768Hz. Use the fast clock. */
+   1256              UTCTL1 = SSEL1;                     /* UCLK = SMCLK */
+   1257              UBR11 = 0x3;
+   1258              UBR01 = 0x69;
+   1259              UMCTL1 = 0x77;
+   1260                      #elif UART1_BAUD_RATE == 4800
+   1261              UTCTL1 = SSEL0;                     /* UCLK = ACLK */
+   1262              UBR11 = 0;
+   1263              UBR01 = 6;                          /* 32k/4800 - 6.8266 */
+   1264              UMCTL1 = 0x6F;
+   1265                      #elif UART1_BAUD_RATE == 2400
+   1266              UTCTL1 = SSEL0;                     /* UCLK = ACLK */
+   1267              UBR11 = 0;
+   1268              UBR01 = 13;                         /* 32k/2400 - 13.653 */
+   1269              UMCTL1 = 0x6B;
+   1270                      #else
+   1271              UTCTL1 = SSEL0;                     /* UCLK = ACLK */
+   1272              UBR11 = 0;
+   1273              UBR01 = 27;                         /* 32k/1200 - 27.307 */
+   1274              UMCTL1 = 0x03;
+   1275                      #endif
+   1276          
+   1277              ME2 |= (UTXE1 | URXE1);            /* Enable USART1 TXD/RXD */
+   1278              IE2 |= URXIE1;
+   1279              /* If you do not initially kick the Tx port, the TXEPT bit is not set. */
+   1280              TXBUF1 = 0;
+   1281                  #endif
+   1282          
+   1283                  #if defined(__MSP430_HAS_USCI_AB0__)  &&  defined(UART0_BAUD_RATE)
+   1284              /* Configure USCI0 UART */
+   1285              //UCTL1 = PENA | PEV;               /* 7-bit + even parity character */
+   1286              UCA0CTL0 = 0;                       /* 8-bit character */
+   1287              //UCTL1 = PENA | PEV | CHAR;        /* 8-bit + even parity character */
+   1288                      #if UART0_BAUD_RATE == 9600
+   1289              /* 9600 Rx doesn't work very well from 32768Hz. Use the fast clock. */
+   1290          #if 0
+   1291              UCA0CTL1 |= UCSSEL0;                     /* UCLK = ACLK */
+   1292              UCA0BR1 = 0x0;
+   1293              UCA0BR0 = 0x3;
+   1294              UCA0MCTL = UCBRS_3;
+   1295          #else
+   1296              UCA0CTL1 |= UCSSEL1;                     /* UCLK = SMCLK */
+   1297              UCA0BR1 = 0x06;
+   1298              UCA0BR0 = 0xD3;
+   1299              UCA0MCTL = UCBRS_5;
+   1300          #endif
+   1301                      #elif UART0_BAUD_RATE == 4800
+   1302              UCA0CTL1 |= UCSSEL0;                     /* UCLK = ACLK */
+   1303              UCA0BR1 = 0x0;
+   1304              UCA0BR0 = 0x6;
+   1305              UCA0MCTL = UCBRS_7;
+   1306                      #elif UART0_BAUD_RATE == 2400
+   1307              UCA0CTL1 |= UCSSEL0;                     /* UCLK = ACLK */
+   1308              UCA0BR1 = 0x0;
+   1309              UCA0BR0 = 0xD;
+   1310              UCA0MCTL = UCBRS_6;
+   1311                      #else
+   1312              UCA0CTL1 |= UCSSEL0;                     /* UCLK = ACLK */
+   1313              UCA0BR1 = 0x0;
+   1314              UCA0BR0 = 0x1B;
+   1315              UCA0MCTL = UCBRS_2;
+   1316                      #endif
+   1317          
+   1318              UCA0CTL1 &= ~UCSWRST;
+   1319              UC0IE |= UCA0RXIE;
+   1320                  #endif
+   1321          
+   1322                  #if defined(__MSP430_HAS_EUSCI_A0__)  &&  defined(UART0_BAUD_RATE)
+   1323              /* Configure USCI0 UART */
+   1324          
+   1325              UCA0CTL0 = 0;                       /* 8-bit character */
+   1326                      #if UART0_BAUD_RATE == 9600
+   1327              UCA0CTL1 |= UCSSEL__ACLK;                     /* UCLK = ACLK */
+   1328              UCA0BR1 = 0x0;
+   1329              UCA0BR0 = 0x3;
+   1330          #ifdef _ZEBU_
+   1331              UCA0MCTLW_H = 0x25;
+   1332          #else
+   1333              UCA0MCTLW_H = 0x92;
+   1334          #endif
+   1335                      #elif UART0_BAUD_RATE == 4800
+   1336              UCA0CTL1 |= UCSSEL__ACLK;                     /* UCLK = ACLK */
+   1337                      #elif UART0_BAUD_RATE == 2400
+   1338              UCA0CTL1 |= UCSSEL__ACLK;                     /* UCLK = ACLK */
+   1339              UCA0BR1 = 0x0;
+   1340              UCA0BR0 = 13;
+   1341          #ifdef _ZEBU_
+   1342              UCA0MCTLW_H = 0x25;
+   1343          #else
+   1344              UCA0MCTLW_H = 0xB6;
+   1345          #endif
+   1346                      #else
+   1347              UCA0CTL1 |= UCSSEL__ACLK;                     /* UCLK = ACLK */
+   1348                      #endif
+   1349          
+   1350              UCA0CTL1 &= ~UCSWRST;
+   1351              UCA0IE |= UCRXIE;
+   1352                  #endif
+   1353          
+   1354          
+   1355                  #if defined(__MSP430_HAS_EUSCI_A1__)  &&  defined(UART1_BAUD_RATE)
+   1356              /* Configure USCI0 UART */
+   1357          
+   1358              UCA1CTL0 = 0;                       /* 8-bit character */
+   1359                      #if UART1_BAUD_RATE == 9600
+   1360              UCA1CTL1 = UCSSEL__ACLK;                     /* UCLK = ACLK */
+   1361              UCA1BR1 = 0x0;
+   1362              UCA1BR0 = 0x3;
+   1363          #ifdef _ZEBU_
+   1364              UCA1MCTLW_H = 0x25;
+   1365          #else
+   1366              UCA1MCTLW_H = 0x92;
+   1367          #endif
+   1368                      #elif UART1_BAUD_RATE == 4800
+   1369              UCA1CTL1 |= UCSSEL__ACLK;                     /* UCLK = ACLK */
+   1370                      #elif UART1_BAUD_RATE == 2400
+   1371              UCA1CTL1 |= UCSSEL__ACLK;                     /* UCLK = ACLK */
+   1372              UCA1BR1 = 0x0;
+   1373              UCA1BR0 = 13;
+   1374          #ifdef _ZEBU_
+   1375              UCA1MCTLW_H = 0x25;
+   1376          #else
+   1377              UCA1MCTLW_H = 0xB6;
+   1378          #endif
+   1379                      #else
+   1380              UCA1CTL1 |= UCSSEL__ACLK;                     /* UCLK = ACLK */
+   1381                      #endif
+   1382          
+   1383              UCA1CTL1 &= ~UCSWRST;
+   1384              UCA1IE |= UCRXIE;
+   1385                  #endif
+   1386          
+   1387              #if defined(__MSP430_HAS_USCI_AB1__)  &&  defined(UART1_BAUD_RATE)
+   1388              /* Configure USCI1 UART */
+   1389              //UCTL1 = PENA | PEV;               /* 7-bit + even parity character */
+   1390              UCA1CTL0 = 0;                       /* 8-bit character */
+   1391              //UCTL1 = PENA | PEV | CHAR;        /* 8-bit + even parity character */
+   1392                      #if UART1_BAUD_RATE == 9600
+   1393              /* 9600 Rx doesn't work very well from 32768Hz. Use the fast clock. */
+   1394          #if 0
+   1395              UCA1CTL1 |= UCSSEL0;                     /* UCLK = ACLK */
+   1396              UCA1BR1 = 0x0;
+   1397              UCA1BR0 = 0x3;
+   1398              UCA1MCTL = UCBRS_3;
+   1399          #else
+   1400              UCA1CTL1 |= UCSSEL1;                     /* UCLK = SMCLK */
+   1401              UCA1BR1 = 0x06;
+   1402              UCA1BR0 = 0xD3;
+   1403              UCA1MCTL = UCBRS_5;
+   1404          #endif
+   1405                      #elif UART1_BAUD_RATE == 4800
+   1406              UCA1CTL1 |= UCSSEL0;                     /* UCLK = ACLK */
+   1407              UCA1BR1 = 0x0;
+   1408              UCA1BR0 = 0x6;
+   1409              UCA1MCTL = UCBRS_7;
+   1410                      #elif UART1_BAUD_RATE == 2400
+   1411              UCA1CTL1 |= UCSSEL0;                     /* UCLK = ACLK */
+   1412              UCA1BR1 = 0x0;
+   1413              UCA1BR0 = 0xD;
+   1414              UCA1MCTL = UCBRS_6;
+   1415                      #else
+   1416              UCA1CTL1 |= UCSSEL0;                     /* UCLK = ACLK */
+   1417              UCA1BR1 = 0x0;
+   1418              UCA1BR0 = 0x1B;
+   1419              UCA1MCTL = UCBRS_2;
+   1420                      #endif
+   1421          
+   1422              UCA1CTL1 &= ~UCSWRST;
+   1423              UC1IE |= UCA1RXIE;
+   1424                  #endif
+   1425          
+   1426              #if defined(IEC1107_SUPPORT)
+   1427              /* Configure the IR receiver control line - we need to be able to power it down
+   1428                 in limp mode, to conserve current. */
+   1429              disable_ir_receiver();
+   1430                  #endif
+   1431              #endif
+   1432          
+   1433              #if defined(IHD430_SUPPORT) 
+   1434              UCA2CTL1 |= UCSWRST; 
+   1435              UCA2CTL1 |= UCSSEL_2;                     // SMCLK
+   1436              UCA2BRW = 9;                           // 16 MHz 115200
+   1437              //UCA2BR1 = 0x00;                         //16 8MHz 115200
+   1438              UCA2MCTLW = 0xB511;                          
+   1439              P2SEL |= BIT2+BIT3;
+   1440              UCA2CTL1 &= ~UCSWRST;  
+   1441            #endif
+   1442              
+   1443              meter_status &= ~(STATUS_REVERSED | STATUS_EARTHED | STATUS_PHASE_VOLTAGE_OK);
+   1444              clr_normal_indicator();
+   1445              clr_earthed_indicator();
+   1446              clr_reverse_current_indicator();
+   1447              #if defined(total_active_energy_pulse_end)
+   1448              total_active_energy_pulse_end();
+   1449              #endif
+   1450              #if defined(total_reactive_energy_pulse_end)
+   1451              total_reactive_energy_pulse_end();
+   1452              #endif
+   1453              #if defined(PER_PHASE_ACTIVE_ENERGY_SUPPORT)
+   1454                  #if !defined(SINGLE_PHASE)
+   1455              phase_1_active_energy_pulse_end();
+   1456              phase_2_active_energy_pulse_end();
+   1457              phase_3_active_energy_pulse_end();
+   1458                  #else
+   1459              phase_active_energy_pulse_end();
+   1460                  #endif
+   1461              #endif
+   1462          
+   1463              #if !defined(ESP_SUPPORT)
+   1464                  #if !defined(SINGLE_PHASE)
+   1465              phase = chan;
+   1466              phase_nv = nv_parms.seg_a.s.chan;
+   1467              for (j = 0;  j < NUM_PHASES;  j++)
+   1468              {
+   1469                  #endif
+   1470                /* Prime the DC estimates for quick settling */
+   1471                  //phase->metrology.current.I_dc_estimate[0] = phase_nv->current.initial_dc_estimate;
+   1472                  phase->metrology.current.I_endstops = ENDSTOP_HITS_FOR_OVERLOAD;
+   1473                  dc_filter_current_init(phase->metrology.current.I_dc_estimate[0], phase_nv->current.initial_dc_estimate);
+   1474                  dc_filter_voltage_init(phase->metrology.V_dc_estimate, phase_nv->initial_v_dc_estimate);
+   1475                  #if defined(SINGLE_PHASE)  &&  defined(NEUTRAL_MONITOR_SUPPORT)
+   1476                  //MM24
+   1477                  //phase->metrology.neutral.I_dc_estimate[0] = phase_nv->current.initial_dc_estimate;
+   1478                  phase->metrology.neutral.I_endstops = ENDSTOP_HITS_FOR_OVERLOAD;
+   1479                  #endif
+   1480                  #if GAIN_STAGES > 1
+   1481                  phase->metrology.current.I_dc_estimate[1] = phase_nv->current.initial_dc_estimate;
+   1482                      #if defined(SINGLE_PHASE)  &&  defined(NEUTRAL_MONITOR_SUPPORT)
+   1483                  phase->metrology.neutral.I_dc_estimate[1] = phase_nv->current.initial_dc_estimate;
+   1484                      #endif
+   1485                  #endif
+   1486                  #if defined(LIMP_MODE_SUPPORT)
+   1487                  //phase->metrology.V_dc_estimate[0] = phase_nv->initial_v_dc_estimate;
+   1488                  //phase->metrology.V_dc_estimate[1] = phase_nv->initial_v_limp_dc_estimate;
+   1489                  #else
+   1490                  //phase->metrology.V_dc_estimate = phase_nv->initial_v_dc_estimate;
+   1491                  #endif
+   1492                  phase->metrology.V_endstops = ENDSTOP_HITS_FOR_OVERLOAD;
+   1493                  #if defined(MAINS_FREQUENCY_SUPPORT)
+   1494                  phase->metrology.mains_period = ((SAMPLES_PER_10_SECONDS*6554)/MAINS_NOMINAL_FREQUENCY) << 8;
+   1495                  #endif
+   1496                  #if !defined(SINGLE_PHASE)
+   1497                  phase++;
+   1498                  phase_nv++;
+   1499              }
+   1500                  #endif
+   1501              #endif
+   1502              #if !defined(SINGLE_PHASE)  &&  defined(NEUTRAL_MONITOR_SUPPORT)
+   1503                  neutral.metrology.I_dc_estimate[0] = nv_parms.seg_a.s.neutral.initial_dc_estimate;
+   1504                  neutral.metrology.I_endstops = ENDSTOP_HITS_FOR_OVERLOAD;
+   1505              #endif
+   1506          
+   1507              #if defined(TEMPERATURE_SUPPORT)
+   1508              temperature = 0;
+   1509              #endif
+   1510              #if defined(RTC_SUPPORT)
+   1511              if (!check_rtc_sumcheck())
+   1512              {
+   1513                  rtc.year = 0x10;
+   1514                  rtc.month = 0x06;
+   1515                  rtc.day = 0x11;
+   1516                  rtc.hour = 0x12;
+   1517                  rtc.minute = 0x0;
+   1518                  rtc.second = 0x0;
+   1519                  set_rtc_sumcheck();
+   1520              #if defined (__MSP430_HAS_RTC_C__)
+   1521                  RTCCTL0_H = RTCKEY_H;                  // Unlock RTC
+   1522                  if (RTCCTL0 & RTCOFIFG){  // init if RTCOFIFG is set
+   1523                    RTCCTL13 = RTCBCD+RTCHOLD+RTCMODE+RTCTEV_0; // Init RTC
+   1524                    RTCCTL0_L &= ~RTCOFIFG_L;   // Clear Flag
+   1525                    RTCSEC   = rtc.second;
+   1526                    RTCMIN   = rtc.minute;
+   1527                    RTCHOUR  = rtc.hour;
+   1528                  //    RTCDOW   = rtc.DayOfWeek;
+   1529                    RTCDAY   = rtc.day;
+   1530                    RTCMON   = rtc.month;
+   1531                    RTCYEAR  = rtc.year + 0x2000;
+   1532                    RTCCTL13 &= ~RTCHOLD;                   // Enable RTC
+   1533                  }
+   1534                  else
+   1535                  {
+   1536                    RTCCTL13 = RTCBCD+RTCMODE+RTCTEV_0; // Init RTC
+   1537                  }
+   1538                  RTCCTL0_H = 0;   // LOCK RTC
+   1539              #endif
+   1540              }
+   1541              #endif
+   1542              #if defined(EXTERNAL_EEPROM_SUPPORT)
+   1543          /*
+   1544              external_eeprom_init();
+   1545          
+   1546              { volatile int j= 0;
+   1547                volatile int k = 0;
+   1548                volatile uint8_t buf[128] = {10,11,12,13,14,15,16,17,18};
+   1549                iicEEPROM_write(j, (void*)buf, 128);
+   1550                k = iicEEPROM_read(j, (void*)buf, 128);
+   1551              }
+   1552          */
+   1553              #endif
+   1554              custom_initialisation();
+   1555          
+   1556              _EINT();
+   1557          
+   1558              #if defined(POWER_DOWN_SUPPORT)
+   1559              /* Now go to lower power mode, until we know we should do otherwise */
+   1560              switch_to_powerfail_mode();
+   1561              #else
+   1562                  #if defined(__MSP430_HAS_SVS__)
+   1563              /* Before we go to high speed we need to make sure the supply voltage is
+   1564                 adequate. If there is an SVS we can use that. There should be no wait
+   1565                 at this point, since we should only have been woken up if the supply
+   1566                 is healthy. However, it seems better to be cautious. */
+   1567              SVSCTL |= (SVSON | 0x60);
+   1568              /* Wait for adequate voltage to run at full speed */
+   1569              while ((SVSCTL & SVSOP))
+   1570                  /* dummy loop */;
+   1571              /* The voltage should now be OK to run the CPU at full speed. Now it should
+   1572                 be OK to use the SVS as a reset source. */
+   1573              SVSCTL |= PORON;
+   1574                  #endif
+   1575          
+   1576              /* Take control of the EEPROM signals. */
+   1577          #if defined(EXTERNAL_EEPROM_SUPPORT)
+   1578              enable_eeprom_port();
+   1579          #endif
+   1580                  #if defined(__MSP430_HAS_FLLPLUS__)  ||  defined(__MSP430_HAS_FLLPLUS_SMALL__)
+   1581              /* Speed up the clock to 8.388608MHz */
+   1582              SCFI0 = SCFI0_HIGH;
+   1583              SCFQCTL = SCFQCTL_HIGH;
+   1584          #if 0
+   1585              {
+   1586                  int i;
+   1587                  for (i = 0xFFFF;  i;  i--);
+   1588                      _NOP();
+   1589                  _BIS_SR(SCG0);
+   1590              }
+   1591              SCFQCTL |= SCFQ_M;
+   1592              SCFI0 &= ~0x03;
+   1593              SCFI1 &= ~0x07;
+   1594              SCFI1 += 8;
+   1595          #endif
+   1596              /* There seems no benefit in waiting for the FLL to settle at this point. */
+   1597                  #endif
+   1598          
+   1599                  #if defined(__MSP430_HAS_TA3__)  &&  defined(__MSP430_HAS_ADC12__)
+   1600              /* Enable the TIMER_A0 interrupt */
+   1601              TACTL = TACLR | MC_1 | TASSEL_1;
+   1602              TACCTL0 = CCIE;
+   1603                  #endif
+   1604          
+   1605              kick_watchdog();
+   1606              switch_to_normal_mode();
+   1607              #endif
+   1608              #if defined(MESH_NET_SUPPORT)
+   1609              meshnet_init();
+   1610              #endif
+   1611          }
+   1612          #else
+   1613          void system_setup(void)
+   1614          {
+   1615              #if !defined(SINGLE_PHASE)
+   1616              struct phase_parms_s *phase;
+   1617              int j;
+   1618              #endif
+   1619          
+   1620              #if !defined(SINGLE_PHASE)
+   1621              phase = chan;
+   1622              for (j = 0;  j < NUM_PHASES;  j++)
+   1623              {
+   1624              #endif
+   1625                  /* Prime the DC estimates for quick settling */
+   1626              #if defined(NEUTRAL_MONITOR_SUPPORT)
+   1627                  phase->metrology.neutral.I_dc_estimate = phase_nv->current.initial_dc_estimate;
+   1628              #endif
+   1629                  phase->metrology.current.I_dc_estimate = phase_nv->current.initial_dc_estimate;
+   1630                  phase->metrology.V_dc_estimate[0] = phase_nv->initial_v_dc_estimate;
+   1631                  //phase->metrology.V_dc_estimate[1] = phase_nv->initial_v_limp_dc_estimate;
+   1632              #if defined(MAINS_FREQUENCY_SUPPORT)
+   1633                  phase->mains_period = ((SAMPLES_PER_10_SECONDS*6554)/MAINS_NOMINAL_FREQUENCY) << 8;
+   1634              #endif
+   1635              #if !defined(SINGLE_PHASE)
+   1636                  phase++;
+   1637              }
+   1638              #endif
+   1639          
+   1640              samples_per_second = SAMPLES_PER_10_SECONDS/10;
+   1641              #if defined(TEMPERATURE_SUPPORT)
+   1642              temperature = 0;
+   1643              #endif
+   1644          }
+   1645          #endif
+   1646          
+   1647          #if defined(__MSP430__)
+   1648          void switch_to_normal_mode(void)
+   1649          {
+   1650              /* Switch to full speed, full power mode */
+   1651          
+   1652              meter_status |= STATUS_PHASE_VOLTAGE_OK;
+   1653              set_normal_indicator();
+   1654          
+   1655              #if defined(__MSP430_HAS_ADC12__)
+   1656              /* Change the ADC reference to Vref+ */
+   1657              _DINT();
+   1658          
+   1659              /* Must disable conversion while reprogramming the ADC */
+   1660              ADC12CTL0 &= ~ENC;
+   1661          
+   1662              /* Turn the Vref and ADC on. */
+   1663              ADC12CTL0 = REFON | MSC | REF2_5V | ADC12ON | SHT0_2 | SHT1_2;
+   1664          
+   1665                  #if defined(SINGLE_PHASE)
+   1666              ADC12MCTL0 = SREF_1 | AGND_INPUT;
+   1667              ADC12MCTL1 = SREF_1 | NEUTRAL_CURRENT_INPUT;
+   1668              ADC12MCTL2 = SREF_1 | AGND_INPUT;
+   1669              ADC12MCTL3 = SREF_1 | LIVE_CURRENT_INPUT;
+   1670              ADC12MCTL4 = SREF_1 | AGND_INPUT;
+   1671                      #if defined(TEMPERATURE_SUPPORT) | defined(BATTERY_MONITOR_SUPPORT)
+   1672              ADC12MCTL5 = SREF_1 | VOLTAGE_INPUT;
+   1673                      #else
+   1674              ADC12MCTL5 = EOS | SREF_1 | VOLTAGE_INPUT;
+   1675                      #endif
+   1676                      #if defined(BATTERY_MONITOR_SUPPORT)
+   1677                          #if defined(TEMPERATURE_SUPPORT)
+   1678              ADC12MCTL6 = SREF_1 | BATTERY_INPUT;
+   1679                          #else
+   1680              ADC12MCTL6 = EOS | SREF_1 | BATTERY_INPUT;
+   1681                          #endif
+   1682                      #endif
+   1683                      #if defined(TEMPERATURE_SUPPORT)
+   1684              ADC12MCTL7 = EOS | SREF_1 | INCH_10;    /* Temperature */
+   1685                      #endif
+   1686                  #else
+   1687                      #if GAIN_STAGES > 1
+   1688              ADC12MCTL0 = SREF_1 | LIVE_LOW_CURRENT_INPUT_1;
+   1689              ADC12MCTL1 = SREF_1 | LIVE_HIGH_CURRENT_INPUT_1;
+   1690              ADC12MCTL2 = SREF_1 | VOLTAGE_INPUT_1;
+   1691              ADC12MCTL3 = SREF_1 | LIVE_LOW_CURRENT_INPUT_2;
+   1692              ADC12MCTL4 = SREF_1 | LIVE_HIGH_CURRENT_INPUT_2;
+   1693              ADC12MCTL5 = SREF_1 | VOLTAGE_INPUT_2;
+   1694              ADC12MCTL6 = SREF_1 | LIVE_LOW_CURRENT_INPUT_3;
+   1695              ADC12MCTL7 = SREF_1 | LIVE_HIGH_CURRENT_INPUT_3;
+   1696              ADC12MCTL8 = SREF_1 | VOLTAGE_INPUT_3;
+   1697                          #if defined(NEUTRAL_CURRENT_INPUT)
+   1698              ADC12MCTL9 = SREF_0 | NEUTRAL_CURRENT_INPUT;
+   1699              ADC12MCTL10 = EOS | SREF_1 | INCH_10;   /* Temperature */
+   1700                          #else
+   1701              ADC12MCTL9 = EOS | SREF_1 | INCH_10;    /* Temperature */
+   1702                          #endif
+   1703                      #else
+   1704              ADC12MCTL0 = SREF_1 | LIVE_CURRENT_INPUT_1;
+   1705              ADC12MCTL1 = SREF_1 | AGND_INPUT;
+   1706              ADC12MCTL2 = SREF_1 | VOLTAGE_INPUT_1;
+   1707              ADC12MCTL3 = SREF_1 | LIVE_CURRENT_INPUT_2;
+   1708              ADC12MCTL4 = SREF_1 | AGND_INPUT;
+   1709              ADC12MCTL5 = SREF_1 | VOLTAGE_INPUT_2;
+   1710              ADC12MCTL6 = SREF_1 | LIVE_CURRENT_INPUT_3;
+   1711              ADC12MCTL7 = SREF_1 | AGND_INPUT;
+   1712              ADC12MCTL8 = SREF_1 | VOLTAGE_INPUT_3;
+   1713                          #if defined(NEUTRAL_CURRENT_INPUT)
+   1714              ADC12MCTL9 = SREF_0 | NEUTRAL_CURRENT_INPUT;
+   1715              ADC12MCTL10 = EOS | SREF_1 | INCH_10;   /* Temperature */
+   1716                          #else
+   1717              ADC12MCTL9 = EOS | SREF_1 | INCH_10;    /* Temperature */
+   1718                          #endif
+   1719                      #endif
+   1720                  #endif
+   1721              ADC12CTL0 |= ENC;
+   1722          
+   1723                  #if defined(__MSP430_HAS_TA3__)
+   1724              /* Switch to the normal sampling rate. */
+   1725              TAR = 0;
+   1726              TACCR0 = SAMPLE_PERIOD - 1;
+   1727              TACCR1 = SAMPLE_PERIOD - 3;
+   1728              TACCR2 = SAMPLE_PERIOD - 4;
+   1729              TACCTL0 = CCIE;
+   1730              TACCTL1 = OUTMOD_3;
+   1731              TACTL = TACLR | MC_1 | TASSEL_1;
+   1732              /* Disable the interrupt routine which re-enables the ADC */
+   1733              TACCTL2 = 0;
+   1734                  #endif
+   1735              #endif
+   1736          
+   1737              #if defined(__HAS_SD_ADC__)
+   1738                  #if defined(__MSP430_HAS_TA3__)
+   1739              /* Disable the TIMER_A0 interrupt */
+   1740              TACTL = 0;
+   1741              TACCTL0 = 0;
+   1742                  #endif
+   1743              _DINT();
+   1744              init_analog_front_end_normal();
+   1745              #endif
+   1746          
+   1747              samples_per_second = SAMPLES_PER_10_SECONDS/10;
+   1748          
+   1749              _EINT();
+   1750          
+   1751              #if defined(IEC62056_21_SUPPORT)
+   1752              /* Configure the USART and 38kHz output bits */
+   1753              P2SEL |= (BIT5 | BIT4 | BIT3);
+   1754              P2DIR |= (BIT4 | BIT3);
+   1755          
+   1756              /* Configure the bit that powers the 38kHz receiver */
+   1757              P1DIR |= (BIT5);
+   1758              P1OUT |= (BIT5);
+   1759          
+   1760                  #if defined(INFRA_RED_38K_FROM_TIMER_A)
+   1761              /* Program TA0 to output a 38kHz clock, based on the core frequency */
+   1762              TAR = 0;
+   1763              TACCR0 = IR_38K_DIVISOR - 1;        /* Load period register */
+   1764              TACCTL0 = OUTMOD_4;                 /* Set outmode 4 for toggle */
+   1765              TACTL = TACLR | MC_1 | TASSEL_2;    /* Start TIMER_B up mode, SMCLK as input clock */
+   1766                  #endif
+   1767                  #if defined(INFRA_RED_38K_FROM_TIMER_B)
+   1768              /* Program TB2 to output a 38kHz clock, based on the core frequency */
+   1769              TBR = 0;
+   1770              TBCCR0 = IR_38K_DIVISOR - 1;        /* Load period register */
+   1771              TBCCR2 = IR_38K_DIVISOR - 10;
+   1772              TBCCTL2 = OUTMOD_4;                 /* Set outmode 4 for toggle */
+   1773              TBCTL = TBCLR | MC_1 | TBSSEL_2;    /* Start TIMER_B up mode, SMCLK as input clock */
+   1774                  #endif
+   1775              #endif
+   1776          
+   1777              #if defined(PWM_DITHERING_SUPPORT)
+   1778              /* Enable dithering, by enabling Timer B */
+   1779              TBR = 0;
+   1780              TBCTL = TBCLR | MC_1 | TBSSEL_2;
+   1781              #endif
+   1782          
+   1783              #if defined(DAC12_DITHERING_SUPPORT)
+   1784              DAC12_0CTL &= ~ENC;
+   1785              DAC12_1CTL &= ~ENC;
+   1786              DAC12_0CTL =
+   1787              DAC12_1CTL = DAC12CALON | DAC12IR | DAC12AMP_7 | DAC12LSEL_2;
+   1788              DAC12_0CTL |= ENC;
+   1789              DAC12_1CTL |= ENC;
+   1790              DAC12_0DAT = 0x800;
+   1791              DAC12_1DAT = 0;
+   1792              #endif
+   1793          
+   1794              #if defined(IEC1107_SUPPORT)
+   1795              enable_ir_receiver();
+   1796              #endif
+   1797          
+   1798              operating_mode = OPERATING_MODE_NORMAL;
+   1799          }
+   1800          
+   1801              #if defined(LIMP_MODE_SUPPORT)
+   1802          void switch_to_limp_mode(void)
+   1803          {
+   1804              /* Switch to minimum consumption, current measurement only mode */
+   1805          
+   1806              meter_status &= ~(STATUS_REVERSED | STATUS_PHASE_VOLTAGE_OK);
+   1807              clr_normal_indicator();
+   1808              clr_reverse_current_indicator();
+   1809          
+   1810                  #if defined(__MSP430_HAS_ADC12__)
+   1811              /* Change the ADC reference to Vcc */
+   1812              _DINT();
+   1813          
+   1814              /* Must disable conversion while reprogramming the ADC */
+   1815              ADC12CTL0 &= ~ENC;
+   1816          
+   1817              /* Turn the Vref off and ADC on */
+   1818              ADC12CTL0 = MSC | REF2_5V | ADC12ON | SHT0_2 | SHT1_2;
+   1819          
+   1820                      #if defined(SINGLE_PHASE)
+   1821              ADC12MCTL0 = SREF_0 | AGND_INPUT;
+   1822              ADC12MCTL1 = SREF_0 | NEUTRAL_CURRENT_INPUT;
+   1823              ADC12MCTL2 = SREF_0 | AGND_INPUT;
+   1824              ADC12MCTL3 = SREF_0 | LIVE_CURRENT_INPUT;
+   1825              ADC12MCTL4 = SREF_0 | AGND_INPUT;
+   1826                          #if defined(BATTERY_MONITOR_SUPPORT)
+   1827              ADC12MCTL5 = SREF_0 | VOLTAGE_INPUT;
+   1828              ADC12MCTL6 = EOS | SREF_0 | BATTERY_INPUT;
+   1829                          #else
+   1830              ADC12MCTL5 = EOS | SREF_0 | VOLTAGE_INPUT;
+   1831                          #endif
+   1832              /* Skip the temperature, or the reference switches on! */
+   1833                      #else
+   1834              ADC12MCTL0 = SREF_0 | LIVE_CURRENT_INPUT_1;
+   1835              ADC12MCTL1 = SREF_0 | AGND_INPUT;
+   1836              ADC12MCTL2 = SREF_0 | VOLTAGE_INPUT_1;
+   1837              ADC12MCTL3 = SREF_0 | LIVE_CURRENT_INPUT_2;
+   1838              ADC12MCTL4 = SREF_0 | AGND_INPUT;
+   1839              ADC12MCTL5 = SREF_0 | VOLTAGE_INPUT_2;
+   1840              ADC12MCTL6 = SREF_0 | LIVE_CURRENT_INPUT_3;
+   1841              ADC12MCTL7 = SREF_0 | AGND_INPUT;
+   1842                          #if defined(NEUTRAL_CURRENT_INPUT)
+   1843              ADC12MCTL8 = SREF_0 | VOLTAGE_INPUT_3;
+   1844              ADC12MCTL9 = EOS | SREF_0 | NEUTRAL_CURRENT_INPUT;
+   1845                          #else
+   1846              ADC12MCTL8 = EOS | SREF_0 | VOLTAGE_INPUT_3;
+   1847                          #endif
+   1848              /* Skip the temperature, or the reference switches on! */
+   1849                      #endif
+   1850              ADC12CTL0 |= ENC;
+   1851          
+   1852                      #if defined(__MSP430_HAS_TA3__)
+   1853              /* Switch to a lower sampling rate. */
+   1854              TAR = 0;
+   1855              TACCR0 = (SAMPLE_PERIOD*LIMP_SAMPLING_RATIO) - 1;
+   1856              TACCR1 = (SAMPLE_PERIOD*LIMP_SAMPLING_RATIO) - 3;
+   1857              TACCR2 = (SAMPLE_PERIOD*LIMP_SAMPLING_RATIO) - 4;
+   1858              TACCTL0 = CCIE;
+   1859              TACCTL1 = OUTMOD_3;
+   1860              TACTL = TACLR | MC_1 | TASSEL_1;
+   1861              /* Enable the interrupt routine which re-enables the ADC */
+   1862              TACCTL2 = CCIE;
+   1863                      #endif
+   1864                  #endif
+   1865          
+   1866                  #if defined(__HAS_SD_ADC__)
+   1867                      #if defined(__MSP430_HAS_TA3__)
+   1868              /* Enable the TIMER_A0 interrupt */
+   1869              TACTL = TACLR | MC_1 | TASSEL_1;
+   1870              TACCTL0 = CCIE;
+   1871                      #endif
+   1872              _DINT();
+   1873              init_analog_front_end_limp();
+   1874                  #endif
+   1875          
+   1876              samples_per_second = LIMP_SAMPLES_PER_10_SECONDS/10;
+   1877          
+   1878                  #if defined(IEC1107_SUPPORT)
+   1879              disable_ir_receiver();
+   1880                  #endif
+   1881          
+   1882              _EINT();
+   1883          
+   1884                  #if defined(PWM_DITHERING_SUPPORT)
+   1885              /* Disable dithering, by disabling Timer B */
+   1886              TBCTL = TBCLR | TBSSEL_2;
+   1887                  #endif
+   1888              operating_mode = OPERATING_MODE_LIMP;
+   1889          }
+   1890              #endif
+   1891          
+   1892              #if defined(POWER_DOWN_SUPPORT)
+   1893          void switch_to_powerfail_mode(void)
+   1894          {
+   1895              operating_mode = OPERATING_MODE_POWERFAIL;
+   1896          
+   1897              /* Note that a power down occured */
+   1898              meter_status |= POWER_DOWN;
+   1899          
+   1900              /* Turn off all the LEDs. */
+   1901              meter_status &= ~(STATUS_REVERSED | STATUS_EARTHED | STATUS_PHASE_VOLTAGE_OK);
+   1902              clr_normal_indicator();
+   1903              clr_reverse_current_indicator();
+   1904              clr_earthed_indicator();
+   1905                  #if defined(total_active_energy_pulse_end)
+   1906              total_active_energy_pulse_end();
+   1907                  #endif
+   1908                  #if defined(total_reactive_energy_pulse_end)
+   1909              total_reactive_energy_pulse_end();
+   1910                  #endif
+   1911          
+   1912              /* Make the EEPROM signals inputs, and rely on pullups. */
+   1913              disable_eeprom_port();
+   1914          
+   1915              /* Shut down the LCD */
+   1916              custom_lcd_sleep_handler();
+   1917          
+   1918                  #if defined(__MSP430_HAS_TA3__)  &&  (defined(__MSP430_HAS_ADC12__)  ||  defined(__MSP430_SD_ADC__))
+   1919              /* Disable the TIMER_A0 interrupt */
+   1920              TACTL = 0;
+   1921              TACCTL0 = 0;
+   1922              /* Disable the interrupt routine which re-enables the ADC */
+   1923              TACCTL2 = 0;
+   1924                  #endif
+   1925          
+   1926                  #if defined(__MSP430_HAS_ADC12__)
+   1927              /* Now the interrupts have stopped it should be safe to power
+   1928                 down the ADC. */
+   1929              ADC12CTL0 &= ~ENC;
+   1930              ADC12CTL0 &= ~(REFON | REF2_5V | ADC12ON);
+   1931                  #endif
+   1932                  #if defined(__HAS_SD_ADC__)
+   1933              disable_analog_front_end();
+   1934                  #endif
+   1935                  #if defined(PWM_DITHERING_SUPPORT)
+   1936              /* Disable dithering, by disabling Timer B */
+   1937              TBCTL = TBCLR | TBSSEL_2;
+   1938                  #endif
+   1939                  #if defined(IEC1107_SUPPORT)  ||  defined(SERIAL_CALIBRATION_SUPPORT)  ||  defined(SERIAL_CALIBRATION_REF_SUPPORT)
+   1940              /* Disable the serial port. */
+   1941                  #if defined(__MSP430_HAS_UART0__)
+   1942              U0ME &= ~(UTXE0 | URXE0);
+   1943                  #elif defined(__MSP430_HAS_USCI_AB0__)
+   1944                  #elif defined(__MSP430_HAS_USCI_A0__)
+   1945                  #elif defined(__MSP430_HAS_EUSCI_A0__)
+   1946                  #endif
+   1947                      #if defined(IEC1107_SUPPORT)
+   1948              disable_ir_receiver();
+   1949                      #endif
+   1950                  #endif
+   1951          
+   1952                  #if defined(BATTERY_MONITOR_SUPPORT)
+   1953              /* Battery sensing control pin */
+   1954              P3DIR &= ~(BIT1);
+   1955              P3OUT |= (BIT1);
+   1956                  #endif
+   1957          
+   1958                  #if defined(__MSP430_HAS_FLLPLUS__)  ||  defined(__MSP430_HAS_FLLPLUS_SMALL__)
+   1959              /* Slow the clock to 1MHz as quickly as possible. The FLL will not be active
+   1960                 in LPM3, so switch it off now, and force the FLL's RC oscillator to
+   1961                 about 1MHz. The exact frequency is not critical. */
+   1962              _BIS_SR(SCG0);                  /* switch off FLL locking */
+   1963              SCFI0 = FLLD_1;
+   1964              SCFQCTL = SCFI0_LOW | SCFQ_M;
+   1965              SCFI0 = 0x0;
+   1966              SCFI1 = 0x37;
+   1967                  #endif
+   1968                  #if defined(__MSP430_HAS_SVS__)
+   1969              /* At 1MHz it is safe to turn off the SVS, and rely on the brownout
+   1970                 detector. Now the meter can survive on a very weak battery. */
+   1971              SVSCTL = 0;
+   1972                  #endif
+   1973              custom_power_fail_handler();
+   1974          
+   1975              /* ******************** LOW POWER STATE ************************** */
+   1976              /* Go to LPM3 mode and exit only when power comes back on. The timer
+   1977                 interrupt that ticks every second should be checking for power
+   1978                 restored while we sit here. When it sees the unregulated supply
+   1979                 at a healthy voltage, it will wake us up. */
+   1980              _BIS_SR(LPM3_bits);
+   1981          
+   1982              /* Waking up from power down mode */
+   1983                  #if defined(__MSP430_HAS_SVS__)
+   1984              /* Before we go to high speed we need to make sure the supply voltage is
+   1985                 adequate. If there is an SVS we can use that. There should be no wait
+   1986                 at this point, since we should only have been woken up if the supply
+   1987                 is healthy. However, it seems better to be cautious. */
+   1988              SVSCTL |= (SVSON | 0x60);
+   1989              /* Wait for adequate voltage to run at full speed */
+   1990              while ((SVSCTL & SVSOP))
+   1991                  /* dummy loop */;
+   1992              /* The voltage should now be OK to run the CPU at full speed. Now it should
+   1993                 be OK to use the SVS as a reset source. */
+   1994              SVSCTL |= PORON;
+   1995                  #endif
+   1996          
+   1997                  #if defined(__MSP430_HAS_FLLPLUS__)  ||  defined(__MSP430_HAS_FLLPLUS_SMALL__)
+   1998              /* Speed up the clock to high speed. */
+   1999              SCFI0 = FN_3 | FLLD_4;
+   2000              SCFQCTL = SCFQCTL_HIGH;
+   2001              /* There seems no good reason to wait until the FLL has settled at this point. */
+   2002                  #endif
+   2003          
+   2004              /* Take control of the EEPROM signals again. */
+   2005              enable_eeprom_port();
+   2006          
+   2007              /* Enable the serial port */
+   2008                  #if defined(IEC1107_SUPPORT)  ||  defined(SERIAL_CALIBRATION_SUPPORT)  ||  defined(SERIAL_CALIBRATION_REF_SUPPORT)
+   2009                  #if defined(__MSP430_HAS_UART0__)
+   2010                      #if defined(SERIAL_CALIBRATION_REF_SUPPORT)
+   2011              U0ME |= (UTXE0 | URXE0);
+   2012                      #elif defined(SERIAL_CALIBRATION_SUPPORT)
+   2013              U0ME |= URXE0;
+   2014                      #else
+   2015              U0ME |= UTXE0;
+   2016                      #endif
+   2017                  #elif defined(__MSP430_HAS_USCI_AB0__)
+   2018                  #elif defined(__MSP430_HAS_USCI_A0__)
+   2019                  #elif defined(__MSP430_HAS_EUSCI_A0__)
+   2020                  #endif
+   2021                  #endif
+   2022          
+   2023                  #if defined(__MSP430_HAS_TA3__)  &&  (defined(__MSP430_HAS_ADC12__)  || defined(__HAS_SD_ADC__))
+   2024              /* Enable the TIMER_A0 interrupt */
+   2025              TACTL = TACLR | MC_1 | TASSEL_1;
+   2026              TACCTL0 = CCIE;
+   2027                  #endif
+   2028          
+   2029              kick_watchdog();
+   2030          
+   2031                  #if defined(LOSE_FRACTIONAL_PULSE_AT_POWER_ON)
+   2032                      #if defined(PER_PHASE_ACTIVE_ENERGY_SUPPORT)
+   2033          //    phase->power_counter = 0;
+   2034                      #endif
+   2035                      #if defined(TOTAL_ACTIVE_ENERGY_SUPPORT)
+   2036          //    total_power_counter = 0;
+   2037                          #if TOTAL_ENERGY_PULSES_PER_KW_HOUR < 1000
+   2038              extra_total_power_counter = 0;
+   2039                          #endif
+   2040                      #endif
+   2041                      #if defined(TOTAL_REACTIVE_ENERGY_SUPPORT)
+   2042              total_reactive_power_counter = 0;
+   2043                          #if TOTAL_ENERGY_PULSES_PER_KW_HOUR < 1000
+   2044              extra_total_reactive_power_counter = 0;
+   2045                          #endif
+   2046                      #endif
+   2047                  #endif
+   2048          
+   2049                  #if defined(BATTERY_MONITOR_SUPPORT)
+   2050              if (battery_countdown)
+   2051              {
+   2052                  battery_countdown = 1000;
+   2053                  /* Battery sensing control pin */
+   2054                  P3DIR |= (BIT1);
+   2055                  P3OUT &= ~(BIT1);
+   2056              }
+   2057                  #endif
+   2058              /* Come out of power down in limp mode, as we don't know
+   2059                 if there is sufficent power available to driver the meter
+   2060                 at full speed. We will soon switch to normal mode if a
+   2061                 voltage signal is available. */
+   2062              /* Limp mode will fire up the ADC again. */
+   2063                  #if defined(LIMP_MODE_SUPPORT)
+   2064              switch_to_limp_mode();
+   2065                  #else
+   2066              switch_to_normal_mode();
+   2067                  #endif
+   2068              custom_power_restore_handler();
+   2069          }
+   2070              #endif
+   2071          #else
+   2072          void switch_to_normal_mode(void)
+   2073          {
+   2074          }
+   2075          
+   2076              #if defined(LIMP_MODE_SUPPORT)
+   2077          void switch_to_limp_mode(void)
+   2078          {
+   2079          }
+   2080              #endif
+   2081          
+   2082              #if defined(POWER_DOWN_SUPPORT)
+   2083          void switch_to_powerfail_mode(void)
+   2084          {
+   2085          }
+   2086              #endif
+   2087          #endif
+   2088          
+   2089          #if defined(CORRECTED_RTC_SUPPORT)  &&  defined(__MSP430_HAS_TA3__)
+   2090          int32_t assess_rtc_speed(void)
+   2091          {
+   2092              int32_t period;
+   2093              uint16_t this_capture;
+   2094              uint16_t last_capture;
+   2095              uint16_t step;
+   2096              int32_t counter;
+   2097              int limit;
+   2098          
+   2099              /* The fast clock should be an exact multiple of the crystal clock, once the FLL has
+   2100                  settled. If we capture many cycles of an accurate external 32768Hz clock, using
+   2101                  timer A (or B), we can measure the speed difference between the MSP430's crystal
+   2102                  and the external clock in a reasonable time. */
+   2103              /* The SM clock should be running at 244*32768Hz at this time. */
+   2104              _DINT();
+   2105              /* Change timer A to running fast, and sampling the external 32768Hz reference. */
+   2106              P2SEL |= BIT0;
+   2107              TACCR0 = 0xFFFF;
+   2108              TACCTL0 = CAP | CCIS_0 | CM_1;
+   2109              TACCTL2 = CAP | CCIS_0 | CM_1 | SCS;
+   2110              TACTL = TACLR | MC_2 | TASSEL_2;    /* start TIMER_A up mode, SMCLK as input clock */
+   2111              period = 0;
+   2112              last_capture = TACCR2;
+   2113              limit = -1;
+   2114              TACCTL2 &= ~CCIFG;
+   2115              for (counter = 0;  counter < 32768*5 + 1;  counter++)
+   2116              {
+   2117                  limit = 1000;
+   2118                  while (!(TACCTL2 & CCIFG))
+   2119                  {
+   2120                      if (--limit <= 0)
+   2121                          break;
+   2122                  }
+   2123                  if (limit <= 0)
+   2124                      break;
+   2125                  TACCTL2 &= ~CCIFG;
+   2126                  this_capture = TACCR2;
+   2127                  step = this_capture - last_capture;
+   2128                  last_capture = this_capture;
+   2129                  /* Skip the first sample, as it will be meaningless */
+   2130                  if (counter)
+   2131                  {
+   2132              #if 0
+   2133                      if (step < (244 - 5)  ||  step > (244 + 5))
+   2134                      {
+   2135                          limit = -2;
+   2136                          break;
+   2137                      }
+   2138              #endif
+   2139                      period += step;
+   2140                  }
+   2141                  kick_watchdog();
+   2142              }
+   2143              if (limit <= 0)
+   2144                  period = limit;
+   2145              #if defined(__MSP430_HAS_ADC12__)
+   2146              /* Change timer A back to controlling the ADC sampling interval, and the ADC on/off timing. */
+   2147              /* CCR0 determines the sample period */
+   2148              TACCR0 = SAMPLE_PERIOD - 1;
+   2149              TACCR1 = SAMPLE_PERIOD - 3;
+   2150              TACCR2 = SAMPLE_PERIOD - 4;
+   2151              TACCTL1 = OUTMOD_3;
+   2152              #endif
+   2153              TACTL = TACLR | MC_1 | TASSEL_1;
+   2154              TACCTL0 = CCIE;
+   2155              P2SEL &= ~BIT0;
+   2156              _EINT();
+   2157              return  period;
+   2158          }
+   2159          #endif
+   2160          
+   2161          #if !defined(ESP_SUPPORT)
+   2162          int align_hardware_with_calibration_data(void)
+   2163          {
+   2164          #if !defined(SINGLE_PHASE)
+   2165              int ch;
+   2166              static struct phase_parms_s *phase;
+   2167              static struct phase_nv_parms_s const *phase_nv;
+   2168          #endif
+   2169          
+   2170              disable_analog_front_end();
+   2171              init_analog_front_end_normal();
+   2172          
+   2173              #if !defined(SINGLE_PHASE)
+   2174              for (ch = 0;  ch < NUM_PHASES;  ch++)
+   2175              {
+   2176                  phase = &chan[ch];
+   2177                  phase_nv = &nv_parms.seg_a.s.chan[ch];
+   2178              #endif
+   2179              #if defined(__MSP430_HAS_ADC12__)  ||  defined(__MSP430_HAS_ADC10__)
+   2180                  set_phase_correction(&phase->metrology.current.in_phase_correction[0], phase_nv->current.phase_correction[0]);
+   2181                  #if GAIN_STAGES > 1
+   2182                  set_phase_correction(&phase->metrology.current.in_phase_correction[1], phase_nv->current.phase_correction[1]);
+   2183                  #endif
+   2184                  #if defined(SINGLE_PHASE)  &&  defined(NEUTRAL_MONITOR_SUPPORT)
+   2185                  set_phase_correction(&phase->neutral.in_phase_correction[0], nv_parms.seg_a.s.neutral.phase_correction[0]);
+   2186                      #if GAIN_STAGES > 1
+   2187                  set_phase_correction(&phase->neutral.in_phase_correction[1], nv_parms.seg_a.s.neutral.phase_correction[1]);
+   2188                      #endif
+   2189                  #endif
+   2190              #elif !defined(ESP_SUPPORT)
+   2191                  #if defined(SINGLE_PHASE)
+   2192                  set_sd16_phase_correction(&phase->metrology.current.in_phase_correction[0], 0, phase_nv->current.phase_correction[0]);
+   2193                      #if defined(NEUTRAL_MONITOR_SUPPORT)
+   2194                  set_sd16_phase_correction(&phase->metrology.neutral.in_phase_correction[0], 1, nv_parms.seg_a.s.neutral.phase_correction[0]);
+   2195                      #endif
+   2196                  #else
+   2197                  set_sd16_phase_correction(&phase->metrology.current.in_phase_correction[0], ch, phase_nv->current.phase_correction[0]);
+   2198                  #endif
+   2199              #endif
+   2200              #if !defined(SINGLE_PHASE)
+   2201              }
+   2202              #endif
+   2203              return 0;
+   2204          }
+   2205          #endif
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   align_hardware_with_calibration_data
+        4   -> init_analog_front_end_normal
+        4   -> set_sd16_phase_correction
+      4   init_analog_front_end_normal
+      4   switch_to_normal_mode
+        4   -> init_analog_front_end_normal
+      4   system_setup
+        4   -> Init_FLL_Settle
+        4   -> LFXT_Start
+        4   -> SetVCore
+        4   -> check_rtc_sumcheck
+        4   -> dc_filter16_init
+        4   -> dc_filter24_init
+        4   -> init_analog_front_end_normal
+        4   -> set_rtc_sumcheck
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      28  ?Subroutine0
+       2  _A_AUX3CHCTL_L
+       2  _A_AUXCTL0_L
+       2  _A_AUXCTL1_L
+       2  _A_AUXCTL2_L
+       2  _A_LCDCCTL0_L
+       2  _A_LCDCPCTL0_L
+       2  _A_LCDCPCTL1_L
+       2  _A_LCDCPCTL2_L
+       2  _A_LCDCVCTL_L
+       2  _A_P1MAP01_L
+       2  _A_PADIR_L
+       2  _A_PAOUT_L
+       2  _A_PAREN_L
+       2  _A_PASEL_L
+       2  _A_PBDIR_L
+       2  _A_PBOUT_L
+       2  _A_PBREN_L
+       2  _A_PBSEL_L
+       2  _A_PCDIR_L
+       2  _A_PCOUT_L
+       2  _A_PCREN_L
+       2  _A_PCSEL_L
+       2  _A_PDDIR_L
+       2  _A_PDOUT_L
+       2  _A_PDREN_L
+       2  _A_PDSEL_L
+       2  _A_PEDIR_L
+       2  _A_PEOUT_L
+       2  _A_PEREN_L
+       2  _A_PESEL_L
+       2  _A_PJDIR_L
+       2  _A_PJOUT_L
+       2  _A_PJSEL_L
+       2  _A_PMMCTL0_L
+       2  _A_REFCTL0_L
+       2  _A_RTCCTL0_L
+       2  _A_RTCCTL13_L
+       2  _A_RTCDATE_L
+       2  _A_RTCPS0CTL_L
+       2  _A_RTCPS1CTL_L
+       2  _A_RTCTIM0_L
+       2  _A_RTCTIM1_L
+       2  _A_RTCYEAR_L
+       2  _A_SD24BCCTL0_L
+       2  _A_SD24BCCTL2_L
+       2  _A_SD24BCTL0_L
+       2  _A_SD24BCTL1_L
+       2  _A_SD24BIE_L
+       2  _A_SD24BINCTL0_L
+       2  _A_SD24BINCTL2_L
+       2  _A_SD24BOSR0_L
+       2  _A_SD24BOSR2_L
+       2  _A_SD24BPRE0_L
+       2  _A_SD24BPRE2_L
+       2  _A_SVSMHCTL_L
+       2  _A_UCA1BRW_L
+       2  _A_UCA1CTLW0_L
+       2  _A_UCA1IE_L
+       2  _A_UCA1MCTLW_L
+       2  _A_UCA2BRW_L
+       2  _A_UCA2CTLW0_L
+       2  _A_UCA2MCTLW_L
+       2  _A_WDTCTL_L
+      56  align_hardware_with_calibration_data
+      72  init_analog_front_end_normal
+       0  switch_to_normal_mode
+     612  system_setup
+
+ 
+ 768 bytes in segment CODE
+ 126 bytes in segment DATA16_AN
+ 
+ 768 bytes of CODE memory
+   0 bytes of DATA memory (+ 126 bytes shared)
+
+Errors: none
+Warnings: none

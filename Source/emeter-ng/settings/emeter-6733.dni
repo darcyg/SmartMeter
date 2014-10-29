@@ -1,0 +1,122 @@
+[CodeCoverage]
+Enabled=_ 0
+[State Storage]
+Control Register=0
+[Sequencer]
+Control Register=0
+NextState0=0
+NextState1=0
+[Action Register]
+Break=0
+State Storage=0
+[DebugChecksum]
+Checksum=-1158130160
+[DisAssemblyWindow]
+NumStates=_ 1
+State 1=_ 1
+[InstructionProfiling]
+Enabled=_ 0
+[Profiling]
+Enabled=0
+[StackPlugin]
+Enabled=1
+OverflowWarningsEnabled=1
+WarningThreshold=90
+SpWarningsEnabled=1
+WarnHow=0
+UseTrigger=1
+TriggerName=main
+LimitSize=0
+ByteLimit=50
+[Interrupts]
+Enabled=1
+[MemoryMap]
+Enabled=0
+Base=0
+UseAuto=0
+TypeViolation=1
+UnspecRange=1
+ActionState=1
+[TraceHelper]
+Enabled=0
+ShowSource=1
+[BreakpointUsageDialog]
+Placement=_ 582 429 1019 707
+[Stack]
+FillEnabled=0
+OverflowWarningsEnabled=1
+WarningThreshold=90
+SpWarningsEnabled=1
+WarnLogOnly=1
+UseTrigger=1
+TriggerName=main
+LimitSize=0
+ByteLimit=50
+[CallStack]
+ShowArgs=0
+[Disassembly]
+MixedMode=1
+[EEM State Storage]
+Buffer=BAAAAAAAAAAAAAAAAAAAAAAA
+[Log file]
+LoggingEnabled=_ 0
+LogFile=_ ""
+Category=_ 0
+[TermIOLog]
+LoggingEnabled=_ 0
+LogFile=_ ""
+[CallStackLog]
+Enabled=0
+[DriverProfiling]
+Enabled=0
+Mode=0
+Graph=0
+Symbiont=0
+Exclusions=
+[NumberOfSequencerBp]
+Number=4
+[Breakpoints]
+Bp0=_ "STD_CODE" "{$PROJ_DIR$\emeter-dlt645.c}.843.13@1" 0 0 0 0 "" 0 ""
+Bp1=_ "STD_CODE" "{$PROJ_DIR$\emeter-dlt645.c}.832.9@1" 0 0 0 0 "" 0 ""
+Bp2=_ "STD_CODE" "{$PROJ_DIR$\emeter-setup.c}.266.47@1" 0 0 0 0 "" 0 ""
+Bp3=_ "STD_CODE" "{$PROJ_DIR$\emeter-setup.c}.464.5" 0 0 0 0 "" 0 ""
+Bp4=_ "STD_CODE" "{$PROJ_DIR$\emeter-background.c}.907.5" 0 0 0 0 "" 0 ""
+Count=5
+[FET]
+Clock mode=6
+Extended Clock mode=5127
+Secure Password=
+Emulation mode=0
+Free running=0
+Shutting Down=3
+[Memory Dump]
+Start address=
+Lenghth=
+Address info=0
+Format=0
+Dump registers=0
+PC=0
+SP=0
+SR=0
+all registers=0
+File name=
+[Aliases]
+A0=_ "C:\Documents and Settings\a0272391\My Documents\F6736_Final\F6733\emeter-toolkit\LCD-module.c" ""
+A1=_ "C:\Documents and Settings\a0272391\My Documents\F6736_Final\F6733\emeter-toolkit\bin2bcd32.s43" ""
+A2=_ "C:\Documents and Settings\a0273533\My Documents\_Smart Metering\F673x_evm\E-Meter_Code_with_AUX\E-Meter_Code_with_AUX\F6733\emeter-toolkit\LCD-module.c" ""
+A3=_ "C:\Documents and Settings\a0273533\My Documents\_Smart Metering\F673x_evm\E-Meter_Code_with_AUX\E-Meter_Code_with_AUX\F6733\emeter-toolkit\accum48.s43" ""
+A4=_ "C:\Documents and Settings\a0273533\My Documents\_Smart Metering\F673x_evm\E-Meter_Code_with_AUX\E-Meter_Code_with_AUX\F6733\emeter-toolkit\flash_clr.c" ""
+A5=_ "C:\Documents and Settings\a0273533\My Documents\_Smart Metering\F673x_evm\E-Meter_Code_with_AUX\E-Meter_Code_with_AUX\F6733\emeter-toolkit\flash_secure.c" ""
+A6=_ "C:\Documents and Settings\a0273533\My Documents\_Smart Metering\F673x_evm\E-Meter_Code_with_AUX\E-Meter_Code_with_AUX\F6733\emeter-toolkit\flash_write_int16.c" ""
+A7=_ "C:\Documents and Settings\a0273533\My Documents\_Smart Metering\F673x_evm\E-Meter_Code_with_AUX\E-Meter_Code_with_AUX\F6733\emeter-toolkit\imul16.s43" ""
+A8=_ "C:\Documents and Settings\a0273533\My Documents\_Smart Metering\F673x_evm\E-Meter_Code_with_AUX\E-Meter_Code_with_AUX\F6733\emeter-toolkit\q1_15_mul.s43" ""
+A9=_ "C:\Documents and Settings\a0273533\My Documents\_Smart Metering\F673x_evm\E-Meter_Code_with_AUX\E-Meter_Code_with_AUX\F6733\emeter-toolkit\q1_15_mulq.s43" ""
+A10=_ "C:\Documents and Settings\a0273533\My Documents\_Smart Metering\F673x_evm\E-Meter_Code_with_AUX\E-Meter_Code_with_AUX\F6733\emeter-toolkit\q1_15_mulr.s43" ""
+A11=_ "C:\Documents and Settings\a0273533\My Documents\_Smart Metering\F673x_evm\E-Meter_Code_with_AUX\E-Meter_Code_with_AUX\F6733\emeter-toolkit\rtc.c" ""
+A12=_ "C:\Documents and Settings\a0273533\My Documents\_Smart Metering\F673x_evm\E-Meter_Code_with_AUX\E-Meter_Code_with_AUX\F6733\emeter-toolkit\shift48.s43" ""
+A13=_ "C:\Tests\E-Meter_Code_with_AUX\E-Meter_Code_with_AUX\F6733\emeter-ng\emeter-background.c" ""
+A14=_ "C:\Tests\E-Meter_Code_with_AUX\E-Meter_Code_with_AUX\F6733\emeter-ng\emeter-basic-display.c" ""
+A15=_ "C:\Tests\E-Meter_Code_with_AUX\E-Meter_Code_with_AUX\F6733\emeter-ng\emeter-main.c" ""
+A16=_ "c:\Documents and Settings\a0196876\Desktop\F6733_Device\E-Meter_Code_with_AUX\F6733\emeter-toolkit\rtc.c" ""
+Count=17
+SuppressDialog=0

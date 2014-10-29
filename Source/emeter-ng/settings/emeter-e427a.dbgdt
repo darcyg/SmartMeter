@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<Project>
+  <Desktop>
+    <Static>
+      <Debug-Log/>
+      <Build>
+        <ColumnWidth0>16</ColumnWidth0>
+        <ColumnWidth1>1158</ColumnWidth1>
+        <ColumnWidth2>309</ColumnWidth2>
+        <ColumnWidth3>77</ColumnWidth3>
+      </Build>
+      <Workspace>
+        <ColumnWidths>
+          
+          
+          
+          
+        <Column0>314</Column0><Column1>27</Column1><Column2>27</Column2><Column3>27</Column3></ColumnWidths>
+      </Workspace>
+      <Disassembly>
+        
+        
+      <PreferedWindows><Position>2</Position><ScreenPosX>0</ScreenPosX><ScreenPosY>0</ScreenPosY><Windows/></PreferedWindows><MixedMode>1</MixedMode><CodeCovShow>0</CodeCovShow></Disassembly>
+    <Find-in-Files><ColumnWidth0>664</ColumnWidth0><ColumnWidth1>94</ColumnWidth1><ColumnWidth2>1138</ColumnWidth2></Find-in-Files><Register/></Static>
+    <Windows>
+      
+      
+      
+    <Wnd1>
+        <Tabs>
+          <Tab>
+            <Identity>TabID-28435-3885</Identity>
+            <TabName>Debug Log</TabName>
+            <Factory>Debug-Log</Factory>
+            <Session/>
+          </Tab>
+          <Tab>
+            <Identity>TabID-27912-3895</Identity>
+            <TabName>Build</TabName>
+            <Factory>Build</Factory>
+            <Session/>
+          </Tab>
+        <Tab><Identity>TabID-19738-20628</Identity><TabName>Find in Files</TabName><Factory>Find-in-Files</Factory><Session/></Tab></Tabs>
+        
+      <SelectedTab>0</SelectedTab></Wnd1><Wnd2>
+        <Tabs>
+          <Tab>
+            <Identity>TabID-6415-3889</Identity>
+            <TabName>Workspace</TabName>
+            <Factory>Workspace</Factory>
+            <Session>
+              
+            <NodeDict><ExpandedNode>emeter-e427a</ExpandedNode><ExpandedNode>emeter-e427a/emeter-esp.c</ExpandedNode></NodeDict></Session>
+          </Tab>
+        </Tabs>
+        
+      <SelectedTab>0</SelectedTab></Wnd2><Wnd5><Tabs><Tab><Identity>TabID-22834-22003</Identity><TabName>Register</TabName><Factory>Register</Factory><Session><REG1>0</REG1><REG2>0</REG2><Group>3</Group><States>6</States><State0>LCDCTL</State0><State1>P1DIR</State1><State2>P1OUT</State2><State3>P2DIR</State3><State4>P2OUT</State4><State5>P2SEL</State5></Session></Tab></Tabs><SelectedTab>0</SelectedTab></Wnd5></Windows>
+    <Editor>
+      
+      
+      
+      
+    <Pane><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\emeter-ng\emeter-dlt645.c</Filename><XPos>0</XPos><YPos>132</YPos><SelStart>5966</SelStart><SelEnd>6061</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\emeter-ng\emeter-basic-display.c</Filename><XPos>0</XPos><YPos>381</YPos><SelStart>9060</SelStart><SelEnd>9060</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\emeter-ng\emeter-communication.h</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\calibrator\calibration-config.xml</Filename><XPos>0</XPos><YPos>247</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\emeter-ng\emeter-esp.c</Filename><XPos>0</XPos><YPos>93</YPos><SelStart>3786</SelStart><SelEnd>3794</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\emeter-ng\emeter-communication.c</Filename><XPos>0</XPos><YPos>278</YPos><SelStart>11841</SelStart><SelEnd>11841</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\emeter-ng\emeter-1ph-esp-bare-bones.h</Filename><XPos>0</XPos><YPos>79</YPos><SelStart>4895</SelStart><SelEnd>4895</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>C:\Program Files\IAR Systems\Embedded Workbench 5.0\430\inc\msp430xE42x.h</Filename><XPos>0</XPos><YPos>444</YPos><SelStart>22462</SelStart><SelEnd>22462</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\emeter-ng\emeter-main.c</Filename><XPos>0</XPos><YPos>384</YPos><SelStart>12417</SelStart><SelEnd>12417</SelEnd></Tab><ActiveTab>8</ActiveTab><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\emeter-ng\emeter-esp-clean.c</Filename><XPos>0</XPos><YPos>596</YPos><SelStart>20726</SelStart><SelEnd>20754</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\emeter-ng\emeter-main-clean.c</Filename><XPos>0</XPos><YPos>306</YPos><SelStart>12369</SelStart><SelEnd>12369</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>C:\MSP430\FET_examples\emeters\emeter-ng\emeter-structs.h</Filename><XPos>0</XPos><YPos>308</YPos><SelStart>27624</SelStart><SelEnd>27655</SelEnd></Tab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
+    <Positions>
+      
+      
+      
+      
+      
+    <Top><Row0><Sizes><Toolbar-01a58628><key>iaridepm.enu1</key></Toolbar-01a58628></Sizes></Row0><Row1><Sizes><Toolbar-04352de8><key>debuggergui.enu1</key></Toolbar-04352de8></Sizes></Row1><Row2><Sizes><Toolbar-0433ff90><key>430fet1</key></Toolbar-0433ff90></Sizes></Row2><Row3><Sizes/></Row3><Row4><Sizes/></Row4><Row5><Sizes/></Row5><Row6><Sizes/></Row6><Row7><Sizes/></Row7><Row8><Sizes/></Row8><Row9><Sizes/></Row9></Top><Left><Row0><Sizes><Wnd2><Rect><Top>-2</Top><Left>-2</Left><Bottom>830</Bottom><Right>388</Right><x>-2</x><y>-2</y><xscreen>240</xscreen><yscreen>200</yscreen><sizeHorzCX>125000</sizeHorzCX><sizeHorzCY>178571</sizeHorzCY><sizeVertCX>203125</sizeVertCX><sizeVertCY>742857</sizeVertCY></Rect></Wnd2></Sizes></Row0></Left><Right><Row0><Sizes><Wnd5><Rect><Top>-2</Top><Left>-2</Left><Bottom>830</Bottom><Right>716</Right><x>-2</x><y>-2</y><xscreen>200</xscreen><yscreen>200</yscreen><sizeHorzCX>104167</sizeHorzCX><sizeHorzCY>178571</sizeHorzCY><sizeVertCX>373958</sizeVertCX><sizeVertCY>742857</sizeVertCY></Rect></Wnd5></Sizes></Row0></Right><Bottom><Row0><Sizes><Wnd1><Rect><Top>-2</Top><Left>-2</Left><Bottom>198</Bottom><Right>1922</Right><x>-2</x><y>-2</y><xscreen>1924</xscreen><yscreen>200</yscreen><sizeHorzCX>1002083</sizeHorzCX><sizeHorzCY>178571</sizeHorzCY><sizeVertCX>125000</sizeVertCX><sizeVertCY>178571</sizeVertCY></Rect></Wnd1></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
+  </Desktop>
+</Project>
+
+
