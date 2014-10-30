@@ -10,7 +10,7 @@ NextState1=0
 Break=0
 State Storage=0
 [DebugChecksum]
-Checksum=-1158130160
+Checksum=1158868143
 [DisAssemblyWindow]
 NumStates=_ 1
 State 1=_ 1
@@ -58,13 +58,6 @@ ShowArgs=0
 MixedMode=1
 [EEM State Storage]
 Buffer=BAAAAAAAAAAAAAAAAAAAAAAA
-[Log file]
-LoggingEnabled=_ 0
-LogFile=_ ""
-Category=_ 0
-[TermIOLog]
-LoggingEnabled=_ 0
-LogFile=_ ""
 [CallStackLog]
 Enabled=0
 [DriverProfiling]
@@ -75,17 +68,50 @@ Symbiont=0
 Exclusions=
 [NumberOfSequencerBp]
 Number=4
+[EEM Sequencer]
+Buffer=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+[PowerLog]
+LogEnabled=0
+GraphEnabled=0
+ShowTimeLog=1
+ShowTimeSum=0
+Title_0=Energy
+Symbol_0=0 4 1
+Title_1=Voltage
+Symbol_1=0 4 1
+Title_2=Current
+Symbol_2=0 4 1
+LiveEnabled=0
+LiveFile=PowerLogLive.log
+[Log file]
+LoggingEnabled=_ 0
+LogFile=_ ""
+Category=_ 0
+[TermIOLog]
+LoggingEnabled=_ 0
+LogFile=_ ""
+[PowerProbe]
+Frequency=10000
+Probe0=Current
+ProbeSetup0=0 1 1 2 0 0
+Probe1=Voltage
+ProbeSetup1=1 1 1 4 0 0
+Probe2=Energy
+ProbeSetup2=4 1 1 10 0 0
 [Breakpoints]
 Bp0=_ "STD_CODE" "{$PROJ_DIR$\emeter-dlt645.c}.843.13@1" 0 0 0 0 "" 0 ""
 Bp1=_ "STD_CODE" "{$PROJ_DIR$\emeter-dlt645.c}.832.9@1" 0 0 0 0 "" 0 ""
 Bp2=_ "STD_CODE" "{$PROJ_DIR$\emeter-setup.c}.266.47@1" 0 0 0 0 "" 0 ""
 Bp3=_ "STD_CODE" "{$PROJ_DIR$\emeter-setup.c}.464.5" 0 0 0 0 "" 0 ""
 Bp4=_ "STD_CODE" "{$PROJ_DIR$\emeter-background.c}.907.5" 0 0 0 0 "" 0 ""
-Count=5
+Bp5=_ "STD_CODE" "{$PROJ_DIR$\emeter-main.c}.561.19" 1 0 0 0 "" 0 ""
+Count=6
 [FET]
-Clock mode=6
+Clock mode=46
 Extended Clock mode=5127
 Secure Password=
+Extended Clock Control Enable=1
+Advanced Extended Clock Control=0
 Emulation mode=0
 Free running=0
 Shutting Down=3

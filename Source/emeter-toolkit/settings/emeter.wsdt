@@ -25,9 +25,20 @@
         <ColumnWidth2>261</ColumnWidth2>
         <ColumnWidth3>65</ColumnWidth3>
       </Build>
+      <Debug-Log>
+        <ColumnWidth0>20</ColumnWidth0>
+        <ColumnWidth1>1307</ColumnWidth1>
+      </Debug-Log>
+      <TerminalIO/>
+      <Find-in-Files>
+        <ColumnWidth0>403</ColumnWidth0>
+        <ColumnWidth1>67</ColumnWidth1>
+        <ColumnWidth2>604</ColumnWidth2>
+        <ColumnWidth3>268</ColumnWidth3>
+      </Find-in-Files>
     </Static>
     <Windows>
-      <Wnd0>
+      <Wnd2>
         <Tabs>
           <Tab>
             <Identity>TabID-12339-7214</Identity>
@@ -42,8 +53,8 @@
           </Tab>
         </Tabs>
         <SelectedTab>0</SelectedTab>
-      </Wnd0>
-      <Wnd1>
+      </Wnd2>
+      <Wnd3>
         <Tabs>
           <Tab>
             <Identity>TabID-7137-1972</Identity>
@@ -51,9 +62,21 @@
             <Factory>Build</Factory>
             <Session/>
           </Tab>
+          <Tab>
+            <Identity>TabID-18680-5440</Identity>
+            <TabName>Debug Log</TabName>
+            <Factory>Debug-Log</Factory>
+            <Session/>
+          </Tab>
+          <Tab>
+            <Identity>TabID-2433-7177</Identity>
+            <TabName>Find in Files</TabName>
+            <Factory>Find-in-Files</Factory>
+            <Session/>
+          </Tab>
         </Tabs>
         <SelectedTab>0</SelectedTab>
-      </Wnd1>
+      </Wnd3>
     </Windows>
     <Editor>
       <Pane>
@@ -61,7 +84,43 @@
           <Factory>TextEditor</Factory>
           <Filename>C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.0\430\doc\infocenter\index.ENU.html</Filename>
         </Tab>
-        <ActiveTab>0</ActiveTab>
+        <Tab>
+          <Factory>TextEditor</Factory>
+          <Filename>$WS_DIR$\..\emeter-ng\emeter-main.c</Filename>
+          <XPos>0</XPos>
+          <YPos>0</YPos>
+          <SelStart>0</SelStart>
+          <SelEnd>0</SelEnd>
+          <XPos2>0</XPos2>
+          <YPos2>550</YPos2>
+          <SelStart2>18617</SelStart2>
+          <SelEnd2>18617</SelEnd2>
+        </Tab>
+        <ActiveTab>1</ActiveTab>
+        <Tab>
+          <Factory>TextEditor</Factory>
+          <Filename>$WS_DIR$\..\emeter-ng\emeter-communication.c</Filename>
+          <XPos>0</XPos>
+          <YPos>0</YPos>
+          <SelStart>0</SelStart>
+          <SelEnd>0</SelEnd>
+          <XPos2>0</XPos2>
+          <YPos2>621</YPos2>
+          <SelStart2>19976</SelStart2>
+          <SelEnd2>19976</SelEnd2>
+        </Tab>
+        <Tab>
+          <Factory>TextEditor</Factory>
+          <Filename>C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.0\430\inc\msp430f6736.h</Filename>
+          <XPos>0</XPos>
+          <YPos>0</YPos>
+          <SelStart>0</SelStart>
+          <SelEnd>0</SelEnd>
+          <XPos2>0</XPos2>
+          <YPos2>4802</YPos2>
+          <SelStart2>291730</SelStart2>
+          <SelEnd2>291739</SelEnd2>
+        </Tab>
       </Pane>
       <ActivePane>0</ActivePane>
       <Sizes>
@@ -81,11 +140,53 @@
             </Toolbar-00382228>
           </Sizes>
         </Row0>
+        <Row1>
+          <Sizes/>
+        </Row1>
+        <Row2>
+          <Sizes/>
+        </Row2>
+        <Row3>
+          <Sizes/>
+        </Row3>
+        <Row4>
+          <Sizes/>
+        </Row4>
+        <Row5>
+          <Sizes/>
+        </Row5>
+        <Row6>
+          <Sizes/>
+        </Row6>
+        <Row7>
+          <Sizes/>
+        </Row7>
+        <Row8>
+          <Sizes/>
+        </Row8>
+        <Row9>
+          <Sizes/>
+        </Row9>
+        <Row10>
+          <Sizes/>
+        </Row10>
+        <Row11>
+          <Sizes/>
+        </Row11>
+        <Row12>
+          <Sizes/>
+        </Row12>
+        <Row13>
+          <Sizes/>
+        </Row13>
+        <Row14>
+          <Sizes/>
+        </Row14>
       </Top>
       <Left>
         <Row0>
           <Sizes>
-            <Wnd0>
+            <Wnd2>
               <Rect>
                 <Top>-2</Top>
                 <Left>-2</Left>
@@ -100,7 +201,7 @@
                 <sizeVertCX>248902</sizeVertCX>
                 <sizeVertCY>653736</sizeVertCY>
               </Rect>
-            </Wnd0>
+            </Wnd2>
           </Sizes>
         </Row0>
       </Left>
@@ -112,7 +213,7 @@
       <Bottom>
         <Row0>
           <Sizes>
-            <Wnd1>
+            <Wnd3>
               <Rect>
                 <Top>-2</Top>
                 <Left>-2</Left>
@@ -127,7 +228,7 @@
                 <sizeVertCX>146413</sizeVertCX>
                 <sizeVertCY>287356</sizeVertCY>
               </Rect>
-            </Wnd1>
+            </Wnd3>
           </Sizes>
         </Row0>
       </Bottom>

@@ -2,7 +2,7 @@
 #                                                                              #
 #      IAR Universal Linker V6.0.0.46                                          #
 #                                                                              #
-#           Link time     =  28/Oct/2014  22:48:20                             #
+#           Link time     =  29/Oct/2014  21:28:50                             #
 #           Target CPU    =  MSP430                                            #
 #           List file     =  D:\Documents\GitHub\SmartMeter\Source\emeter-ng\D #
 #                            ebug\List\emeter-6733.map                         #
@@ -2166,16 +2166,16 @@ DATA16_AN
            UCA1MCTLW_L             05E8 
     -------------------------------------------------------------------------
 DATA16_AN
-  Relative segment, address: 0600 - 0601 (0x2 bytes), align: 0
+  Relative segment, address: 0700 - 0701 (0x2 bytes), align: 0
   Segment part 60. ROOT       Intra module refs:   system_setup
            ENTRY                   ADDRESS         REF BY
            =====                   =======         ======
-           _A_UCA2CTLW0_L          0600 
+           _A_UCA2CTLW0_L          0700 
            LOCAL                   ADDRESS         
            =====                   =======         
-           UCA2CTLW0               0600 
-           UCA2CTLW0_H             0601 
-           UCA2CTLW0_L             0600 
+           UCA2CTLW0               0700 
+           UCA2CTLW0_H             0701 
+           UCA2CTLW0_L             0700 
     -------------------------------------------------------------------------
 DATA16_AN
   Relative segment, address: 0606 - 0607 (0x2 bytes), align: 0
@@ -3458,10 +3458,11 @@ DATA16_AN                              0102 - 0103               2   rel    0
                                        05E6 - 05E9               4 
                                        05EC - 05EF               4 
                                        05FA - 05FB               2 
-                                       05FE - 0601               4 
+                                       05FE - 05FF               2 
                                        0606 - 0609               4 
                                        060E - 060F               2 
                                        061C - 061D               2 
+                                       0700 - 0701               2 
                                        0740 - 0743               4 
                                        074A - 074B               2 
                                        0752 - 0753               2 
